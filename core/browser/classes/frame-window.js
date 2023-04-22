@@ -16,26 +16,25 @@ class FrameWindow {
         this.windowType = "frame-window";
         this.resourceLocation = resourceLocation && resourceLocation.trim() !== ""? resourceLocation : path.join(process.cwd(), "views", "blank.html");
         this.defaultOptions = {
-            // width: 2000, 
-            // height: 1200,
-            // minWidth : 960,
-            // minHeight : 777,
             frame : false,
             webPreferences : {
                 nodeIntegration : true,
                 contextIsolation : false,
             }
         }
-        this.windowOptions = {
-            ...this.defaultOptions,
-            ...windowOptions
-        }
+        this.windowOptions = null;
+        // this.windowOptions = {
+        //     ...this.defaultOptions,
+        //     ...this.getWindowOptions(windowOptions)
+        // };
         this.windowId = getUuid();
         this.loadMethod = this.getLoadMethod();
 
         if(!Array.isArray(global.windowObjects))    {
             global.windowObjects = [];
         }
+
+        this.getWindowOptions(windowOptions);
     }
 
     static windowObjects = [];
@@ -43,6 +42,15 @@ class FrameWindow {
     getLoadMethod()   {
         if(this.resourceLocation)   {
             return fileExists(this.resourceLocation) ? "loadFile" : "loadURL";
+        }
+    }
+
+    getWindowOptions({width, height, paddingTop, paddingBottom, paddingLeft, paddingRight, offset})   {
+
+        // if()
+
+        return {
+            width : options.width,
         }
     }
 
@@ -67,6 +75,10 @@ class FrameWindow {
     }
 
     setWindowObject()   {
+
+        if(!this.windowOptions) {
+            return;
+        }
 
         this.windowObject = new BrowserView(this.windowOptions);
 
