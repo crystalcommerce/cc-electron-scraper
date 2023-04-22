@@ -1,0 +1,32 @@
+{
+  "name": "cc-electorn-scraper",
+  "version": "1.0.0",
+  "description": "A desktop application built with electron-js (powered by nodejs and chromuim browser) that will be mainly used for web-scraping. This application will allow script injection at a modular level. This approach will reduce the memory usage of the chromuim browser instance as there will be a separate process for the main process of the application and the instances of the browser windows that this application will create.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js",
+    "start": "wait-on tcp:4777 && electron ."
+  },
+  "keywords": [
+    "web",
+    "scraper",
+    "data",
+    "scraping",
+    "crystal commerce"
+  ],
+  "author": "Michael Norward Miranda",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "electron": "^24.1.2",
+    "file-saver": "^2.0.5",
+    "jszip": "^3.10.1",
+    "jszip-utils": "^0.1.0",
+    "localforage": "^1.10.0",
+    "mnm-uuid": "^1.0.3",
+    "node-fetch": "^2.6.1",
+    "nodemailer": "^6.9.1",
+    "ordered-uuid": "^1.1.0",
+    "wait-on": "^7.0.1"
+  }
+}
