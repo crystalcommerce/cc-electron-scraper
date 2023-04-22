@@ -45,7 +45,7 @@ class FrameWindow {
         }
     }
 
-    getWindowOptions({width, height, paddingTop, paddingBottom, paddingLeft, paddingRight, offset})   {
+    getWindowOptions(options)   {
 
         // if()
 
