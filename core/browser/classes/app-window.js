@@ -41,8 +41,11 @@ class AppWindow {
     }
 
     addToWindowObjects()    {
-        AppWindow.windowObjects.push(this);
-        global.windowObjects.push(this);
+        let foundWindowObject = AppWindow.windowObjects.find(item => item.windowId === this.windowId);
+        if(!foundWindowObject)  {
+            AppWindow.windowObjects.push(this);
+            global.windowObjects.push(this);
+        }
     }
 
     removeFromWindowObjects()   {
@@ -63,9 +66,10 @@ class AppWindow {
     }
 
     close() {
-        this.windowObject.close();
-        this.windowObject = null;
         this.removeFromWindowObjects();
+        this.windowObject.close();
+
+        this.windowObject = null;
         delete this;
     }
 
