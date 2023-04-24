@@ -8,7 +8,7 @@ module.exports = function (resourceLocation) {
 
     mainAppWindow.initialize();
 
-    mainAppWindow.windowObject.webContents.openDevTools();
+    // mainAppWindow.windowObject.webContents.openDevTools();
 
     mainAppWindow.windowObject.webContents.on("did-finish-load", (e) => {
 
