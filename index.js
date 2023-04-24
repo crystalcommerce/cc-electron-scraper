@@ -42,7 +42,8 @@ app.whenReady().then(() => {
         appWindowObject.windowObject.setSimpleFullScreen(data.state);
     });
 
-
+    // create-frame-window - maybe this has to be automatically created o
+    // update-frame-window
     ipcMain.on("update-frame-window", (e, data) => {
         console.log(data);
     });
