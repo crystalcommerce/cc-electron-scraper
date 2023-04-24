@@ -15,7 +15,11 @@ module.exports = function (resourceLocation) {
         // we add the windowObject to the global and static properties of the class that created them
         mainAppWindow.addToWindowObjects();
         
-        mainAppWindow.windowObject.webContents.send("app-window-id", mainAppWindow.windowId);        
+        mainAppWindow.windowObject.webContents.send("app-window-id", mainAppWindow.windowId);       
+        
+        // invoke main browser frame container once;
+
+        // this will have child browsers either a multi frame browser or a single frame browser...
 
     });
 
