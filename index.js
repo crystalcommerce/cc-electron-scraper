@@ -44,7 +44,7 @@ app.whenReady().then(() => {
 
     // create-frame-window - maybe this has to be automatically created o
     // update-frame-window
-    ipcMain.on("update-frame-window", (e, data) => {
+    ipcMain.on("update-main-frame-window", (e, data) => {
         console.log(data);
     });
 
