@@ -1,4 +1,5 @@
 const AppWindow = require("../classes/app-window");
+const createFrameWindow = require("./create-frame-window");
 
 module.exports = function (resourceLocation) {
     
@@ -8,20 +9,27 @@ module.exports = function (resourceLocation) {
 
     mainAppWindow.initialize();
 
-    // mainAppWindow.windowObject.webContents.openDevTools();
+    mainAppWindow.windowObject.webContents.openDevTools();
 
     mainAppWindow.windowObject.webContents.on("did-finish-load", (e) => {
 
         // we add the windowObject to the global and static properties of the class that created them
         mainAppWindow.addToWindowObjects();
         
-        mainAppWindow.windowObject.webContents.send("app-window-id", mainAppWindow.windowId);       
+        mainAppWindow.windowObject.webContents.send("app-window-details", {
+            AppWindowId : mainAppWindow.windowId,
+            AppWindow : {
+                isOnFullScreen : mainAppWindow.windowObject.isFullScreen(),
+            }
+        });
         
-        // invoke main browser frame container once;
-
-        // this will have child browsers either a multi frame browser or a single frame browser...
-
     });
+
+    mainAppWindow.windowObject.webContents.on("reload", (e) => {
+        console.log('window reloaded');
+    });
+
+    
 
     return mainAppWindow;
 

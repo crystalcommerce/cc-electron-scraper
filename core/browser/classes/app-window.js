@@ -2,6 +2,9 @@ const { BrowserWindow } = require("electron");
 const getUuid = require("mnm-uuid");
 const path = require("path");
 const { fileExists } = require("../../../utilities");
+const createFrameWindow = require("../api/create-frame-window");
+const FrameWindow = require("./frame-window");
+
     
 class AppWindow {
 
@@ -49,8 +52,8 @@ class AppWindow {
     }
 
     removeFromWindowObjects()   {
-        global.windowObjects.filter(item => item.windowId !== this.windowId);
-        AppWindow.windowObjects.filter(item => item.windowId !== this.windowId);
+        global.windowObjects = global.windowObjects.filter(item => item.windowId !== this.windowId);
+        AppWindow.windowObjects = AppWindow.windowObjects.filter(item => item.windowId !== this.windowId);
     }
 
     setWindowObject()   {
@@ -71,6 +74,20 @@ class AppWindow {
 
         this.windowObject = null;
         delete this;
+    }
+
+    static closeActiveWindows(windowId)  {
+
+        let appWindowObjects = AppWindow.windowObjects.filter(item => windowId === item.windowId),
+            frameWindowObjects = FrameWindow.windowObjects.filter(item => windowId === item.parentWindowId);
+
+        appWindowObjects.forEach(item => item.close());
+        frameWindowObjects.forEach(item => item.close());
+
+    }
+
+    createMainFrameWindow(resourceLocation) {
+        return createFrameWindow(this.windowId, resourceLocation);
     }
 
 }
