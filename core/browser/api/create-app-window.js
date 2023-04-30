@@ -25,12 +25,6 @@ module.exports = function (resourceLocation) {
         
     });
 
-    mainAppWindow.windowObject.webContents.on("reload", (e) => {
-        console.log('window reloaded');
-    });
-
-    
-
     return mainAppWindow;
 
 }

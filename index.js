@@ -3,9 +3,14 @@ const path = require("path");
 const createAppWindow = require("./core/browser/api/create-app-window");
 const AppWindow = require("./core/browser/classes/app-window");
 const FrameWindow = require("./core/browser/classes/frame-window");
-const createFrameWindow = require("./core/browser/api/create-frame-window");
+const getFrameWindow = require("./core/browser/events/getFrameWindow");
+const removeReload = require("./config/remove-reload");
 
 const viewsPath = path.join(__dirname, "views", "index.html");
+removeReload();
+let appObject = {
+    ready : true,
+};
 
 app.whenReady().then(() => {
 
@@ -54,62 +59,50 @@ app.whenReady().then(() => {
     // get the assigned frame window
     ipcMain.on("get-frame-window", (e, data) => {
 
-        let frameWindow = FrameWindow.windowObjects.find(item => item.parentWindowId === data.parentWindowId && item.windowId === data.windowId),
-            messageData = null;
+        let interval = setInterval(() => {
+            
+            if(appObject.ready) {
+                clearInterval(interval);
 
-        try {
-
-            if(!data)   {
-                throw Error("No data");
+                getFrameWindow(e, data);
             }
 
-            if(frameWindow) {
-
-                frameWindow.setWindowOptions(data.browserFrameDimensions);
-                frameWindow.setViewedFrame();
-    
-                messageData = {
-                    windowId : frameWindow.windowId,
-                    statusOk : true,
-                    message : "Frame Window was updated..."
-                }
-    
-            } else  {
-    
-                let parentWindowObject = AppWindow.windowObjects.find(item => item.windowId === data.parentWindowId);
-    
-                if(!parentWindowObject)  {
-                    throw Error("No Parent Window Object");
-                }
-
-                frameWindow = createFrameWindow(parentWindowObject, data.windowId, data.browserFrameDimensions);
-    
-                messageData = {
-                    windowId : frameWindow.windowId,
-                    statusOk : true,
-                    message : "Frame Window was created..."
-                }
-
-            }
-
-            e.sender.send("frame-window-details", messageData);
-
-        } catch(err)    {
-            messageData = {
-                statusOk : false,
-                message : err.message,
-            }
-        }
-
-        console.log(data);
-
-        e.sender.send("frame-window-details", messageData);
+        }, 100);
         
     });
 
     ipcMain.on("reload-app-window", (e, data) => {
 
+        appObject.ready = false;
+
         FrameWindow.removeAllWindowObjects(data);
+
+        let interval = setInterval(() => {
+
+            let frameWindows = FrameWindow.windowObjects.filter(item => item.parentWindowId === data);
+
+            if(!frameWindows.length)   {
+                clearInterval(interval);
+                appObject.ready = true;
+                e.sender.send("app-is-ready", {
+                    message : "App was reloaded and is now ready...",
+                });
+            }
+
+        }, 100);
+
+    });
+
+    ipcMain.on("hide-frame-windows", (e, data) => {
+
+        FrameWindow.hideAllFrameWindows(data.windowId);
+        FrameWindow.verifyHiddenFrames(data.windowId, () => {
+            e.sender.send("active-frames-hidden", {
+                message : "all active frames are hidden",
+                AppWindowId : data.windowId,
+                nextPage : data.nextPage
+            });
+        });
 
     });
 

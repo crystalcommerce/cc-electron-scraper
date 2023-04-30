@@ -78,11 +78,11 @@ class AppWindow {
 
     static closeActiveWindows(windowId)  {
 
-        let appWindowObjects = AppWindow.windowObjects.filter(item => windowId === item.windowId),
-            frameWindowObjects = FrameWindow.windowObjects.filter(item => windowId === item.parentWindowId);
+        let appWindowObjects = AppWindow.windowObjects.filter(item => windowId === item.windowId);
+
+        FrameWindow.removeAllWindowObjects(windowId)
 
         appWindowObjects.forEach(item => item.close());
-        frameWindowObjects.forEach(item => item.close());
 
     }
 

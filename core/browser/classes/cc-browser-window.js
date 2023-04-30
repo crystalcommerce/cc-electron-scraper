@@ -2,11 +2,11 @@ const { BrowserView } = require("electron");
 const getUuid = require("mnm-uuid");
 const path = require("path");
 const { fileExists } = require("../../../utilities");
-    
-class FrameWindow {
 
-    constructor(parentWindowObject, windowId, windowOptions = {})    {
 
+class CcBrowserWindow {
+
+    constructor(parentWindowObject, windowId, resourceLocation, windowOptions = {})   {
         if(!parentWindowObject || parentWindowObject.windowType !== "app-window") {
             return;
         }
@@ -15,7 +15,7 @@ class FrameWindow {
         this.parentWindowObject = parentWindowObject;
         this.parentWindowId = parentWindowObject.windowId;
         this.windowType = "frame-window";
-        this.resourceLocation = path.join(process.cwd(), "views", "blank.html");
+        this.resourceLocation = resourceLocation ? resourceLocation : path.join(process.cwd(), "views", "blank.html");
         this.defaultOptions = {
             frame : false,
             webPreferences : {
@@ -30,7 +30,6 @@ class FrameWindow {
         this.windowOptions = {height : 0, width : 0, x : 0, y : 0};
         this.windowId = windowId ? windowId : getUuid();
         this.loadMethod = this.getLoadMethod();
-        this.isHidden = true;
 
         if(!Array.isArray(global.windowObjects))    {
             global.windowObjects = [];
@@ -41,57 +40,10 @@ class FrameWindow {
         }
     }
 
+
+
+
     static windowObjects = [];
-
-    static hideTimeout = null;
-
-    static hideInterval = null;
-
-    static hideAllFrameWindows(windowId = null)    {
-        FrameWindow.windowObjects.forEach(item => {
-            if(windowId && windowId !== item.windowId)    {
-                item.isHidden = true;
-                item.hideWindow();
-            } else  {
-                item.isHidden = true;
-                item.hideWindow();
-            }
-            
-        });
-    }
-
-    static verifyHiddenFrames(windowId, callback)    {
-
-        if(FrameWindow.hideTimeout) {
-            clearTimeout(FrameWindow.hideTimeout);
-        }
-
-        if(FrameWindow.hideInterval)    {
-            clearInterval(FrameWindow.hideInterval);
-        }
-
-        let count= 0;
-
-        FrameWindow.hideInterval = setInterval(() => {
-
-            let shownFrameWindows = FrameWindow.windowObjects.filter(item => !item.isHidden && item.windowId !== windowId);
-            
-            count++;
-
-            if(!shownFrameWindows.length)   {
-
-                clearInterval(FrameWindow.hideInterval);
-
-                FrameWindow.hideTimeout = setTimeout(() => {
-                    callback();
-                    clearTimeout(FrameWindow.hideTimeout);
-                }, 500);
-                
-            }
-
-        }, 10);
-
-    }
 
     getLoadMethod()   {
         if(this.resourceLocation)   {
@@ -125,41 +77,42 @@ class FrameWindow {
         this.windowObject.setBounds(this.windowOptions);
     }
 
-    hideWindow()    {
-        this.windowObject.setBounds({x : 0, y : 0, width : 0, height : 0});
-    }
-
-    showWindow()    {
-        this.windowObject.setBounds(this.windowOptions);
-    }
-
     addToWindowObjects()    {
-        FrameWindow.windowObjects.push(this);
+        CcBrowserWindow.windowObjects.push(this);
         global.windowObjects.push(this);
     }
 
     removeFromWindowObjects()   {
         global.windowObjects = global.windowObjects.filter(item => item.windowId !== this.windowId);
-        FrameWindow.windowObjects = FrameWindow.windowObjects.filter(item => item.windowId !== this.windowId);
+        CcBrowserWindow.windowObjects = CcBrowserWindow.windowObjects.filter(item => item.windowId !== this.windowId);
     }
-
-    
 
     setViewedFrame(prevFrame = false)   {
 
-        this.hideWindow();
-
-        if(!prevFrame)   {
-
-            FrameWindow.hideAllFrameWindows();
-            this.parentWindowObject.windowObject.addBrowserView(this.windowObject);   
+        if(prevFrame)   {
+            
+            if(this.windowOptions.height === 0) {
+                this.parentWindowObject.windowObject.setBrowserView(null);
+                this.setWindowDimensions();
+            }   else    {
+                this.parentWindowObject.windowObject.setBrowserView(this.windowObject);
+                this.setWindowDimensions();
+            }
         } else  {
+            this.parentWindowObject.windowObject.setBrowserView(this.windowObject);
 
-            FrameWindow.hideAllFrameWindows(this.windowId);
-
+            this.setWindowDimensions();
         }
-        
-        FrameWindow.verifyHiddenFrames(this.windowId, this.showWindow.bind(this));
+
+        // if(this.windowOptions.height === 0) {
+
+        //     this.parentWindowObject.windowObject.removeBrowserView(this.windowObject);
+
+        // } else  {
+        //     this.parentWindowObject.windowObject.addBrowserView(this.windowObject);
+            
+        //     this.setWindowDimensions();
+        // }
 
     }
 
@@ -200,16 +153,13 @@ class FrameWindow {
 
     static removeAllWindowObjects(AppWindowId) {
 
-        let frameWindows = FrameWindow.windowObjects.filter(item => item.parentWindowId === AppWindowId);
+        let frameWindows = CcBrowserWindow.windowObjects.filter(item => item.parentWindowId === AppWindowId);
 
         frameWindows.forEach(item => item.close())
 
     }
-    
 
-    // need to add static method for closing active windows... or maybe add it to the close method...
 
 }
-    
-module.exports = FrameWindow;
 
+module.exports = CcBrowserWindow;
