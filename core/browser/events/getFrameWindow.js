@@ -20,7 +20,6 @@ const getFrameWindow = (e, data) => {
             frameWindow.setViewedFrame(true);
 
 
-
             messageData = {
                 windowId : frameWindow.windowId,
                 statusOk : true,

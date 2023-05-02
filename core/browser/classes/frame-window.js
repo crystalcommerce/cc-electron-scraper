@@ -47,36 +47,33 @@ class FrameWindow {
 
     static hideInterval = null;
 
-    static hideAllFrameWindows(windowId = null)    {
-        FrameWindow.windowObjects.forEach(item => {
-            if(windowId && windowId !== item.windowId)    {
-                item.isHidden = true;
-                item.hideWindow();
-            } else  {
-                item.isHidden = true;
-                item.hideWindow();
-            }
-            
+    static processHalted = false;
+
+    static hideAllFrameWindows(parentWindowId = null)    {
+
+        let arr = parentWindowId ? FrameWindow.windowObjects.filter(item => item.parentWindowId === parentWindowId) : FrameWindow.windowObjects;
+
+        arr.forEach(item => {
+            item.hideWindow();
         });
+        
     }
 
-    static verifyHiddenFrames(windowId, callback)    {
+    static verifyHiddenFrames(parentWindowId, callback)    {
 
-        if(FrameWindow.hideTimeout) {
-            clearTimeout(FrameWindow.hideTimeout);
-        }
-
-        if(FrameWindow.hideInterval)    {
-            clearInterval(FrameWindow.hideInterval);
-        }
+        FrameWindow.exitPendingProcesses();
 
         let count= 0;
 
         FrameWindow.hideInterval = setInterval(() => {
 
-            let shownFrameWindows = FrameWindow.windowObjects.filter(item => !item.isHidden && item.windowId !== windowId);
+            let shownFrameWindows = FrameWindow.windowObjects.filter(item => !item.isHidden && item.parentWindowId === parentWindowId);
             
             count++;
+
+            if(FrameWindow.processHalted)   {
+                clearInterval(FrameWindow.hideInterval);
+            }
 
             if(!shownFrameWindows.length)   {
 
@@ -91,6 +88,20 @@ class FrameWindow {
 
         }, 10);
 
+    }
+
+    
+    static exitPendingProcesses() {
+
+        FrameWindow.processHalted = true;
+
+        if(FrameWindow.hideTimeout) {
+            clearTimeout(FrameWindow.hideTimeout);
+        }
+
+        if(FrameWindow.hideInterval)    {
+            clearInterval(FrameWindow.hideInterval);
+        }
     }
 
     getLoadMethod()   {
@@ -126,10 +137,12 @@ class FrameWindow {
     }
 
     hideWindow()    {
+        this.isHidden = true;
         this.windowObject.setBounds({x : 0, y : 0, width : 0, height : 0});
     }
 
     showWindow()    {
+        this.isHidden = false;
         this.windowObject.setBounds(this.windowOptions);
     }
 
@@ -143,23 +156,15 @@ class FrameWindow {
         FrameWindow.windowObjects = FrameWindow.windowObjects.filter(item => item.windowId !== this.windowId);
     }
 
-    
-
     setViewedFrame(prevFrame = false)   {
 
         this.hideWindow();
 
         if(!prevFrame)   {
-
-            FrameWindow.hideAllFrameWindows();
             this.parentWindowObject.windowObject.addBrowserView(this.windowObject);   
-        } else  {
-
-            FrameWindow.hideAllFrameWindows(this.windowId);
-
         }
-        
-        FrameWindow.verifyHiddenFrames(this.windowId, this.showWindow.bind(this));
+        FrameWindow.hideAllFrameWindows(this.parentWindowId);
+        FrameWindow.verifyHiddenFrames(this.parentWindowId, this.showWindow.bind(this));
 
     }
 
@@ -206,8 +211,6 @@ class FrameWindow {
 
     }
     
-
-    // need to add static method for closing active windows... or maybe add it to the close method...
 
 }
     

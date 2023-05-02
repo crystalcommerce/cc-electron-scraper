@@ -6,6 +6,8 @@ const FrameWindow = require("./core/browser/classes/frame-window");
 const getFrameWindow = require("./core/browser/events/getFrameWindow");
 const removeReload = require("./config/remove-reload");
 
+const childProcess = require('child_process');
+
 const viewsPath = path.join(__dirname, "views", "index.html");
 removeReload();
 let appObject = {
@@ -16,8 +18,12 @@ app.whenReady().then(() => {
 
     createAppWindow(viewsPath);
 
-    // new app window;
+    /* APP WINDOW EVENTS */
+
+    // new app;
     ipcMain.on("new-app-instance", () => {
+
+        // childProcess.spawn(process.execPath, [app.getAppPath()], {stdio: 'inherit'});
        
         const appWindowObject = createAppWindow(viewsPath);
 
@@ -55,25 +61,13 @@ app.whenReady().then(() => {
         });
         
     });
-
-    // get the assigned frame window
-    ipcMain.on("get-frame-window", (e, data) => {
-
-        let interval = setInterval(() => {
-            
-            if(appObject.ready) {
-                clearInterval(interval);
-
-                getFrameWindow(e, data);
-            }
-
-        }, 100);
-        
-    });
-
+    
+    // reloading the application
     ipcMain.on("reload-app-window", (e, data) => {
 
         appObject.ready = false;
+
+        FrameWindow.exitPendingProcesses();
 
         FrameWindow.removeAllWindowObjects(data);
 
@@ -87,24 +81,62 @@ app.whenReady().then(() => {
                 e.sender.send("app-is-ready", {
                     message : "App was reloaded and is now ready...",
                 });
+
+                FrameWindow.processHalted = false;
             }
 
         }, 100);
 
     });
 
-    ipcMain.on("hide-frame-windows", (e, data) => {
+    /* FRAME WINDOW EVENTS */
 
-        FrameWindow.hideAllFrameWindows(data.windowId);
-        FrameWindow.verifyHiddenFrames(data.windowId, () => {
+    // get the assigned frame window
+    ipcMain.on("get-frame-window", (e, data) => {
+
+        let interval = setInterval(() => {
+            
+            if(appObject.ready) {
+                clearInterval(interval);
+
+                getFrameWindow(e, data);
+
+            }
+
+        }, 100);
+        
+    });
+
+    // hide frame window event;
+    ipcMain.on("hide-frame-windows", (e, data) => {
+        FrameWindow.hideAllFrameWindows(data.parentWindowId);
+        FrameWindow.verifyHiddenFrames(data.parentWindowId, () => {
             e.sender.send("active-frames-hidden", {
                 message : "all active frames are hidden",
-                AppWindowId : data.windowId,
+                AppWindowId : data.parentWindowId,
                 nextPage : data.nextPage
             });
         });
 
     });
+
+
+
+    /* BROWSER WINDOW EVENTS */
+
+    // create browser;
+
+    // update browser - hide, show, and load url;
+
+    // close browser;
+
+
+
+
+
+
+
+
 
     // sample
     ipcMain.on("renderer-button-click", (e, data) => {
