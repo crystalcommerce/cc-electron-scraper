@@ -36,11 +36,19 @@ window.addEventListener("load", (e) => {
     // modalMask.style.backgroundColor = "#000000ab";
     // document.body.append(modalMask);
 
-    ipcRenderer.send("frame-window-id", {message : "currently getting the frame window id"});
+    // ipcRenderer.send("frame-window-id", {message : "currently getting the frame window id"});
 
-    ipcRenderer.on("frame-window-id", (e, data) => {
-        document.body.innerHTML = `Frame Window ID : ${data}`;
+    // ipcRenderer.on("frame-window-id", (e, data) => {
+    //     document.body.innerHTML = `Frame Window ID : ${data}`;
+    // });
+    console.log("\n\n\n\n");
+    console.log({
+        Application : "ElectronJS Scraper Desktop Application",
+        Browser : "Chromium Browser",
+        message : "This window is controlled by Michael Norward..."
     });
+    console.log("\n\n\n\n");
+
     
 });
 

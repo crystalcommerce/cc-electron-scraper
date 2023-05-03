@@ -1,3 +1,4 @@
+const { BrowserView } = require("electron");
 const createFrameWindow = require("../api/create-frame-window");
 const AppWindow = require("../classes/app-window");
 const FrameWindow = require("../classes/frame-window");
@@ -48,6 +49,7 @@ const getFrameWindow = (e, data) => {
 
     } catch(err)    {
 
+        console.log(err);
         messageData = {
             statusOk : false,
             message : err.message,

@@ -16,6 +16,7 @@ class FrameWindow {
         this.parentWindowId = parentWindowObject.windowId;
         this.windowType = "frame-window";
         this.resourceLocation = path.join(process.cwd(), "views", "blank.html");
+        // this.resourceLocation = "https://youtube.com";
         this.defaultOptions = {
             frame : false,
             webPreferences : {
@@ -173,6 +174,18 @@ class FrameWindow {
         this.windowObject = new BrowserView(this.defaultOptions);
         
         this.setViewedFrame();
+
+        // let newFrame = new BrowserView(this.defaultOptions);
+
+        // console.log(this.windowOptions);
+
+        // this.windowObject.;
+
+        // newFrame.setBounds(this.windowOptions);
+
+        // newFrame.webContents.loadURL("https://google.com");
+
+        
 
     }
 

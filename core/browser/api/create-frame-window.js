@@ -6,7 +6,7 @@ module.exports = function(parentWindowObject, windowId, windowOptions = {}) {
 
     frameWindow.initialize();
 
-    // frameWindow.windowObject.webContents.openDevTools();
+    frameWindow.windowObject.webContents.openDevTools();
 
     frameWindow.addToWindowObjects();
 

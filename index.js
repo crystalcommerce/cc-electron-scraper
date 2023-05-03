@@ -8,6 +8,7 @@ const removeReload = require("./config/remove-reload");
 
 const childProcess = require('child_process');
 
+
 const viewsPath = path.join(__dirname, "views", "index.html");
 removeReload();
 let appObject = {
@@ -125,10 +126,52 @@ app.whenReady().then(() => {
     /* BROWSER WINDOW EVENTS */
 
     // create browser;
+    ipcMain.on("create-browser-window", (e, data) => {
+        
+        // console.log(FrameWindow.windowObjects.find(item => item.windowId === data.payload.parentWindowId));
 
-    // update browser - hide, show, and load url;
+        // console.log(data);
+
+
+        console.log(payload);
+
+        setTimeout(() => {
+            e.sender.send("browser-window-created", {
+                message : "Browser Window has been created",
+                payload : data.payload,
+            });
+        }, 1500);
+
+        // setTimeout(() => {
+        //     e.sender.send("browser-window-created", {});
+        // }, 1500);
+        
+        
+    });
 
     // close browser;
+    ipcMain.on("close-browser-window", (e, data) => {
+        console.log(data.payload);
+        setTimeout(() => {
+            e.sender.send("browser-window-closed", {
+                message : "Browser Window has been closed",
+                payload : data.payload,
+            });
+        }, 1500);
+        
+
+    });
+
+    // update browser - hide, show, and load url;
+    ipcMain.on("set-active-browser-window", (e, data) => {
+        console.log(data.payload);
+        setTimeout(() => {
+            e.sender.send("browser-window-set-active", {
+                message : "Browser Window has been set to active",
+                payload : data.payload,
+            });
+        }, 1500);
+    });
 
 
 
