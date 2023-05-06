@@ -56,17 +56,7 @@ module.exports = function(ipcMain, appObject, viewsPath)  {
 
         appObject.ready = false;
 
-        // CcBrowserWindow.removeAllWindowObjects(data.windowId, null, () => {
-            
-            // setTimeout(() => {
-            //     appObject.ready = true;
-            //     e.sender.send("app-is-ready", {
-            //         message : "App was reloaded and is now ready...",
-            //     });
-            // }, 500);
-        // });
-
-        CcBrowserWindow.removeAllWindowObjects(data.windowId, null, () => {
+        CcBrowserWindow.removeAllWindowObjects(data, null, () => {
             // AppWindow.closeActiveWindows(data.windowId);
             setTimeout(() => {
                 appObject.ready = true;
@@ -78,5 +68,4 @@ module.exports = function(ipcMain, appObject, viewsPath)  {
 
     });
 
-    // ipcMain.on("app-window-dev-tools", () => {})
 }

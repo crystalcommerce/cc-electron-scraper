@@ -13,6 +13,14 @@ class CcBrowserWindow {
         if(!AppWindowId || !componentId || !windowId) {
             return;
         }
+
+        let foundBrowserWindow = CcBrowserWindow.windowObjects.find(item => item.windowId === windowId);
+
+        if(foundBrowserWindow)  {
+            return foundBrowserWindow;
+        }
+
+
         this.windowId = windowId ? windowId : getUuid();
         this.windowObject = null;
         this.parentWindowObject = AppWindow.windowObjects.find(item => item.windowId === AppWindowId);
@@ -60,32 +68,35 @@ class CcBrowserWindow {
     static processHalted = false; // will be used when the app is reloaded
 
     static getFilteredBrowserWindows(parentWindowId, componentId = null)  {
-        return CcBrowserWindow.windowObjects.filter(item => {
-            return componentId ? 
-                item.parentWindowId === parentWindowId && item.componentId === componentId : 
-                item.parentWindowId === parentWindowId;
-        });
+        
+        if(componentId) {
+            return CcBrowserWindow.windowObjects.filter(item => item.parentWindowId === parentWindowId && item.componentId === componentId);
+        } else  {
+            return CcBrowserWindow.windowObjects.filter(item => item.parentWindowId === parentWindowId);
+        }
+    
     }
 
     static getShownBrowserWindows(parentWindowId, componentId = null)    {
-        return CcBrowserWindow.windowObjects.filter(item => {
-            return componentId ? 
-                !item.isHidden && item.parentWindowId === parentWindowId && componentId === item.componentId :
-                !item.isHidden && item.parentWindowId === parentWindowId;
-        });
+
+        if(componentId) {
+            return CcBrowserWindow.windowObjects.filter(item => !item.isHidden && item.parentWindowId === parentWindowId && componentId === item.componentId);
+        } else  {
+            return CcBrowserWindow.windowObjects.filter(item => !item.isHidden && item.parentWindowId === parentWindowId);
+        }
+        
+
     }   
 
     static hideAllBrowserWindows(parentWindowId, componentId = null)    {
+        
+        let filteredBrowsers = CcBrowserWindow.getFilteredBrowserWindows(parentWindowId, componentId);
 
-        let arr = CcBrowserWindow.getFilteredBrowserWindows(parentWindowId, componentId = null)
-
-        arr.forEach(item => {
-            item.hideWindow();
-        });
+        filteredBrowsers.forEach(item => item.hideWindow());
         
     }
 
-    static verifyHiddenBrowsers(parentWindowId, callback, componentId)    {
+    static verifyHiddenBrowsers(parentWindowId, callback, componentId = null)    {
 
         CcBrowserWindow.exitPendingProcesses();
 
@@ -108,7 +119,7 @@ class CcBrowserWindow {
                 CcBrowserWindow.hideTimeout = setTimeout(() => {
                     callback();
                     clearTimeout(CcBrowserWindow.hideTimeout);
-                }, 500);
+                }, 200);
                 
             }
 
@@ -174,7 +185,7 @@ class CcBrowserWindow {
 
     hideWindow()    {
         this.isHidden = true;
-        this.windowObject.setBounds({x : Math.round((this.parentWindowObject.windowObject.getBounds().x * 100)), y : Math.round((this.parentWindowObject.windowObject.getBounds().y * 100)), width : 0, height : 0});
+        this.windowObject.setBounds({x : 0, y : 0, width : 0, height : 0});
     }
 
     showWindow()    {
@@ -183,8 +194,12 @@ class CcBrowserWindow {
     }
 
     addToWindowObjects()    {
-        CcBrowserWindow.windowObjects.push(this);
-        global.windowObjects.push(this);
+        let foundWindowObject = CcBrowserWindow.windowObjects.find(item => item.windowId === this.windowId);
+
+        if(!foundWindowObject)  {
+            CcBrowserWindow.windowObjects.push(this);
+            global.windowObjects.push(this);
+        }
     }
 
     removeFromWindowObjects()   {
@@ -201,14 +216,13 @@ class CcBrowserWindow {
         }
         CcBrowserWindow.hideAllBrowserWindows(this.parentWindowId);
         CcBrowserWindow.verifyHiddenBrowsers(this.parentWindowId, () => {
-
             this.setWindowDimensions();
 
             this.showWindow();
 
             this.load();
 
-            callback(); // will be used to send data to the rendrer...
+            callback();
 
         });
 
@@ -231,52 +245,32 @@ class CcBrowserWindow {
     }
 
     close() {
-
-        // this.parentWindowObject.windowObject.setBrowserView(null);
-
         this.hideWindow();
+        this.removeFromWindowObjects();
         this.parentWindowObject.windowObject.removeBrowserView(this.windowObject);
-        
+        // this.windowObject = null;
     }
 
-
     static removeAllWindowObjects(AppWindowId, componentId = null, callback = () => {}) {
-        
-        CcBrowserWindow.hideAllBrowserWindows(AppWindowId);
+
+        CcBrowserWindow.hideAllBrowserWindows(AppWindowId, componentId);
         CcBrowserWindow.verifyHiddenBrowsers(AppWindowId, () => {
-            
-            let browserWindows = CcBrowserWindow.windowObjects.filter(item => {
-                    return componentId ? 
-                        item.parentWindowId === AppWindowId && item.componentId === componentId : 
-                        item.parentWindowId === AppWindowId;
-                }),
-                timeout = null;
 
-            browserWindows.forEach(item => {
-                Object.keys(item).forEach(key => {
-                    item[key] = null;
-                });
-                item = null;
-            });
+            let browserWindows = CcBrowserWindow.getFilteredBrowserWindows(AppWindowId, componentId),
+                interval = null;
 
-            function finalFunction() {
-                clearInterval(timeout);
-                console.log("finalFunction was called...");
-                if(browserWindows.every(item => {
-                    return Object.keys(item).every(key => item[key] === null)
-                })) {
-                    // callback();
-                } else  {
-                    timeout = setTimeout(() => {
+            browserWindows.forEach(item => item.close());
 
-                        finalFunction();
-                    }, 500);
+            interval = setInterval(() => {
+                
+                if(!CcBrowserWindow.getFilteredBrowserWindows(AppWindowId, componentId).length)   {
+                    callback();
+                    clearInterval(interval);
                 }
-            }
-            
-            setTimeout(() => finalFunction(), 500);
 
-        });
+            }, 10);
+
+        }, componentId);
 
     }
 

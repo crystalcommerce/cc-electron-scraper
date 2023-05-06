@@ -10,8 +10,7 @@ module.exports = function(ipcMain, appObject)  {
     // create browser;
     ipcMain.on("create-browser-window", (e, data) => {
         
-        let browserWindow = createBrowserWindow(data.payload, () => {
-
+        let browserWindow = createBrowserWindow(data.payload, appObject, () => {
             e.sender.send("browser-window-created", {
                 message : "Browser Window has been created",
                 payload : {
@@ -50,6 +49,7 @@ module.exports = function(ipcMain, appObject)  {
 
     // hide frame window event;
     ipcMain.on("load-url", (e, data) => {
+        console.log(data);
         browserLoadUrl(data.payload, () => {
             e.sender.send("url-loaded", {
                 message : "url has been loaded...",

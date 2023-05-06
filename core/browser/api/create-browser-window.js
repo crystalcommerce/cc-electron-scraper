@@ -2,7 +2,11 @@ const { ipcRenderer } = require("electron");
 const CcBrowserWindow = require("../classes/cc-browser-window");
 const { isFile } = require("../../../utilities");
 
-module.exports = function (payload, callback = () => {}) {
+module.exports = function (payload, appObject, callback = () => {}) {
+
+    if(!appObject.ready)    {
+        callback(false);
+    }
     
     let {AppWindowId, componentId, browserWindowId, url} = payload,
         browserWindow = new CcBrowserWindow(AppWindowId, componentId, browserWindowId, url);
