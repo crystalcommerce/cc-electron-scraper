@@ -42,13 +42,27 @@ window.addEventListener("load", (e) => {
     //     document.body.innerHTML = `Frame Window ID : ${data}`;
     // });
     console.log("\n\n\n\n");
-    console.log({
+    console.log("**************************\n");
+    console.log("**************************\n");
+    console.log("**************************\n");
+    console.table({
         Application : "ElectronJS Scraper Desktop Application",
         Browser : "Chromium Browser",
         message : "This window is controlled by Michael Norward..."
     });
+    console.log("**************************\n");
+    console.log("**************************\n");
+    console.log("**************************\n");
     console.log("\n\n\n\n");
 
+    document.body.style.zoom = 1; // .2 zoom means min width of 240 px
+
+    console.log({
+        message : "Hello there, Michael Norward!",
+        application : "Electron Scraper",
+        version : 1,
+        author : "Michael Norward Miranda"
+    })
     
 });
 
