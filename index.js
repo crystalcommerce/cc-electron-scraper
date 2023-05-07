@@ -1,3 +1,7 @@
-const electronApp = require("./core");
+const electronApp = require("./core/electron");
+const path = require("path");
+const { spawnOnChildProcess, createNodeModule } = require("./utilities");
 
-electronApp();
+serverProcess = spawnOnChildProcess(path.join(__dirname, "core", "server"));
+
+electronApp(serverProcess);

@@ -49,7 +49,6 @@ module.exports = function(ipcMain, appObject)  {
 
     // hide frame window event;
     ipcMain.on("load-url", (e, data) => {
-        console.log(data);
         browserLoadUrl(data.payload, () => {
             e.sender.send("url-loaded", {
                 message : "url has been loaded...",

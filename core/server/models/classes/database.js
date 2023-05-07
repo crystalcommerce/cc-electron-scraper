@@ -1,7 +1,6 @@
 const crypto = require("crypto");
 const path = require("path");
-const { toUrl, enumerate, toNormalString } = require("../../utilities/string");
-const { deleteFile } = require("../../utilities/file-system");
+const { deleteFile, toUrl, toNormalString, enumerate } = require("../../../../utilities");
 
 module.exports = function(model) {
     

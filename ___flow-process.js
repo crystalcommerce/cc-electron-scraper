@@ -70,6 +70,8 @@
         messaging:
 
     
-
+    // we need to write the dynamic routes,
+    // we also need to write the dynamic models
+    // we also need to write the dynamic script
 
 */
