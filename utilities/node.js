@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+const { fork } = require('child_process');
 const vm = require('vm');
 const path = require("path");
 const fs = require("fs");
@@ -23,21 +23,27 @@ function registerWindowEvent(windowId, object, eventName, callback)  {
     
 }
 
-function spawnOnChildProcess(filePath)  {
-    
-    // Replace '/path/to/your/file.js' with the actual file path you want to execute
-    const childProcess = spawn('node', [filePath]);
-
-    childProcess.stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
+function spawnOnChildProcess(filePath) {
+    const childProcess = fork(filePath);
+  
+    childProcess.on('message', (data) => {
+        console.log({
+            message : "received message",
+            data,
+        });
     });
-
-    childProcess.stderr.on('data', (data) => {
-        console.error(`stderr: ${data}`);
+  
+    childProcess.on('error', (error) => {
+        console.error({
+            message : `error occured`,
+            error,
+        });
     });
-
+  
     childProcess.on('close', (code) => {
-        console.log(`child process exited with code ${code}`);
+        console.log({
+            message : `child process exited with code : ${code}`
+        });
     });
 
     return childProcess;
@@ -116,10 +122,19 @@ function createNodeModule(jsModuleCode, filename = 'cc-dynamic-module.js') {
     return jsModule.exports;
 }
 
+function getRequestResult(result, status = 200, contentType = "application/json") {
+    let obj = {
+        contentType,
+        status : status,
+        data : contentType === "application/json" ? JSON.stringify(result, null, 4) : result,
+    };
+    return obj;
+}
 
 module.exports = {
     registerWindowEvent,
     spawnOnChildProcess,
     createNodeModule,
     createNodeModule2,
+    getRequestResult
 }

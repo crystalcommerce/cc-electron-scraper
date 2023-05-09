@@ -9,6 +9,7 @@ class CategorizedScraperScript {
         const { siteName, productBrand } = scraperOptions;
 
         this.siteName = siteName;
+        
         this.productBrand = productBrand;
 
         this.scraperOptions = scraperOptions;
