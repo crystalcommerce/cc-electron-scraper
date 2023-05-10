@@ -7,7 +7,7 @@ const setActiveBrowser = require("../api/set-active-browser");
 
 module.exports = function(ipcMain, appObject)  {
     /* BROWSER WINDOW EVENTS */
-    // create browser;
+    // create browser;z
     ipcMain.on("create-browser-window", (e, data) => {
         
         let browserWindow = createBrowserWindow(data.payload, appObject, () => {

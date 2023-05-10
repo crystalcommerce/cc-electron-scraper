@@ -14,15 +14,15 @@ const appObject = {
     ready : true,
 }
 
-function startElectronApp (serverProcess)    {
+function startElectronApp (serverProcess, userDataPath, serverUrl)    {
 
     removeReload();
 
     app.whenReady().then(() => {
 
-        createAppWindow(viewsPath);
+        createAppWindow(viewsPath, userDataPath, serverUrl);
 
-        appWindowEvents(ipcMain, appObject, viewsPath);
+        appWindowEvents(ipcMain, appObject, viewsPath, userDataPath, serverUrl);
 
         frameWindowEvents(ipcMain, appObject);
 

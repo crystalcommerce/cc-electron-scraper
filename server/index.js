@@ -67,7 +67,7 @@ async function startServer(userDataPath)  {
 
                 console.log(`Server has initialized at port ${port}`);
 
-                process.send({message : "server-has-initialized"});
+                process.send({message : "server-has-initialized", payload : `http://localhost:${port}`});
                 
             });
 

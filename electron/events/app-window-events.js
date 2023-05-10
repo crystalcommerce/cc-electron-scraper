@@ -4,7 +4,7 @@ const AppWindow = require("../classes/app-window");
 const CcBrowserWindow = require("../classes/cc-browser-window");
 const setFrameWindow = require('../api/set-frame-window');
 
-module.exports = function(ipcMain, appObject, viewsPath)  {
+module.exports = function(ipcMain, appObject, viewsPath, userDataPath, serverUrl)  {
     /* APP WINDOW EVENTS */
 
     // new app;
@@ -12,7 +12,7 @@ module.exports = function(ipcMain, appObject, viewsPath)  {
 
         // childProcess.spawn(process.execPath, [app.getAppPath()], {stdio: 'inherit'});
     
-        const appWindowObject = createAppWindow(viewsPath);
+        const appWindowObject = createAppWindow(viewsPath, userDataPath, serverUrl);
 
         console.log({
             message : "We are creating a new app window...",
@@ -74,5 +74,7 @@ module.exports = function(ipcMain, appObject, viewsPath)  {
     ipcMain.on("browser-window-data", (e, data) => {
         console.log(data);
     });
+
+    
 
 }

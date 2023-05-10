@@ -1,7 +1,7 @@
 const AppWindow = require("../classes/app-window");
 const session = require('electron').session;
 
-module.exports = function (resourceLocation) {
+module.exports = function (resourceLocation, userDataPath, serverUrl) {
     
     let mainAppWindow;
 
@@ -48,6 +48,8 @@ module.exports = function (resourceLocation) {
             AppWindowId : mainAppWindow.windowId,
             AppWindow : {
                 isOnFullScreen : mainAppWindow.windowObject.isFullScreen(),
+                userDataPath,
+                serverUrl
             }
         });
         

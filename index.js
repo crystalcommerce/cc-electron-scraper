@@ -20,7 +20,7 @@ const initializeModulesWriter = (callback) => {
 
             console.log({message : "data retrieved in the main process", ...data});
 
-            // initialServerProcess.kill();
+            initialServerProcess.kill();
 
             callback(userDataPath);
 
@@ -45,7 +45,7 @@ const initializeApp = (userDataPath) => {
 
         if(data.message === "server-has-initialized") {
 
-            startElectronApp(serverProcess);
+            startElectronApp(serverProcess, userDataPath, data.payload);
 
         }
 
@@ -55,7 +55,6 @@ const initializeApp = (userDataPath) => {
 
 
 initializeModulesWriter((userDataPath) => {
-    console.log("app finished...");
 
     initializeApp(userDataPath);
 
