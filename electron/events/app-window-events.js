@@ -1,8 +1,8 @@
-const childProcess = require('child_process');
 const createAppWindow = require("../api/create-app-window");
+const takeScreenshot = require("../api/take-screenshot");
 const AppWindow = require("../classes/app-window");
 const CcBrowserWindow = require("../classes/cc-browser-window");
-const setFrameWindow = require('../api/set-frame-window');
+
 
 module.exports = function(ipcMain, appObject, viewsPath, userDataPath, serverUrl)  {
     /* APP WINDOW EVENTS */
@@ -68,6 +68,18 @@ module.exports = function(ipcMain, appObject, viewsPath, userDataPath, serverUrl
 
     });
 
+    // take screen shots;
+    ipcMain.on("take-screen-shot", (e, data) => {
+
+        takeScreenshot(data.payload.AppWindowId);
+
+        
+
+    });
+
+    ipcMain.on("scree-shot-taken", (e, data) => {
+        e.sender.send("close-browser-window", data.payload.AppWindowId);
+    })
 
     // test
 

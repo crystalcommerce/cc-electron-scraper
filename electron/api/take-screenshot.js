@@ -20,10 +20,15 @@ module.exports = function(AppWindowId) {
         // Print the data URL to the console
             console.log(dataURL);
             
-            ipcMain.send("screen-shot-taken", )
+            hiddenWindow.webContents.send("screen-shot-taken", {payload : {
+                dataURL
+            }});
             
         });
     });
 
-    hiddenWindow.close();
+    hiddenWindow.on("close-browser-window", (e, data) => {
+        hiddenWindow.close();
+    });
+    
 }
