@@ -70,16 +70,10 @@ module.exports = function(ipcMain, appObject, viewsPath, userDataPath, serverUrl
 
     // take screen shots;
     ipcMain.on("take-screen-shot", (e, data) => {
-
-        takeScreenshot(data.payload.AppWindowId);
-
         
+        takeScreenshot(data.payload);
 
     });
-
-    ipcMain.on("scree-shot-taken", (e, data) => {
-        e.sender.send("close-browser-window", data.payload.AppWindowId);
-    })
 
     // test
 

@@ -123,7 +123,7 @@ process.on("message", async (data) => {
         // const allFiles = await getAllFilesFromDirectory(payload);
         // console.log(allFiles);
 
-        console.log({type, payload});
+        // console.log({type, payload});
         startServer(payload);
 
     }

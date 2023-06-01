@@ -22,7 +22,7 @@ app.on('ready', () => {
             const dataURL = image.toDataURL();
 
         // Print the data URL to the console
-            console.log(dataURL);
+            // console.log(dataURL);
 
         // Close the Electron app
             // app.quit();

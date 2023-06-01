@@ -18,7 +18,7 @@ const initializeModulesWriter = (callback) => {
     initialServerProcess.on("message", (data) => {
         if(data.message === "required-modules-created") {
 
-            console.log({message : "data retrieved in the main process", ...data});
+            // console.log({message : "data retrieved in the main process", ...data});
 
             initialServerProcess.kill();
 

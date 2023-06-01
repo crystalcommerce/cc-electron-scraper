@@ -18,7 +18,7 @@
 */
 
 const { ipcRenderer } = require("electron");
-const CcScraperWindow = require("../classes/cc-scraper-window");
+const CcScraperWindow = require("../../classes/cc-scraper-window");
 const { isFile } = require("../../../utilities");
 
 module.exports = function(payload, appObject, callback = () => {})  {

@@ -40,8 +40,6 @@ class FrameWindowComponent {
 
     }
 
-
-
 }
     
 module.exports = FrameWindowComponent;
