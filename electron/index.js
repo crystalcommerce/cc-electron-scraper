@@ -7,6 +7,7 @@ const removeReload = require("../config/remove-reload");
 const appWindowEvents = require("./events/app-window-events");
 const frameWindowEvents = require("./events/frame-window-events");
 const browserWindowEvents = require("./events/browser-window-events");
+const scraperWindowEvents = require("./events/scraper-window-events")
 
 const viewsPath = path.join(process.cwd(), "views", "index.html");
 
@@ -20,6 +21,8 @@ function startElectronApp (serverProcess, userDataPath, serverUrl)    {
 
     app.whenReady().then(() => {
 
+        console.log({serverUrl, userDataPath});
+
         createAppWindow(viewsPath, userDataPath, serverUrl);
 
         appWindowEvents(ipcMain, appObject, viewsPath, userDataPath, serverUrl);
@@ -27,6 +30,8 @@ function startElectronApp (serverProcess, userDataPath, serverUrl)    {
         frameWindowEvents(ipcMain, appObject);
 
         browserWindowEvents(ipcMain, appObject);
+
+        scraperWindowEvents(ipcMain, userDataPath, serverUrl, appObject)
         
     });
 

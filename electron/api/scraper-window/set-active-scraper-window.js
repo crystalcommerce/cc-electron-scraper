@@ -1,3 +1,3 @@
-module.exports = function (payload, appObject, callback = () => {})  {
-
+module.exports = async function(payload, userDataPath, appObject, callback)    {
+    
 }

@@ -82,13 +82,13 @@
 
 
 
-    scraper 
+    // user initializes either of the three types of scraping
 
+        categorizedSets
+        multiProductsSet
+        singeProductScraping
 
-        initialize categorizedSets, productsSet, singleProduct scraping
-
-
-        we 
+    
 
 
 

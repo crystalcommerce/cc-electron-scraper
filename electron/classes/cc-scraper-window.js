@@ -7,7 +7,7 @@ const { fileExists } = require("../../utilities");
     
 class CcScraperWindow {
 
-    constructor(AppWindowId, componentId, windowId, preloadedScript, scraperType, resourceLocation = null)    {
+    constructor({AppWindowId, componentId, windowId, preloadedScript, scraperType, resourceLocation})    {
 
         // if(!AppWindowId || !componentId || !windowId) {
         //     return;
@@ -184,6 +184,14 @@ class CcScraperWindow {
         this.windowObject.show();
     }
 
+    openDevTools()  {
+        this.windowObject.webContents.openDevTools();
+    }
+
+    closeDevTools() {
+        this.windowObject.webContents.closeDevTools();
+    }
+
     addToWindowObjects()    {
         let foundWindowObject = CcScraperWindow.windowObjects.find(item => item.windowId === this.windowId);
 
@@ -220,8 +228,6 @@ class CcScraperWindow {
         this.windowObject.close();
         // this.windowObject = null;
     }
-
-    
 
 }
     
