@@ -70,8 +70,32 @@
         messaging:
 
     
+    
+    // this is already implemented
+
     // we need to write the dynamic routes,
     // we also need to write the dynamic models
     // we also need to write the dynamic script
+
+
+
+
+
+
+    scraper 
+
+
+        initialize categorizedSets, productsSet, singleProduct scraping
+
+
+        we 
+
+
+
+
+
+
+
+
 
 */

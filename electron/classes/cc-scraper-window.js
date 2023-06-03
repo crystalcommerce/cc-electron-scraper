@@ -9,26 +9,26 @@ class CcScraperWindow {
 
     constructor(AppWindowId, componentId, windowId, preloadedScript, scraperType, resourceLocation = null)    {
 
-        if(!AppWindowId || !componentId || !windowId) {
-            return;
-        }
+        // if(!AppWindowId || !componentId || !windowId) {
+        //     return;
+        // }
 
-        let foundBrowserWindow = CcScraperWindow.windowObjects.find(item => item.windowId === windowId);
+        // let foundBrowserWindow = CcScraperWindow.windowObjects.find(item => item.windowId === windowId);
 
-        if(foundBrowserWindow)  {
-            return foundBrowserWindow;
-        }
+        // if(foundBrowserWindow)  {
+        //     return foundBrowserWindow;
+        // }
 
 
         this.windowId = windowId ? windowId : getUuid();
         this.windowObject = null;
-        this.parentWindowObject = AppWindow.windowObjects.find(item => item.windowId === AppWindowId);
+        // this.parentWindowObject = AppWindow.windowObjects.find(item => item.windowId === AppWindowId);
 
-        if(!this.parentWindowObject)    {
-            return;
-        }
+        // if(!this.parentWindowObject)    {
+        //     return;
+        // }
 
-        this.parentWindowId = this.parentWindowObject.windowId;
+        // this.parentWindowId = this.parentWindowObject.windowId;
         this.componentId = componentId;
         this.windowType = "scraper-window";
         this.preloadedScript = preloadedScript;
@@ -65,6 +65,161 @@ class CcScraperWindow {
     }
 
     static windowObjects = [];
+
+    static hideTimeout = null;
+
+    static hideInterval = null;
+
+    static processedHalted = false;
+
+    static getFilteredBrowserWindows(parentWindowId, componentId = null)  {
+        
+        if(componentId) {
+            return CcScraperWindow.windowObjects.filter(item => item.parentWindowId === parentWindowId && item.componentId === componentId);
+        } else  {
+            return CcScraperWindow.windowObjects.filter(item => item.parentWindowId === parentWindowId);
+        }
+    
+    }
+
+    static getShownBrowserWindows(parentWindowId, componentId = null)    {
+
+        if(componentId) {
+            return CcScraperWindow.windowObjects.filter(item => !item.isHidden && item.parentWindowId === parentWindowId && componentId === item.componentId);
+        } else  {
+            return CcScraperWindow.windowObjects.filter(item => !item.isHidden && item.parentWindowId === parentWindowId);
+        }
+        
+
+    }   
+
+    static hideAllBrowserWindows(parentWindowId, componentId = null)    {
+        
+        let filteredBrowsers = CcScraperWindow.getFilteredBrowserWindows(parentWindowId, componentId);
+
+        filteredBrowsers.forEach(item => item.hideWindow());
+        
+    }
+
+    static verifyHiddenBrowsers(parentWindowId, callback, componentId = null)    {
+
+        CcScraperWindow.exitPendingProcesses();
+
+        let count= 0;
+
+        CcScraperWindow.hideInterval = setInterval(() => {
+
+            let shownFrameWindows = CcScraperWindow.getShownBrowserWindows(parentWindowId, componentId);
+            
+            count++;
+
+            if(CcScraperWindow.processHalted)   {
+                clearInterval(CcScraperWindow.hideInterval);
+            }
+
+            if(!shownFrameWindows.length)   {
+
+                clearInterval(CcScraperWindow.hideInterval);
+
+                CcScraperWindow.hideTimeout = setTimeout(() => {
+                    callback();
+                    clearTimeout(CcScraperWindow.hideTimeout);
+                }, 200);
+                
+            }
+
+        }, 10);
+
+    }
+
+    static exitPendingProcesses() {
+
+        CcScraperWindow.processHalted = true;
+
+        if(CcScraperWindow.hideTimeout) {
+            clearTimeout(CcScraperWindow.hideTimeout);
+        }
+
+        if(CcScraperWindow.hideInterval)    {
+            clearInterval(CcScraperWindow.hideInterval);
+        }
+    }
+
+    static removeAllWindowObjects(AppWindowId, componentId = null, callback = () => {}) {
+
+        CcScraperWindow.hideAllBrowserWindows(AppWindowId, componentId);
+        CcScraperWindow.verifyHiddenBrowsers(AppWindowId, () => {
+
+            let browserWindows = CcScraperWindow.getFilteredBrowserWindows(AppWindowId, componentId),
+                interval = null;
+
+            browserWindows.forEach(item => item.close());
+
+            interval = setInterval(() => {
+                
+                if(!CcScraperWindow.getFilteredBrowserWindows(AppWindowId, componentId).length)   {
+                    callback();
+                    clearInterval(interval);
+                }
+
+            }, 10);
+
+        }, componentId);
+
+    }
+
+    getLoadMethod()   {
+        if(this.resourceLocation)   {
+            return fileExists(this.resourceLocation) ? "loadFile" : "loadURL";
+        }
+    }
+
+    hideWindow()    {
+        this.isHidden = true;
+        this.windowObject.hide();
+    }
+
+    showWindow()    {
+        this.isHidden = false;
+        this.windowObject.show();
+    }
+
+    addToWindowObjects()    {
+        let foundWindowObject = CcScraperWindow.windowObjects.find(item => item.windowId === this.windowId);
+
+        if(!foundWindowObject)  {
+            CcScraperWindow.windowObjects.push(this);
+            global.windowObjects.push(this);
+        }
+    }
+
+    removeFromWindowObjects()   {
+        global.windowObjects = global.windowObjects.filter(item => item.windowId !== this.windowId);
+        CcScraperWindow.windowObjects = CcScraperWindow.windowObjects.filter(item => item.windowId !== this.windowId);
+    }
+
+    initialize()    {
+
+        this.windowObject = new BrowserWindow(this.defaultOptions);
+
+    }
+
+    load(resourceLocation = null, loadMethod = "loadURL")  {
+        if(resourceLocation)  {
+            this.resourceLocation = resourceLocation;
+            let currentLoadMethod = loadMethod ? loadMethod : this.loadMethod;
+            this.windowObject.webContents[currentLoadMethod](this.resourceLocation);
+        } else  {
+            this.windowObject.webContents[this.loadMethod](this.resourceLocation);
+        }
+    }
+
+    close() {
+        this.hideWindow();
+        this.removeFromWindowObjects();
+        this.windowObject.close();
+        // this.windowObject = null;
+    }
 
     
 

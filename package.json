@@ -4,7 +4,7 @@
   "description": "A desktop application built with electron-js (powered by nodejs and chromuim browser) that will be mainly used for web-scraping. This application will allow script injection at a modular level. This approach will reduce the memory usage of the chromuim browser instance as there will be a separate process for the main process of the application and the instances of the browser windows that this application will create.",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js",
+    "test": "electron ./___test",
     "start": "wait-on tcp:4777 && electron ."
   },
   "keywords": [
