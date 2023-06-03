@@ -2,13 +2,39 @@ const { app, BrowserView, BrowserWindow, ipcMain } = require('electron');
 const path = require("path");
 const CcScraperWindow = require('./electron/classes/cc-scraper-window');
 
-const { VM } = require("vm2");
+// const { VM } = require("vm2");
 
 
-function preloadScript() {
-    // Your custom script logic here
-    console.log('Preload script executed!');
+
+const myFunctionCode = `
+    console.log('Dynamic module function executed!');
+`;
+
+
+const { contextBridge, ipcRenderer } = require('electron');
+const vm = require('vm');
+
+function generateModuleCode(codeStr)    {
+    return `module.exports = ${codeStr};`
 }
+
+function createDynamicModule(codeStr) {
+  const moduleCode = generateModuleCode(codeStr);
+  const script = new vm.Script(moduleCode);
+  const context = vm.createContext({
+    require: require,
+    console: console,
+    // any other global objects or functions you need in the module
+  });
+  script.runInContext(context);
+
+  // Access any exports or other values defined in the module
+  const dynamicModule = context.module.exports;
+  return dynamicModule;
+}
+
+const dynamicModule = createDynamicModule();
+console.log(dynamicModule);
 // console.log(app)
 app.whenReady().then(async () => {
 
@@ -18,7 +44,7 @@ app.whenReady().then(async () => {
     let ccScraperWindow = new CcScraperWindow({
         AppWindowId : null,
         componentId : null,
-        preloadedScript : path.join(__dirname, "scripts"),
+        preloadedScript : `data:text/javascript,${encodeURIComponent(myFunctionCode)}`,
         scraperType : "single",
         resourceLocation : null,
     })
