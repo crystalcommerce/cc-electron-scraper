@@ -1,6 +1,6 @@
 const setFrameWindow = require("../api/set-frame-window");
 
-module.exports = function(ipcMain, appObject)   {
+module.exports = function({ipcMain, appObject})   {
     
     /* FRAME WINDOW EVENTS */
     // get the assigned frame window

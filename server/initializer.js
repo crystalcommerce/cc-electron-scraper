@@ -1,6 +1,5 @@
 const path = require("path");
 const { createDirPath, writeFile } = require("../utilities");
-const modulesWriter = require("../core/modules-writer");
 const modelsDb = require("./models/models-db");
 const routesDb = require("./models/routes-db");
 const scriptsDb = require("./models/scripts-db");

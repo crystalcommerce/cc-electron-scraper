@@ -1,4 +1,4 @@
-const { BrowserWindow } = require("electron");
+const { BrowserWindow, screen } = require("electron");
 const AppWindow = require("./app-window");
 const getUuid = require("mnm-uuid");
 const path = require("path");
@@ -7,7 +7,7 @@ const { fileExists } = require("../../utilities");
     
 class CcScraperWindow {
 
-    constructor({AppWindowId, componentId, windowId, preloadedScript, scraperType, resourceLocation})    {
+    constructor({AppWindowId, componentId, windowId, preloadedScript, scraperType, resourceLocation, windowIndex})    {
 
         // if(!AppWindowId || !componentId || !windowId) {
         //     return;
@@ -42,8 +42,8 @@ class CcScraperWindow {
             ...this.windowOptions,
             frame : false,
             show : false,
-            height : 500,
-            width : 1200,
+            height : 540,
+            width : 1920,
             webPreferences : {
                 nodeIntegration : true,
                 contextIsolation : false,
@@ -62,6 +62,9 @@ class CcScraperWindow {
             global.windowObjects = [];
         }
 
+        this.windowIndex = 0;
+        this.getWindowIndex();
+
     }
 
     static windowObjects = [];
@@ -71,6 +74,12 @@ class CcScraperWindow {
     static hideInterval = null;
 
     static processedHalted = false;
+
+    static maxRows = 5;
+
+    static maxOpenedWindows = 5;
+
+    static maxColumns = CcScraperWindow.maxOpenedWindows;
 
     static getFilteredBrowserWindows(parentWindowId, componentId = null)  {
         
@@ -168,6 +177,48 @@ class CcScraperWindow {
 
     }
 
+    setPreloadedScript(preloadedScriptPath)    {
+        this.preloadedScript = preloadedScriptPath;
+        this.defaultOptions.webPreferences.preload = this.preloadedScript;
+    }
+
+    getWindowIndex()    {
+        this.windowIndex = CcScraperWindow.windowObjects.length;
+    }
+
+    setWindowPosition() {
+        /* 
+            maxRows = 5;
+            maxColumns = 10;
+        
+        */
+
+        let index = this.windowIndex,
+            rows = (CcScraperWindow.maxOpenedWindows) / CcScraperWindow.maxRows, // 10 / 5 = 2
+            columns = (CcScraperWindow.maxOpenedWindows) / rows, // 10 / 2;
+            { width : fullScreenWidth, height : fullScreenHeight } = screen.getPrimaryDisplay().workAreaSize,
+            halfScreenWidth = fullScreenWidth / 2,
+            halfScreenHeight = fullScreenHeight / 2,
+
+            // selectedScreenWidth = halfScreenWidth > (this.optionsObject.width + 200) ? halfScreenWidth : fullScreenWidth;
+            selectedScreenWidth = fullScreenWidth;
+
+
+        let horizontalDistance = (selectedScreenWidth - this.defaultOptions.width) / (columns - 1),
+            verticalDistance = (halfScreenHeight - this.defaultOptions.height) / (rows),
+            columnIndex = index < columns ? index : index % columns,
+            rowIndex = index < columns ? 0 : Math.floor(index / columns),
+            left = selectedScreenWidth === fullScreenWidth ? horizontalDistance * columnIndex : halfScreenWidth + horizontalDistance * columnIndex,
+            top = (verticalDistance * rowIndex) + 0;
+        
+        // return {
+        //     top, 
+        //     left,
+        // }
+
+        this.windowObject.setBounds({ x: left, y: top});
+    }
+
     getLoadMethod()   {
         if(this.resourceLocation)   {
             return fileExists(this.resourceLocation) ? "loadFile" : "loadURL";
@@ -209,6 +260,12 @@ class CcScraperWindow {
     initialize()    {
 
         this.windowObject = new BrowserWindow(this.defaultOptions);
+
+        this.addToWindowObjects();
+
+        this.setWindowPosition();
+
+        this.load();
 
     }
 

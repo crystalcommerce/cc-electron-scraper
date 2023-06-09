@@ -4,7 +4,7 @@ const AppWindow = require("../classes/app-window");
 const CcBrowserWindow = require("../classes/cc-browser-window");
 
 
-module.exports = function(ipcMain, appObject, viewsPath, userDataPath, serverUrl)  {
+module.exports = function({ipcMain, appObject, viewsPath, appAbsPath, userDataPath, serverUrl})  {
     /* APP WINDOW EVENTS */
 
     // new app;
@@ -12,7 +12,7 @@ module.exports = function(ipcMain, appObject, viewsPath, userDataPath, serverUrl
 
         // childProcess.spawn(process.execPath, [app.getAppPath()], {stdio: 'inherit'});
     
-        const appWindowObject = createAppWindow(viewsPath, userDataPath, serverUrl);
+        const appWindowObject = createAppWindow({resourceLocation : viewsPath, appAbsPath, userDataPath, serverUrl});
 
         console.log({
             message : "We are creating a new app window...",
@@ -81,6 +81,11 @@ module.exports = function(ipcMain, appObject, viewsPath, userDataPath, serverUrl
         console.log(data);
     });
 
-    
+    // ipcMain.on("cc-scraping-result", (e, data) => {
+    //     console.log({
+    //         scrapingResultMessage : "Here's the scraping result",
+    //         ...data
+    //     })
+    // })
 
 }

@@ -1,7 +1,6 @@
 const { fork } = require('child_process');
-const vm = require('vm');
 const path = require("path");
-const fs = require("fs");
+const { writeFile } = require('./file-system');
 
 function registerWindowEvent(windowId, object, eventName, callback)  {
 
@@ -49,77 +48,11 @@ function spawnOnChildProcess(filePath) {
     return childProcess;
 }
 
-function createNodeModule2(jsModuleCode, filename, requiredModules = {}) {
-    const jsModule = {};
-    const script = new vm.Script(jsModuleCode, {
-        filename,
-    });
-    const context = new vm.createContext({
-        module,
-        exports: jsModule,
-        require: (moduleName) => {
-            if (requiredModules.hasOwnProperty(moduleName)) {
-                return requiredModules[moduleName];
-            } else {
-                return require(moduleName);
-            }
-        },
-        process,
-        console,
-        setTimeout,
-        setInterval,
-        clearTimeout,
-        clearInterval,
-    });
-  
-    script.runInContext(context);
-  
-    return jsModule.exports;
-}
+async function createNodeModule(targetPath, fileName, textData) {
+    let filePath = path.join(targetPath, fileName),
+        writeResult = await writeFile(filePath, textData);
 
-function createNodeModule(jsModuleCode, filename = 'cc-dynamic-module.js') {
-    const jsModule = {};
-    const script = new vm.Script(jsModuleCode);
-    const context = new vm.createContext({
-        module,
-        exports: jsModule,
-        require: (moduleName) => {
-            // Resolve the module path relative to the current module
-            const modulePath = path.resolve(path.dirname(filename), moduleName);
-
-            // Load the module code and execute it in a new context
-            const moduleCode = fs.readFileSync(modulePath, 'utf8');
-            const moduleScript = new vm.Script(moduleCode, {
-                filename: modulePath,
-                displayErrors: true,
-            });
-            const moduleContext = new vm.createContext({
-                module: {},
-                exports: {},
-                require: (moduleName) => module.require(moduleName),
-                process,
-                console,
-                setTimeout,
-                setInterval,
-                clearTimeout,
-                clearInterval,
-            });
-            moduleScript.runInContext(moduleContext);
-
-            // Return the exported object from the module
-            return moduleContext.exports;
-        },
-        process,
-        console,
-        setTimeout,
-        setInterval,
-        clearTimeout,
-        clearInterval,
-    });
-
-    script.runInContext(context);
-
-    return jsModule.exports;
+    return writeResult;
 }
 
 function getRequestResult(result, status = 200, contentType = "application/json") {
@@ -134,7 +67,6 @@ function getRequestResult(result, status = 200, contentType = "application/json"
 module.exports = {
     registerWindowEvent,
     spawnOnChildProcess,
+    getRequestResult,
     createNodeModule,
-    createNodeModule2,
-    getRequestResult
 }

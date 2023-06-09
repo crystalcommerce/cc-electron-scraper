@@ -1,5 +1,5 @@
 
-module.exports = function(ipcMain, userDataPath, serverUrl, appObject)   {
+module.exports = function({ipcMain, appAbsPath, userDataPath, serverUrl, appObject})   {
 
     // create scraper window
     // close scraper window;

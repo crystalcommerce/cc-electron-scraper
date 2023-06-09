@@ -1,7 +1,7 @@
 const AppWindow = require("../classes/app-window");
 const session = require('electron').session;
 
-module.exports = function (resourceLocation, userDataPath, serverUrl) {
+module.exports = function ({resourceLocation, appAbsPath, userDataPath, serverUrl}) {
     
     let mainAppWindow;
 

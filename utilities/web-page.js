@@ -18,15 +18,15 @@ async function scrollToBottom(num = 150)  {
 
     await new Promise(resolve => {
         let interval = setInterval(() => {
-            totalHeight = document.body.offsetHeight - window.innerHeight;
-            window.scrollTo(0, currentScroll + 100);
-            if(currentScroll >= totalHeight - num) {
+                totalHeight = document.body.offsetHeight - window.innerHeight;
+                window.scrollTo(0, currentScroll + 100);
+                if(currentScroll >= totalHeight - num) {
 
-                clearInterval(interval);
-                window.removeEventListener("scroll", scroll);
-                resolve();
-            }
-        }, 7);
+                    clearInterval(interval);
+                    window.removeEventListener("scroll", scroll);
+                    resolve();
+                }
+            }, 7);
     });
     
 }

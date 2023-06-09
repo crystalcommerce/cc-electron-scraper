@@ -1,11 +1,12 @@
 const browserLoadUrl = require("../api/browser-load-url");
 const closeBrowserWindow = require("../api/close-browser-window");
+const closeScreenshotWindow = require("../api/close-screenshot-window");
 const createBrowserWindow = require("../api/create-browser-window");
 const openBrowserDevTools = require("../api/open-browser-dev-tools");
 const setActiveBrowser = require("../api/set-active-browser");
 
 
-module.exports = function(ipcMain, appObject)  {
+module.exports = function({ipcMain, appObject})  {
     /* BROWSER WINDOW EVENTS */
     // create browser;z
     ipcMain.on("create-browser-window", (e, data) => {
@@ -31,6 +32,18 @@ module.exports = function(ipcMain, appObject)  {
         closeBrowserWindow(data.payload, () => {
             e.sender.send("browser-window-closed", {
                 message : "Browser Window has been closed",
+                payload : data.payload,
+            });
+        });
+        
+    });
+
+    // close screenshot window;
+    ipcMain.on("close-screenshot-window", (e, data) => {
+
+        closeScreenshotWindow(data.payload, () => {
+            console.log({
+                message : "Screenshot Window has been closed",
                 payload : data.payload,
             });
         });

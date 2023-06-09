@@ -111,6 +111,9 @@ async function startServer(userDataPath)  {
         res.send(`<p>Hello from ${req.siteUrl}</p>`);
 
     });
+
+    app.use(express.static(path.join(__dirname, 'views')));
+    
 }
 
 

@@ -15,7 +15,7 @@ const appObject = {
     ready : true,
 }
 
-function startElectronApp (serverProcess, userDataPath, serverUrl)    {
+function startElectronApp ({serverProcess, appAbsPath, userDataPath, serverUrl})    {
 
     removeReload();
 
@@ -23,15 +23,15 @@ function startElectronApp (serverProcess, userDataPath, serverUrl)    {
 
         console.log({serverUrl, userDataPath});
 
-        createAppWindow(viewsPath, userDataPath, serverUrl);
+        createAppWindow({resourceLocation : viewsPath, appAbsPath, userDataPath, serverUrl});
 
-        appWindowEvents(ipcMain, appObject, viewsPath, userDataPath, serverUrl);
+        appWindowEvents({ipcMain, appObject, viewsPath, appAbsPath, userDataPath, serverUrl});
 
-        frameWindowEvents(ipcMain, appObject);
+        frameWindowEvents({ipcMain, appObject});
 
-        browserWindowEvents(ipcMain, appObject);
+        browserWindowEvents({ipcMain, appObject});
 
-        scraperWindowEvents(ipcMain, userDataPath, serverUrl, appObject)
+        scraperWindowEvents({ipcMain, appAbsPath, userDataPath, serverUrl, appObject})
         
     });
 

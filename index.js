@@ -6,6 +6,7 @@ const { spawnOnChildProcess } = require("./utilities");
 const initializeModulesWriter = (callback) => {
     /* This is just a simulation of the file writing process that will occur before the application starts. */
     let userDataPath = app.getPath("userData"),
+        appAbsPath = app.getAppPath(),
         initialServerProcess = spawnOnChildProcess(path.join(__dirname, "server", "initializer.js"));
 
     initialServerProcess.send({
@@ -22,14 +23,14 @@ const initializeModulesWriter = (callback) => {
 
             initialServerProcess.kill();
 
-            callback(userDataPath);
+            callback({userDataPath, appAbsPath});
 
         }
     });
 
 }
 
-const initializeApp = (userDataPath) => {
+const initializeApp = ({userDataPath, appAbsPath}) => {
 
     // this is the part that creates the electron app;
 
@@ -45,7 +46,7 @@ const initializeApp = (userDataPath) => {
 
         if(data.message === "server-has-initialized") {
 
-            startElectronApp(serverProcess, userDataPath, data.payload);
+            startElectronApp({serverProcess, appAbsPath, userDataPath, serverUrl : data.payload});
 
         }
 
@@ -54,8 +55,8 @@ const initializeApp = (userDataPath) => {
 }
 
 
-initializeModulesWriter((userDataPath) => {
+initializeModulesWriter(({userDataPath, appAbsPath}) => {
 
-    initializeApp(userDataPath);
+    initializeApp({userDataPath, appAbsPath});
 
 });
