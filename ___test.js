@@ -38,9 +38,6 @@ let productObjects = [
         id : generateUuid(),
         productUri : "https://shop.rebag.com/products/handbags-chanel-open-shopping-tote-quilted-lambskin-large2165231"
     },
-
-
-
     {
         id : generateUuid(),
         productUri : "https://shop.rebag.com/products/handbags-fendi-peekaboo-bag-leather-micro2162241"
