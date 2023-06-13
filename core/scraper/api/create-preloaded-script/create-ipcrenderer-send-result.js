@@ -19,18 +19,3 @@ module.exports = function() {
     return codeOutput;
 
 }
-
-// let {AppWindowId, componentId, windowId} = {
-//     "AppWindowId": "some-app-window-id",
-//     "componentId": "some-component-id",
-//     "windowId": "some-window-id"
-// };
-// 	ipcRenderer.send("cc-scraping-result", {
-// 		payload : {
-// 			AppWindowId,
-// 			componentId,
-// 			windowId,
-// 			scrapingResult,
-// 		}
-// 	});
-

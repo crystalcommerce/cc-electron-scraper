@@ -1,3 +1,3 @@
-module.exports = async function(payload, userDataPath, appObject, callback)    {
+module.exports = async function({payload, userDataPath, appAbsPath, serverUrl, appObject, callback})    {
     
 }

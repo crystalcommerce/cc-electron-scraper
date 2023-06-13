@@ -7,7 +7,7 @@ const createUtilsCode = require("./create-utils-code");
 const createWaitForSelectorCode = require("./create-wait-for-selector-code");
 const path = require('path');
 
-module.exports = async function({evaluator, utilitiesPath, fileName, scraperType, targetPath, serverUrl})  {
+module.exports = async function({evaluator, utilitiesPath, fileName, scraperType, targetPath, serverUrl, evaluatorIndex})  {
 
     let {callback, waitForSelectors} = evaluator,
         codeOutput = "";
@@ -51,7 +51,7 @@ module.exports = async function({evaluator, utilitiesPath, fileName, scraperType
 
     // console.log(codeOutput);
 
-    let fileNameWithExt = `${toUrl(`${fileName} ${scraperType}`)}.js`,
+    let fileNameWithExt = `${toUrl(`${[fileName, scraperType, evaluatorIndex].filter(item => item.toString().trim() !== "").join(" ")}`)}.js`,
         result = await createNodeModule(targetPath, fileNameWithExt, codeOutput);
 
     return {result, preloadedScript : path.join(targetPath, fileNameWithExt)};

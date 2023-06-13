@@ -1,13 +1,14 @@
 const path = require("path");
-const createPreloadedScript = require("../../../core/scraper/api/create-preloaded-script");
+const createPreloadedScript = require("./create-preloaded-script");
+const getEvaluator = require("./get-evaluator");
 
-module.exports = async function(appAbsPath, userDataPath, fileName, scraperType, serverUrl/* single, set, categorizedSets */)   {
+module.exports = async function(appAbsPath, userDataPath, fileName, scraperType, serverUrl)   {
     try {
 
         let scriptsPath = path.join(userDataPath, "modules", "scripts"),
             targetPath = path.join(userDataPath, "modules", "temp"),
             evaluatorObject = require(path.join(scriptsPath, `${fileName}.js`)),
-            evaluator = evaluatorObject[scraperType];
+            { evaluator, evaluatorIndex } = getEvaluator(evaluatorObject, scraperType);
 
 
         let resultObject = await createPreloadedScript({
@@ -17,15 +18,16 @@ module.exports = async function(appAbsPath, userDataPath, fileName, scraperType,
             scraperType,
             targetPath,
             serverUrl,
+            evaluatorIndex
         });
 
-        let {result, preloadedScript} = resultObject;
+        let { result, preloadedScript } = resultObject;
 
         if(!result.status)  {
             throw Error(result.reason);
         }
 
-        return preloadedScript;
+        return { preloadedScript, evaluator };
 
     } catch(err)    {
         console.log(err);

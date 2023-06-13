@@ -91,10 +91,34 @@
 
 
 
+    TODO:   Make sure to put all scraping methods in the single product-scrapers... and just use minimal scraped data from the product set scraper
 
 
+    scenario 1:
+        user initiates scraping;
 
+        wants to scrape a set of products;
 
+        scraper scrapes categorized sets to show the sets of products;
+        then sends it back to the renderer...
+
+        user then selects the products set/sets
+
+        scraper starts scraping
+
+    scenario 2:
+        user wants to scrape selected products from url;
+        user enters the urls of the products he wants to scrape...
+
+        scraper then starts scraping the products and sends it back to the renderer...
+
+    
+    scenario 3:
+
+        user wants to scrape the entirety of the website
+        scraper gets all the categorized sets and sends it back to the renderer
+        scraper continues scraping all products per product set;
+        scraper then shows details of scraping...
 
 
 */

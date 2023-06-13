@@ -14,39 +14,59 @@
     C:\Users\cools\AppData\Roaming\cc-electron-scraper
 
 */
-const path = require("path");
-const preloadedScript = require("../../../scripts");
+
+const createScraperWindow = require("../../../electron/api/scraper-window/create-scraper-window");
+const evaluatePage = require("../../../electron/api/scraper-window/evaluate-page");
 
 class SingleProductScraper {
 
-    constructor({userDataPath, serverUrl, productObject, productUriProp, scraperWindowOptions, scraperData})   {
-
-        let {fileNameWithExt, siteName, siteUrl, fileName : routePath} = scraperData,
-            {AppWindowId, componentId, windowId} = scraperWindowOptions;
-
-
-        this.userDataPath = userDataPath;
-        this.serverUrl = serverUrl;
-
-        this.AppWindowId = AppWindowId;
-        this.componentId = componentId;
-        this.windowId = windowId;
-        this.resourceLocation = productObject[productUriProp];
-        this.scraperType = "single";
-        this.scriptFilesPath = path.join(this.userDataPath, "modules", "scripts");
-        this.preloadedScript = preloadedScript;
-        this.evaluator = 
-        
+    constructor({productObject, userDataPath, appAbsPath, serverUrl, payload, appObject})   {
 
         this.productObject = productObject;
+        this.ccScraperWindow = null;
+        this.evaluator = null;
 
-        
-        this.apiRoute = `${serverUrl}/api/${routePath}`;
-    
+        this.showWindow = false;
+
+        this.userDataPath = userDataPath;
+        this.appAbsPath = appAbsPath;
+        this.serverUrl = serverUrl; 
+        this.payload = payload;
+        this.appObject = appObject && appObject.ready ? appObject : {ready : true};
+
     }
 
+    async setScraperWindow()    {
+        let { ccScraperWindow, evaluator } = await createScraperWindow(this.payload, this.userDataPath, this.appAbsPath, this.serverUrl, this.appObject);
 
+        this.ccScraperWindow = ccScraperWindow;
+        this.evaluator = evaluator;
+    }
+
+    async scrapeData()  {
+
+        await evaluatePage({
+            ccScraperWindow : this.ccScraperWindow,
+            dataObject : this.productObject,
+            uriPropName : this.evaluator.uriPropName,
+            uniquePropName : "_id",
+            closeOnEnd : true,
+        });
+
+        console.log({productObject : this.productObject});
+
+        // Object.assign(this.productObject, productObject);
+
+    }
     
+    async initialize()  {
 
+        await this.setScraperWindow();
+
+        await this.scrapeData();
+        
+    }
 
 }
+
+module.exports = SingleProductScraper;

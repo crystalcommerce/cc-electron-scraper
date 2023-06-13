@@ -1,5 +1,5 @@
 const CcScraperWindow = require("../../classes/cc-scraper-window");
-const getPreloadedScript = require("./get-preloaded-script");
+const getPreloadedScript = require("../../../core/scraper/api/get-preloaded-script");
 
 module.exports = async function(payload, userDataPath, appAbsPath, serverUrl, appObject)  {
 
@@ -13,12 +13,12 @@ module.exports = async function(payload, userDataPath, appAbsPath, serverUrl, ap
             { AppWindowId, componentId, windowId, scraperType } = ccScraperData,
             { fileName } = ccScriptData,
             resourceLocation = null,
-            preloadedScript = await getPreloadedScript(appAbsPath, userDataPath, fileName, scraperType, serverUrl),
+            { preloadedScript, evaluator } = await getPreloadedScript(appAbsPath, userDataPath, fileName, scraperType, serverUrl),
             ccScraperWindow = new CcScraperWindow({AppWindowId, componentId, windowId, preloadedScript, scraperType, resourceLocation});
 
         ccScraperWindow.initialize();
 
-        return ccScraperWindow;
+        return { ccScraperWindow, evaluator };
     
     } catch(err)    {
 

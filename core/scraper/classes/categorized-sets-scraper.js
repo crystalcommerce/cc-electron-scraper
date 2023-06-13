@@ -24,7 +24,6 @@ class CategorizedSet {
     }
 
     // create the scraper window
-    // cc
     // load the correct script;
     // get the data;
     // then send data back to the main renderer;

@@ -1,12 +1,18 @@
 const { waitForCondition } = require("../../../utilities");
 const session = require("electron").session;
 
-module.exports = async function({ ccScraperWindow, productObject, uriPropName, uniquePropName, closeOnEnd })  {
+module.exports = async function({ ccScraperWindow, dataObject, uriPropName, uniquePropName, closeOnEnd })  {
+
     let scrapingDone = false;
 
     closeOnEnd = closeOnEnd ? closeOnEnd : false;
 
-    ccScraperWindow.load(productObject[uriPropName]);
+    ccScraperWindow.load(dataObject[uriPropName]);
+
+    ccScraperWindow.windowObject.webContents.on("will-redirect", (e) => {
+        e.preventDefault();
+        // console.log("page will redirect");
+    });
 
     ccScraperWindow.windowObject.webContents.once("did-finish-load", async (e) => {
         // cookie session
@@ -23,15 +29,10 @@ module.exports = async function({ ccScraperWindow, productObject, uriPropName, u
             e.preventDefault();
         });
 
-        ccScraperWindow.windowObject.webContents.on("will-redirect", (e) => {
-            e.preventDefault();
-            console.log("page will redirect");
-        });
-
         // ccScraperWindow.windowObject.webContents.on('ipc-message', (event, channel, data) => {
         ccScraperWindow.windowObject.webContents.ipc.on('document-ready', (e, data) => {
             // Handle the received IPC message
-            console.log(`Received IPC message from renderer: document-ready`);
+            // console.log(`Received IPC message from renderer: document-ready`);
 
             ccScraperWindow.windowObject.webContents.send("scraper-window-details", {
                 ccScraperWindow : {
@@ -41,23 +42,18 @@ module.exports = async function({ ccScraperWindow, productObject, uriPropName, u
                     scraperType : ccScraperWindow.scraperType,
                 },
                 ccDataProps : {
-                    ...productObject,
+                    ...dataObject,
                 },
             });
 
         });
 
         ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-result", async(e, data) => {
-            console.log({
-                scrapingResultMessage : "Here's the scraping result",
-                ...data
-            });
-
-
-            // productObject = {...productObject, ...data.ccScrapingResult};
+            
             scrapingDone = true;
-            if(data.payload.ccScrapingResult[uniquePropName] === productObject[uniquePropName])   {
-                Object.assign(productObject, data.payload.ccScrapingResult);
+
+            if(data.payload.ccScrapingResult[uniquePropName] === dataObject[uniquePropName])   {
+                Object.assign(dataObject, data.payload.ccScrapingResult);
             }
             
 
@@ -71,9 +67,9 @@ module.exports = async function({ ccScraperWindow, productObject, uriPropName, u
 
     await waitForCondition({
         conditionCallback : () => scrapingDone,
-        onTrueCallback : () => console.log({message : "scraping is done... and we're closing the browser", scrapingDone, productObject}),
+        onTrueCallback : () => console.log({message : "scraping is done... and we're closing the browser", scrapingDone, dataObject}),
     });
 
-    return productObject;
 
+    return dataObject;
 }
