@@ -9,6 +9,7 @@ module.exports = function(model) {
         constructor(model)  {
             this.model = model;
             this.recordName;
+            this.removeUnlistedProps = false;
             Object.defineProperties(this, {
                 hashedProps : {
                     value : [],
@@ -49,15 +50,6 @@ module.exports = function(model) {
         addProps(classProp, ...propNames)  {
             for(let propName of propNames)  {
                 if(this[classProp] && !this[classProp].includes(propName))  this[classProp].push(propName);
-            }
-        }
-
-        removeProps(classProp, ...propNames)    {
-            for(let propName of propNames)  {
-                if(this[classProp].includes(propName))  {
-                    let index = this[classProp].indexOf(propName);
-                    this[classProp].splice(index, 1);
-                }
             }
         }
 
@@ -156,10 +148,12 @@ module.exports = function(model) {
         }
 
         removeInvalidProps(data)    {
-            let schemaKeys = Object.keys(this.model.schema.obj);
-            for(let key in data)    {
-                if(!schemaKeys.includes(key))   {
-                    delete(data[key]);
+            if(this.removeUnlistedProps)    {
+                let schemaKeys = Object.keys(this.model.schema.obj);
+                for(let key in data)    {
+                    if(!schemaKeys.includes(key))   {
+                        delete(data[key]);
+                    }
                 }
             }
         }

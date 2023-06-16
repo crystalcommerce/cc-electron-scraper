@@ -42,11 +42,11 @@ module.exports = async function({evaluator, utilitiesPath, fileName, scraperType
             codeOutput += createIpcrendererSendResult();
 
 
-        codeOutput += "\t})\n";
+        codeOutput += "\t});\n";
 
         codeOutput += "\n\n";
 
-    codeOutput += "}())";
+    codeOutput += "}());";
 
 
     // console.log(codeOutput);

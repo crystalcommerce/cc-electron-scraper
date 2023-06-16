@@ -1,20 +1,32 @@
 const fetch = require('node-fetch');
+const http = require("http");
 const https = require("https");
 const axios = require("axios");
 const { getValidatedPropValues } = require("./objects-array");
 const { moderator } = require('./general');
 
 
-async function apiRequest(url, options = {}, jsonData = true)   {
+async function apiRequest(url, options = {}, jsonData = true, httpsConnection = false)   {
+
+    const httpAgent = new http.Agent({
+        rejectUnauthorized: false
+    });
 
     const httpsAgent = new https.Agent({
         rejectUnauthorized: false
     });
 
+    let selectedAgent = httpsConnection ? httpsAgent : httpAgent;
+
     let headers = {
             "Content-Type" : "application/json",
-        },
-        requestOptions = jsonData ? {...options, headers, agent : httpsAgent} : options,
+        };
+
+    if(options.headers) {
+        Object.assign(headers, options.headers);
+    }
+
+    let requestOptions = jsonData ? {...options, headers, agent : selectedAgent} : options,
         res = await fetch(url, requestOptions),
         data = await res.json();
 
@@ -22,7 +34,7 @@ async function apiRequest(url, options = {}, jsonData = true)   {
 
 }
 
-async function postDataObjects(url, dataObjects, options = {}, limit = 5, callback = async() => {})   {
+async function postDataObjects(url, dataObjects, options = {}, limit = 5, callback = async() => {}, jsonData = true, httpsConnection = false)   {
     
     let allResults = [];
 
@@ -31,11 +43,16 @@ async function postDataObjects(url, dataObjects, options = {}, limit = 5, callba
         let requestPromises = slicedArr.map(item => {
             return async function() {
                 try {
-                    let postResult = await apiRequest(url, {
-                        method : "POST",
-                        body : JSON.stringify(item, null, 4),
-                        ...options
-                    });
+                    let postResult = await apiRequest(
+                        url, 
+                        {
+                            method : "POST",
+                            body : JSON.stringify(item, null, 4),
+                            ...options
+                        },
+                        jsonData,
+                        httpsConnection,
+                    );
                     console.log(postResult);
                     return postResult;
                 } catch(err)    {
@@ -60,13 +77,17 @@ async function verifyUrl(newUrl, sameOriginUrl = null)  {
 
     try {
 
+        const httpAgent = new http.Agent({
+            rejectUnauthorized: false
+        });
+    
         const httpsAgent = new https.Agent({
             rejectUnauthorized: false
         });
 
         // verify url;
         // if there's an axios error while doing the fetch; we'll catch that and return null url;
-        let response = await axios(newUrl, { httpsAgent }),
+        let response = await axios(newUrl, { httpsAgent, httpAgent }),
             responseURL = getValidatedPropValues(response, ["request", "res", "responseUrl"]);
 
         

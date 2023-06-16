@@ -2,13 +2,13 @@ const path = require("path");
 const createPreloadedScript = require("./create-preloaded-script");
 const getEvaluator = require("./get-evaluator");
 
-module.exports = async function(appAbsPath, userDataPath, fileName, scraperType, serverUrl)   {
+module.exports = async function(appAbsPath, userDataPath, fileName, scraperType, serverUrl, evaluatorItemIndex = 0)   {
     try {
 
         let scriptsPath = path.join(userDataPath, "modules", "scripts"),
             targetPath = path.join(userDataPath, "modules", "temp"),
             evaluatorObject = require(path.join(scriptsPath, `${fileName}.js`)),
-            { evaluator, evaluatorIndex } = getEvaluator(evaluatorObject, scraperType);
+            { evaluator, evaluatorIndex } = getEvaluator(evaluatorObject, scraperType, evaluatorItemIndex);
 
 
         let resultObject = await createPreloadedScript({

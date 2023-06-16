@@ -25,7 +25,7 @@ module.exports = function(serverUrl) {
     codeOutput += `containerMask.style.justifyContent = 'center';\n`;
     codeOutput += `containerMask.style.alignItems = 'center';\n`;
     codeOutput += `containerMask.style.backgroundColor = '#0f2523cc';\n`;
-    codeOutput += `containerMask.style.zIndex = '7747';\n`;
+    codeOutput += `containerMask.style.zIndex = '7777747';\n`;
     codeOutput += `containerMask.style.padding = '1.5rem';\n`;
 
     codeOutput += `containerMask.append(modalContainer);\n`;
@@ -72,6 +72,7 @@ module.exports = function(serverUrl) {
     codeOutput += `// modalContainerBody styles\n`;
     codeOutput += `modalContainerBody.innerHTML = '<p style="text-align: left; line-height: 1.4;">Page navigation through links or urls are disabled to prevent any error occuring while the script is scraping this page.</p>';\n`;
     codeOutput += `modalContainerBody.style.display = 'flex';\n`;
+    codeOutput += `modalContainerBody.style.flexDirection = 'column';\n`;
     codeOutput += `modalContainerBody.style.alignItems = 'center';\n`;
     codeOutput += `modalContainerBody.style.justifyContent = 'center';\n`;
     codeOutput += `modalContainerBody.style.padding = '0 1.5rem 1.5rem';\n`;

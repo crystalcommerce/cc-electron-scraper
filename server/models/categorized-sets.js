@@ -12,9 +12,17 @@ const categorizedSetsSchema = new Schema({
         required : true,
     },
     categoryObject : {
+        type : Object,
+        required : true,
+    },
+    startingPointUrl : {
         type : String,
         required : true,
-    }
+    },
+    dateCreated : {
+        type : Date,
+        default : Date.now(),
+    },
 }, {strict : true});
 
 const CategorizedSet = mongoose.model("CategorizedSet", categorizedSetsSchema);

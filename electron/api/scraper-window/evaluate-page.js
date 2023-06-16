@@ -1,7 +1,8 @@
 const { waitForCondition } = require("../../../utilities");
+const clearUserData = require("./clear-user-data");
 const session = require("electron").session;
 
-module.exports = async function({ ccScraperWindow, dataObject, uriPropName, uniquePropName, closeOnEnd })  {
+module.exports = async function({ ccScraperWindow, dataObject, uriPropName, closeOnEnd })  {
 
     let scrapingDone = false;
 
@@ -9,10 +10,21 @@ module.exports = async function({ ccScraperWindow, dataObject, uriPropName, uniq
 
     ccScraperWindow.load(dataObject[uriPropName]);
 
-    ccScraperWindow.windowObject.webContents.on("will-redirect", (e) => {
+    const preventDefaultFunction = (e) => {
         e.preventDefault();
-        // console.log("page will redirect");
-    });
+    }
+
+    const removeEventListeners = () => {
+        let eventsArr = ["will-redirect", "will-navigate", "did-start-loading"];
+
+        for(let event of eventsArr) {
+
+            ccScraperWindow.windowObject.webContents.removeListener(event, preventDefaultFunction);
+
+        }
+    }
+
+    ccScraperWindow.windowObject.webContents.on("will-redirect", preventDefaultFunction);
 
     ccScraperWindow.windowObject.webContents.once("did-finish-load", async (e) => {
         // cookie session
@@ -21,13 +33,9 @@ module.exports = async function({ ccScraperWindow, dataObject, uriPropName, uniq
         // user agent string...
         ccScraperWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36');
 
-        ccScraperWindow.windowObject.webContents.on("will-navigate", (e) => {
-            e.preventDefault();
-        });
+        ccScraperWindow.windowObject.webContents.on("will-navigate", preventDefaultFunction);
     
-        ccScraperWindow.windowObject.webContents.on('did-start-loading', (e) => {
-            e.preventDefault();
-        });
+        ccScraperWindow.windowObject.webContents.on('did-start-loading', preventDefaultFunction);
 
         // ccScraperWindow.windowObject.webContents.on('ipc-message', (event, channel, data) => {
         ccScraperWindow.windowObject.webContents.ipc.on('document-ready', (e, data) => {
@@ -50,15 +58,30 @@ module.exports = async function({ ccScraperWindow, dataObject, uriPropName, uniq
 
         ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-result", async(e, data) => {
             
-            scrapingDone = true;
-
-            if(data.payload.ccScrapingResult[uniquePropName] === dataObject[uniquePropName])   {
+            if(data.payload.windowId === ccScraperWindow.windowId)   {
                 Object.assign(dataObject, data.payload.ccScrapingResult);
             }
-            
 
-            if(closeOnEnd)  {
-                ccScraperWindow.close();
+            scrapingDone = true;
+
+        });
+
+
+        ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-wait-for-selectors-failed", async(e, data) => {
+            
+            let {currentWait} = data.payload;
+
+            if(currentWait > 3) {
+
+                scrapingDone = true;
+
+            } else  {
+
+                console.log(data.payload);
+                console.log("failed waiting");
+
+                ccScraperWindow.load(data.payload.url);
+
             }
 
         });
@@ -67,7 +90,12 @@ module.exports = async function({ ccScraperWindow, dataObject, uriPropName, uniq
 
     await waitForCondition({
         conditionCallback : () => scrapingDone,
-        onTrueCallback : () => console.log({message : "scraping is done... and we're closing the browser", scrapingDone, dataObject}),
+        onTrueCallback : () => {
+            console.log({message : "scraping is done... and we're closing the browser", scrapingDone, dataObject});
+            removeEventListeners();
+            clearUserData();
+            ccScraperWindow.close();
+        },
     });
 
 

@@ -1,61 +1,100 @@
 /* 
 
-
-
-    this function receives the payload
-    payload has the scraperWindowOptions and scraperOptions;
-
-    
-    {fileNameWithExt, siteName, siteUrl} = scraperData
-    {AppWindowId, componentId, windowId, resourceLocation} = scraperWindowOptions,
-    
-    
-
-    C:\Users\cools\AppData\Roaming\cc-electron-scraper
+    Single product scraping...
 
 */
 
+const clearUserData = require("../../../electron/api/scraper-window/clear-user-data");
 const createScraperWindow = require("../../../electron/api/scraper-window/create-scraper-window");
 const evaluatePage = require("../../../electron/api/scraper-window/evaluate-page");
+const { apiRequest } = require("../../../utilities");
 
 class SingleProductScraper {
 
-    constructor({productObject, userDataPath, appAbsPath, serverUrl, payload, appObject})   {
+    constructor({productObject, userDataPath, appAbsPath, serverUrl, payload, appObject, saveDataOnFinish, closeOnEnd, evaluatorIndex, ccScraperWindow})   {
+
+        if(!productObject)  {
+            return null;
+        }
+
+        this.windowId = ccScraperWindow ? ccScraperWindow.windowId : null;
+        this.saveDataOnFinish = typeof saveDataOnFinish === "boolean" ? saveDataOnFinish : true;
+        this.closeOnEnd = typeof closeOnEnd === "boolean" ? closeOnEnd : true;
+        this.evalautorIndex = typeof evaluatorIndex === "number" ? evaluatorIndex : 0;
 
         this.productObject = productObject;
-        this.ccScraperWindow = null;
+        this.ccScraperWindow = ccScraperWindow ? ccScraperWindow : null;
         this.evaluator = null;
 
-        this.showWindow = false;
+        this.showWindow = true;
 
         this.userDataPath = userDataPath;
         this.appAbsPath = appAbsPath;
         this.serverUrl = serverUrl; 
+        this.apiUrl = null;
         this.payload = payload;
         this.appObject = appObject && appObject.ready ? appObject : {ready : true};
+        
+        this.setApiUrl(payload);
+
+    }
+
+    setApiUrl(payload) {
+        let { ccScriptData } = payload,
+            { fileName } = ccScriptData;
+
+        this.apiUrl = `${this.serverUrl}/api/${fileName}`;
+    }
+
+    clearUserData() {
+        clearUserData();
+    }
+
+    async saveData()  {
+
+        try {
+
+            let createResult = await apiRequest(this.apiUrl, {
+                method : "POST",
+                body : JSON.stringify(this.productObject),
+                headers : {
+                    "Content-Type" : "application/json",
+                }
+            }, true);
+
+            console.log({createResult});
+
+            if(createResult.status === 200) {
+                return createResult;
+            }
+
+        } catch(err)    {
+            console.log(err);
+        }
 
     }
 
     async setScraperWindow()    {
-        let { ccScraperWindow, evaluator } = await createScraperWindow(this.payload, this.userDataPath, this.appAbsPath, this.serverUrl, this.appObject);
+        let { ccScraperWindow, evaluator } = await createScraperWindow(this.payload, this.userDataPath, this.appAbsPath, this.serverUrl, this.appObject, this.evaluatorIndex);
 
+        // setting other properties of this instance;
         this.ccScraperWindow = ccScraperWindow;
+        this.windowId = this.ccScraperWindow.windowId;
         this.evaluator = evaluator;
     }
 
     async scrapeData()  {
 
-        await evaluatePage({
+        let dataObject = await evaluatePage({
             ccScraperWindow : this.ccScraperWindow,
             dataObject : this.productObject,
             uriPropName : this.evaluator.uriPropName,
-            uniquePropName : "_id",
-            closeOnEnd : true,
+            closeOnEnd : this.closeOnEnd,
         });
 
-        console.log({productObject : this.productObject});
+        console.log({ dataObject, productObject : this.productObject });
 
-        // Object.assign(this.productObject, productObject);
+        Object.assign(this.productObject, dataObject);
 
     }
     
@@ -63,7 +102,15 @@ class SingleProductScraper {
 
         await this.setScraperWindow();
 
+        this.ccScraperWindow.showWindow();
+
         await this.scrapeData();
+
+        if(this.saveDataOnFinish)   {
+
+            await this.saveData();
+
+        }
         
     }
 

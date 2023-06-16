@@ -2,7 +2,7 @@ const SingleProductScraper = require("../core/scraper/classes/single-product-scr
 const createScraperWindow = require("../electron/api/scraper-window/create-scraper-window");
 const evaluatePage = require("../electron/api/scraper-window/evaluate-page");
 const CcScraperWindow = require("../electron/classes/cc-scraper-window");
-const { moderator } = require("../utilities");
+const { moderator, slowDown } = require("../utilities");
 
 
 module.exports = async function(productObjects, payload, userDataPath, appAbsPath, serverUrl)   {
@@ -30,11 +30,20 @@ module.exports = async function(productObjects, payload, userDataPath, appAbsPat
                 //     closeOnEnd : true
                 // });
 
-                let singleProductScraper = new SingleProductScraper({productObject, userDataPath, appAbsPath, serverUrl, payload });
+                let singleProductScraper = new SingleProductScraper({productObject, userDataPath, appAbsPath, serverUrl, payload, closeOnEnd : true });
 
                 await singleProductScraper.initialize();
 
-                console.log(singleProductScraper.productObject);
+                // console.log(singleProductScraper.productObject);
+
+                // await slowDown();
+
+                // console.log({message : "redirecting to youtube.com"});
+
+                // singleProductScraper.ccScraperWindow.load("https://watchcharts.com/listing/12724766-fs-rolex-116508-yg-daytona-champagne-black-dial-full-set-dated");
+                // singleProductScraper.ccScraperWindow.load("https://tcgplayer.com");
+
+                
 
             }
         });

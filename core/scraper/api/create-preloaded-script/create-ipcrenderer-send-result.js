@@ -3,9 +3,8 @@ module.exports = function() {
     let codeOutput = "";
 
     codeOutput += "\t\t// sending the data back to main process;\n";
-    codeOutput += `\t\tlet {AppWindowId, componentId, windowId} = window.ccScraperWindow;\n`;
-    codeOutput += "\n";
 
+    codeOutput += `\t\tawait slowDown(2525);\n`;
     codeOutput += `\t\tipcRenderer.send("cc-scraping-result", {\n`;
 
     codeOutput += `\t\t\tpayload : {\n`;
