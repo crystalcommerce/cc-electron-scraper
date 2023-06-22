@@ -1,8 +1,8 @@
-const SingleProductScraper = require("../core/scraper/classes/single-product-scraper");
-const createScraperWindow = require("../electron/api/scraper-window/create-scraper-window");
-const evaluatePage = require("../electron/api/scraper-window/evaluate-page");
-const CcScraperWindow = require("../electron/classes/cc-scraper-window");
-const { moderator, slowDown } = require("../utilities");
+const SingleProductScraper = require("../../core/scraper/classes/single-product-scraper");
+const createScraperWindow = require("../../electron/api/scraper-window/create-scraper-window");
+const evaluatePage = require("../../electron/api/scraper-window/evaluate-page");
+const CcScraperWindow = require("../../electron/classes/cc-scraper-window");
+const { moderator, slowDown } = require("../../utilities");
 
 
 module.exports = async function(productObjects, payload, userDataPath, appAbsPath, serverUrl)   {

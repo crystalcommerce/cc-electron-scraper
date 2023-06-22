@@ -7,7 +7,7 @@
 const clearUserData = require("../../../electron/api/scraper-window/clear-user-data");
 const createScraperWindow = require("../../../electron/api/scraper-window/create-scraper-window");
 const evaluatePage = require("../../../electron/api/scraper-window/evaluate-page");
-const { apiRequest } = require("../../../utilities");
+const { apiRequest, sendDataToMainProcess } = require("../../../utilities");
 
 class SingleProductScraper {
 
@@ -37,6 +37,12 @@ class SingleProductScraper {
         
         this.setApiUrl(payload);
 
+        this.scraperInfo = {
+            windowId : this.windowId,
+            scraperType : "single-product-scraping",
+            evaluatorIndex : this.evaluatorIndex
+        }
+
     }
 
     setApiUrl(payload) {
@@ -62,8 +68,8 @@ class SingleProductScraper {
                 }
             }, true);
 
-            console.log({createResult});
-
+            sendDataToMainProcess({...this.scraperInfo}, createResult);
+            
             if(createResult.status === 200) {
                 return createResult;
             }
@@ -102,7 +108,7 @@ class SingleProductScraper {
 
         await this.setScraperWindow();
 
-        this.ccScraperWindow.showWindow();
+        this.ccScraperWindow.showWindow(); // this is just temporary
 
         await this.scrapeData();
 

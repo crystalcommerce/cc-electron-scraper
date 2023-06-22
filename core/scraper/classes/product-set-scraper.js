@@ -25,20 +25,19 @@
 const clearUserData = require("../../../electron/api/scraper-window/clear-user-data");
 const createScraperWindow = require("../../../electron/api/scraper-window/create-scraper-window");
 const evaluatePage = require("../../../electron/api/scraper-window/evaluate-page");
-const { apiRequest, moderator } = require("../../../utilities");
+const { apiRequest, moderator, sendDataToMainProcess } = require("../../../utilities");
 
 class ProductSetScraper {
 
-    constructor({categorizedSet, userDataPath, appAbsPath, serverUrl, payload, appObject, saveDataOnFinish, closeOnEnd, evaluatorIndex})    {
+    constructor({categorizedSet, userDataPath, appAbsPath, serverUrl, payload, appObject, saveDataOnFinish, closeOnEnd})    {
 
         if(!categorizedSet) {
             return null;
         }
 
-        this.windowId = ccScraperWindow ? ccScraperWindow.windowId : null;
+        this.windowId = null;
         this.saveDataOnFinish = typeof saveDataOnFinish === "boolean" ? saveDataOnFinish : false;
         this.closeOnEnd = typeof closeOnEnd === "boolean" ? closeOnEnd : true;
-        this.evalautorIndex = typeof evaluatorIndex === "number" ? evaluatorIndex : 0;
 
         this.categorizedSet = categorizedSet;
         this.categorizedSetId = this.categorizedSet[this.uniquePropName];
@@ -64,6 +63,11 @@ class ProductSetScraper {
 
         this.setApiUrl(payload);
 
+        this.scraperInfo = {
+            windowId : this.windowId,
+            scraperType : "product-set-scraper",
+        }
+
     }
 
     setApiUrl(payload) {
@@ -85,17 +89,19 @@ class ProductSetScraper {
                 return;
             }
 
+            let createResults = [];
+
             await moderator(dataObjects, async (slicedArr) => {
 
                 let promises = slicedArr.map(item => {
-                    return async function() {
+                    return async () => {
 
                         let createResult = await apiRequest(this.apiUrl, {
                             method : "POST",
                             body : JSON.stringify(item, null, 4),
                         }, true);
 
-                        return createResult;
+                        createResults.push(createResult);
 
                     }
                 });
@@ -104,6 +110,7 @@ class ProductSetScraper {
 
             }, this.maxRequestLimit);
             
+            return createResults;
 
         } catch(err)    {
             console.log(err.message);
@@ -112,17 +119,19 @@ class ProductSetScraper {
 
     // async setScraperWindow()
     async setScraperWindow()    {
-        let { ccScraperWindow, evaluator } = await createScraperWindow(this.payload, this.userDataPath, this.appAbsPath, this.serverUrl, this.appObject, this.evaluatorIndex);
+        let { ccScraperWindow, evaluator } = await createScraperWindow(this.payload, this.userDataPath, this.appAbsPath, this.serverUrl, this.appObject);
 
         this.ccScraperWindow = ccScraperWindow;
         this.evaluator = evaluator;
+        this.windowId = ccScraperWindow.windowId;
     }
 
     async scrapeData(url)    {
-        let {productObjects, newUrl} = await evaluatePage({
+
+        let { productObjects, newUrl } = await evaluatePage({
             ccScraperWindow : this.ccScraperWindow,
-            dataObject : this.productObject,
-            uriPropName : url,
+            dataObject : this.categorizedSet,
+            resourceUri : url,
             uniquePropName : this.uniquePropName,
             closeOnEnd : false,
             saveDataOnFinish : false,
@@ -131,30 +140,36 @@ class ProductSetScraper {
         return {productObjects, newUrl};
     }
 
-    
-
     // async getNewUrl();
     async scrapeDataByUrl(url)   {
-        let {productObjects, newUrl} = await scrapeData(url);
+        let {productObjects, newUrl} = await this.scrapeData(url);
 
         // add the productObjects.length to the total;
         this.totalProductObjects += productObjects.length;
 
         console.log({productObjects, newUrl, totalProductObjects : this.totalProductObjects});
 
-        await this.saveData(productObjects);
+        let createResults = await this.saveData(productObjects);
+
+        sendDataToMainProcess('product-set-scraping-process', createResults);
 
         if(newUrl)  {
-            await this.scrapeDataByUrl(newUrl)
+            await this.scrapeDataByUrl(newUrl);
         } else if(this.closeOnEnd) {
-            
+            this.ccScraperWindow.close();
         }
 
-    } 
+    }
 
-    // async loadNewPage();
+    async initialize()  {
 
-    // async scrapeData();
+        await this.setScraperWindow();
+
+        this.ccScraperWindow.showWindow();
+
+        await this.scrapeDataByUrl(this.categorizedSet.startingPointUrl);
+
+    }
 
 }
 

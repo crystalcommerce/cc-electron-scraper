@@ -42,8 +42,8 @@ class CcScraperWindow {
             ...this.windowOptions,
             frame : false,
             show : false,
-            height : 540,
-            width : 1920,
+            height : 520,
+            width : 1280,
             webPreferences : {
                 nodeIntegration : true,
                 contextIsolation : false,

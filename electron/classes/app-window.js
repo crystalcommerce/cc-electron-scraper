@@ -12,10 +12,10 @@ class AppWindow {
         this.windowType = "app-window";
         this.resourceLocation = resourceLocation && resourceLocation.trim() !== ""? resourceLocation : path.join(process.cwd(), "views", "blank.html");
         this.defaultOptions = {
-            width: 2000, 
-            height: 1200,
-            minWidth : 960,
-            minHeight : 777,
+            width: 1280, 
+            height: 720,
+            minWidth : 1280,
+            minHeight : 720,
             frame : false,
             webPreferences : {
                 nodeIntegration : true,

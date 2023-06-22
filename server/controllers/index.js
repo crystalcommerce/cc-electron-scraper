@@ -1,3 +1,5 @@
+const { moderator } = require("../../utilities");
+
 module.exports = function(modelInstanceDb) {
 
     let { recordName } = modelInstanceDb;
@@ -153,22 +155,28 @@ module.exports = function(modelInstanceDb) {
         try {
             let filter = req.query,
                 filteredResult = await modelInstanceDb.getAllFilteredData(filter),
-                promises = [];
+                multipleDeleteResult = [];
+            
+            await moderator(filteredResult, async(slicedArr) => {
 
-            for(let product of filteredResult) {
-                promises.push(async () => {
-                    try {
-                        deleteResult = await modelInstanceDb.delete(product._id.toString());
-
-                        return deleteResult;
-                    } catch(err) {
-                        return {status : 403, message : err.message}
+                let promises = slicedArr.map(product => {
+                    return async () => {
+                        try {
+                            let deleteResult = await modelInstanceDb.delete(product._id.toString());
+    
+                            return deleteResult;
+                        } catch(err) {
+                            return {status : 403, message : err.message}
+                        }
                     }
                 });
-            }
-            
+                let deleteResults = await Promise.all(promises.map(item => item()));
 
-            let multipleDeleteResult = await Promise.all(promises.map(async item => await item()));
+                multipleDeleteResult.push(deleteResults);
+
+            }, 10);
+
+            
             
             if(!multipleDeleteResult.length) {
                 throw Error(`We could did not get a filtered result for ${recordName}, which means we never got to delete any of the data.`)

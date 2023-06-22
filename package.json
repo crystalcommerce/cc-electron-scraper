@@ -27,8 +27,6 @@
     "express-session": "^1.17.3",
     "file-saver": "^2.0.5",
     "google-auth-library": "^8.7.0",
-    "jszip": "^3.10.1",
-    "jszip-utils": "^0.1.0",
     "localforage": "^1.10.0",
     "mnm-uuid": "^1.0.3",
     "mongoose": "^7.1.0",

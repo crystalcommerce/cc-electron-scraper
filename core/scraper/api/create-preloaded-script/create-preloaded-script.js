@@ -52,7 +52,9 @@ module.exports = async function({evaluator, utilitiesPath, fileName, scraperType
     // console.log(codeOutput);
 
     let fileNameWithExt = `${toUrl(`${[fileName, scraperType, evaluatorIndex].filter(item => item.toString().trim() !== "").join(" ")}`)}.js`,
-        result = await createNodeModule(targetPath, fileNameWithExt, codeOutput);
+        result = await createNodeModule(targetPath, fileNameWithExt, codeOutput);;
+
+        console.log(result)
 
     return {result, preloadedScript : path.join(targetPath, fileNameWithExt)};
 

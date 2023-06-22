@@ -1,6 +1,6 @@
 const { fork } = require('child_process');
 const path = require("path");
-const { writeFile } = require('./file-system');
+const { writeFile, createDirPath } = require('./file-system');
 
 function registerWindowEvent(windowId, object, eventName, callback)  {
 
@@ -49,7 +49,8 @@ function spawnOnChildProcess(filePath) {
 }
 
 async function createNodeModule(targetPath, fileName, textData) {
-    let filePath = path.join(targetPath, fileName),
+    let dirPath = await createDirPath(targetPath),
+        filePath = path.join(dirPath, fileName),
         writeResult = await writeFile(filePath, textData);
 
     return writeResult;
@@ -64,9 +65,21 @@ function getRequestResult(result, status = 200, contentType = "application/json"
     return obj;
 }
 
+function sendDataToMainProcess(channel, data)   {
+    // process.send({channel, data});
+
+    // process.addListener("")
+
+    console.log({
+        channel,
+        data
+    });
+}
+
 module.exports = {
     registerWindowEvent,
     spawnOnChildProcess,
     getRequestResult,
     createNodeModule,
+    sendDataToMainProcess
 }

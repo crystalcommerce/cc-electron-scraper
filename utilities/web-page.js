@@ -1,5 +1,3 @@
-const JsZip = require("jszip");
-const JsZipUtils = require('jszip-utils');
 const {saveAs} = require("file-saver");
 const axios = require("axios");
 const { moderator, slowDown, waitForCondition } = require("./general");
@@ -194,7 +192,7 @@ async function readBlobData(blob)   {
 
 }
 
-async function zipData({setData, productObjects, imageNameObject, imagePropName, csvExcludedProps, includeJson}, eventCallbacks = null, zipCallback = null)  {
+async function zipData({JsZip, setData, productObjects, imageNameObject, imagePropName, csvExcludedProps, includeJson}, eventCallbacks = null, zipCallback = null)  {
 
     if(!csvExcludedProps)    {
         csvExcludedProps = [];
