@@ -34,6 +34,7 @@ class SingleProductScraper {
         this.apiUrl = null;
         this.payload = payload;
         this.appObject = appObject && appObject.ready ? appObject : {ready : true};
+        this.idPropName = "_id";
         
         this.setApiUrl(payload);
 
@@ -60,15 +61,17 @@ class SingleProductScraper {
 
         try {
 
-            let createResult = await apiRequest(this.apiUrl, {
-                method : "POST",
-                body : JSON.stringify(this.productObject),
-                headers : {
-                    "Content-Type" : "application/json",
-                }
-            }, true);
+            let productId = this.productObject[this.idPropName],
+                updateUrl = `${this.apiUrl}/${productId}`,
+                updateResult = await apiRequest(updateUrl, {
+                    method : "PUT",
+                    body : JSON.stringify(this.productObject),
+                    headers : {
+                        "Content-Type" : "application/json",
+                    }
+                }, true);
 
-            sendDataToMainProcess({...this.scraperInfo}, createResult);
+            sendDataToMainProcess("scraper-window", {...this.scraperInfo, data : updateResult});
             
             if(createResult.status === 200) {
                 return createResult;

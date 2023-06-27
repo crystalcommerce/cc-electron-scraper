@@ -151,6 +151,9 @@ module.exports = async function(app)    {
             "setId" : generateUuid(),
         }
     ];
+    
+    // TODO : this is just a slice of the total;
+    categorizedSets = categorizedSets.filter(item => item.setData.subcategory === "Bowler" || item.setData.subcategory === "Wallets"); 
 
     app.whenReady().then(async () => {
 
@@ -168,8 +171,6 @@ module.exports = async function(app)    {
             userDataPath = await createDirPath(app.getPath("appData"), "cc-electron-scraper"),
             serverUrl = "http://localhost:7000";
             
-
-        // await batchScrapingMethodSingleProduct(productObjects.slice(0,3), payload, userDataPath, appAbsPath, serverUrl);
         
         await moderator(categorizedSets, async (slicedArr) => {
 
@@ -200,7 +201,7 @@ module.exports = async function(app)    {
 
     app.on('window-all-closed', (e) => {
 
-        console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, categorizedSets : categorizedSets.slice(0,3)})
+        console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, categorizedSets : categorizedSets})
         // e.preventDefault();
         // if (process.platform !== 'darwin') {
         //     app.quit()

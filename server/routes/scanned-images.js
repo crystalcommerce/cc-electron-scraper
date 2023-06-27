@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const getDynamicController = require("../controllers/index");
 const httpResponseHandler = require("../middlewares/http-response-handler");
-const scannedImagesDb = require("../models/scanned-images");
+const scannedImagesDb = require("../models/scanned-images-db");
 
 module.exports = function()   {
 
