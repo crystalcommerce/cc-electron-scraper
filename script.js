@@ -3,5 +3,5 @@ const { app } = require('electron');
 
 
 (async function(){
-    await grainger(app)
+    await grainger(app);
 }())

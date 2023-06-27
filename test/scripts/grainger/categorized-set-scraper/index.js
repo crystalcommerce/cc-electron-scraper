@@ -16,14 +16,13 @@
 */
 
 const path = require("path");
-const CcScraperWindow = require('../../../electron/classes/cc-scraper-window');
-const { createDirPath, generateUuid, moderator, waitForCondition, readFile, createJsonFileObject, isObjectInArray } = require('../../../utilities');
-const ProductSetScraper = require("../../../core/scraper/classes/product-set-scraper");
+const CcScraperWindow = require('../../../../electron/classes/cc-scraper-window');
+const { createDirPath, generateUuid, moderator, waitForCondition, readFile, createJsonFileObject, isObjectInArray } = require('../../../../utilities');
+const ProductSetScraper = require("../../../../core/scraper/classes/product-set-scraper");
 
 const categorizedSet = require("./categorized-set");
-const evaluatePage = require("../../../electron/api/scraper-window/evaluate-page");
+const evaluatePage = require("../../../../electron/api/scraper-window/evaluate-page");
 // const createScraperWindow = require("../../../electron/api/scraper-window/create-scraper-window");
-let categorizedSetSlice = categorizedSet.slice();
 
 function replaceCategoryObject(categoryObject, categorizedSetsArr, newCategorizedSet) {
 
@@ -65,7 +64,7 @@ function createScraperWindow()    {
     return ccScraperWindow;
 }
 
-async function getStartingPointUrls(categorizedSet)   {
+async function getStartingPointUrls(categorizedSet, jsonDirPath)   {
 
     let categorizedSetsArr = categorizedSet.filter(item => item.isStartingPoint);
 
@@ -110,14 +109,14 @@ async function getStartingPointUrls(categorizedSet)   {
     console.log(`\n\n\n\n`);
     console.log({filteredArrTotal : filteredArr.length, finishedArrTotal : finishedArr.length,  categorizedSetsArr});
 
-        let categorizedSetJsonFileSample = createJsonFileObject(path.join(__dirname, "json"), "categorized-set-sample.json");
+        let categorizedSetJsonFileSample = createJsonFileObject(jsonDirPath, "categorized-set-sample.json");
 
         await categorizedSetJsonFileSample.addNewData(categorizedSetsArr);
 
     if(filteredArr.length)  {
-        await getStartingPointUrls(categorizedSetsArr);
+        await getStartingPointUrls(categorizedSetsArr, jsonDirPath);
     }   else    {
-        let categorizedSetJsonFile = createJsonFileObject(path.join(__dirname, "json"), "categorized-set.json");
+        let categorizedSetJsonFile = createJsonFileObject(jsonDirPath, "categorized-set.json");
 
         await categorizedSetJsonFile.addNewData(categorizedSetsArr);
     }
@@ -127,10 +126,10 @@ async function getStartingPointUrls(categorizedSet)   {
 
 
 
-module.exports = async function(app)    {
+module.exports = async function(app, jsonDirPath)    {
     app.whenReady().then(async () => {
 
-        await getStartingPointUrls(categorizedSet);
+        await getStartingPointUrls(categorizedSet, jsonDirPath);
 
     });
 

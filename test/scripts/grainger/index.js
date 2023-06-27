@@ -16,121 +16,20 @@
 */
 
 const path = require("path");
-const CcScraperWindow = require('../../../electron/classes/cc-scraper-window');
-const { createDirPath, generateUuid, moderator, waitForCondition, readFile, createJsonFileObject, isObjectInArray } = require('../../../utilities');
-const ProductSetScraper = require("../../../core/scraper/classes/product-set-scraper");
+// const 
+const categorizedSetScraper = require("./categorized-set-scraper");
+const { createDirPath, createJsonFileObject, apiRequest, moderator } = require("../../../utilities");
+const productSetsScraper = require("./product-sets-scraper");
 
-const categorizedSet = require("./categorized-set");
-const evaluatePage = require("../../../electron/api/scraper-window/evaluate-page");
-// const createScraperWindow = require("../../../electron/api/scraper-window/create-scraper-window");
-let categorizedSetSlice = categorizedSet.slice();
+async function categorizedSetScraping(app)  {
 
-function replaceCategoryObject(categoryObject, categorizedSetsArr, newCategorizedSet) {
-
-    if(!newCategorizedSet.length)    {
-
-        categoryObject.isStartingPoint = true;
-
-        categorizedSetsArr.push(categoryObject);
-
-    } else  {
-
-        categorizedSetsArr = categorizedSetsArr.filter(item => item.startingPointUrl !== categoryObject.startingPointUrl);
-
-        for(let object of newCategorizedSet)    {
-            console.log({isObjectInArray : isObjectInArray(object, categorizedSetsArr, ["startingPointUrl"])});
-            if(!isObjectInArray(object, categorizedSetsArr, ["startingPointUrl"]))   {
-                categorizedSetsArr.push(object);
-            }
-        }
-        
-    }
-
-    return categorizedSetsArr;
-    
-}
-
-function createScraperWindow()    {
-    let ccScraperWindow = new CcScraperWindow({
-        AppWindowId : null, 
-        componentId : null, 
-        windowId : null, 
-        preloadedScript : path.join(__dirname, "preloaded-script.js"), 
-        scraperType : "categorized-set", 
-        resourceLocation : null,
-    });
-
-    ccScraperWindow.initialize();
-
-    return ccScraperWindow;
-}
-
-async function getStartingPointUrls(categorizedSet)   {
-
-    let categorizedSetsArr = categorizedSet.filter(item => item.isStartingPoint);
-
-    await moderator(categorizedSet.filter(item => !item.isStartingPoint), async(slicedArr) => {
-
-        let promises = slicedArr.map(categoryObject => {
-            return async () => {
-                let ccScraperWindow = createScraperWindow();
-
-                // console.log(ccScraperWindow);
-
-                console.log();
-
-                ccScraperWindow.showWindow();
-
-                let dataObject = await evaluatePage({
-                    ccScraperWindow,
-                    resourceUri : categoryObject.startingPointUrl,
-                    dataObject : {categoryObject},
-                    uriPropName : "startingPointUrl",
-                    closeOnEnd : true,
-                });
-
-                let {newCategorizedSet} = dataObject;
-
-                // console.log(categorizedSetSlice);
-                
-                // replaceCategoryObject(categoryObject, categorizedSetSlice, newCategorizedSet);
-
-                categorizedSetsArr = replaceCategoryObject(categoryObject, categorizedSetsArr, newCategorizedSet);
-                
-            }
-        });
-            
-        await Promise.all(promises.map(item => item()));
-            // console.log(categorizedSetSlice);
-    }, 5);
-
-    let filteredArr = categorizedSetsArr.filter(item => !item.isStartingPoint),
-        finishedArr = categorizedSetsArr.filter(item => item.isStartingPoint);
-
-    console.log(`\n\n\n\n`);
-    console.log({filteredArrTotal : filteredArr.length, finishedArrTotal : finishedArr.length,  categorizedSetsArr});
-
-        let categorizedSetJsonFileSample = createJsonFileObject(path.join(__dirname, "json"), "categorized-set-sample.json");
-
-        await categorizedSetJsonFileSample.addNewData(categorizedSetsArr);
-
-    if(filteredArr.length)  {
-        await getStartingPointUrls(categorizedSetsArr);
-    }   else    {
-        let categorizedSetJsonFile = createJsonFileObject(path.join(__dirname, "json"), "categorized-set.json");
-
-        await categorizedSetJsonFile.addNewData(categorizedSetsArr);
-    }
-    
-
-}
-
-
-
-module.exports = async function(app)    {
     app.whenReady().then(async () => {
 
-        await getStartingPointUrls(categorizedSet);
+        let jsonDirPath = await createDirPath(__dirname, "json");
+
+        // await categorizedSetScraper(app, jsonDirPath);
+        await categorizedSetScraper(app, jsonDirPath);
+
 
     });
 
@@ -143,4 +42,74 @@ module.exports = async function(app)    {
         //     app.quit()
         // }
     });
+
+}
+
+async function saveCategorizedSetsToDb()    {
+
+    let jsonDirPath = await createDirPath(__dirname, "json")
+        categorizedSetJson = createJsonFileObject(jsonDirPath, "categorized-set.json"),
+        categorizedSet = await categorizedSetJson.getSavedData(),
+        apiUrl = "http://localhost:7000/api/categorized-sets";
+
+    await moderator(categorizedSet, async (slicedArr) => {
+
+        let promises = slicedArr.map(item => {
+            return async () => {
+
+                let createResult = apiRequest(apiUrl, {
+                    method : "POST",
+                    body : JSON.stringify(item, null, 4),
+                    headers : {
+                        "Content-Type" : "application/json",
+                    }
+                }, true);
+
+                return createResult;
+
+            }
+        });
+
+        let createResults = await Promise.all(promises.map(item => item()));
+
+        console.log(createResults);
+
+    }, 20);
+
+}
+
+async function productSetScraping(app)  {
+
+    // let jsonDirPath = await createDirPath(__dirname, "json", "products");
+
+    app.whenReady().then(async () => {
+
+        let jsonDirPath = await createDirPath(__dirname, "json");
+
+        await categorizedSetScraper(app, jsonDirPath);
+        // await productSetsScraper(app, jsonDirPath);
+
+
+    });
+
+
+    app.on('window-all-closed', (e) => {
+
+        // console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, categorizedSet : categorizedSet})
+        // e.preventDefault();
+        // if (process.platform !== 'darwin') {
+        //     app.quit()
+        // }
+    });
+}   
+
+module.exports = async function(app)    {
+    
+    // await categorizedSetScraping(app);
+
+    await saveCategorizedSetsToDb();
+
+    // await productSetScraping(app, jsonDirPath)
+
+
 }

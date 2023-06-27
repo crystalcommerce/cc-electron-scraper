@@ -11,7 +11,7 @@ const categorizedSetsSchema = new Schema({
         type : String,
         required : true,
     },
-    categoryObject : {
+    setData : {
         type : Object,
         required : true,
     },

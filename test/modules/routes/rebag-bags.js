@@ -1,75 +1,56 @@
-// const { Router } = require("express");
-// const router = Router();
+module.exports = function(Router, rebagBagsDb, getDynamicController, httpResponseHandler)   {
 
-// const tcgTcgPlayerFleshAndBloodsDb = require('../../models/dynamic/tcg-tcg-player-flesh-and-blood');
-// const getControllers = require("../../controllers");
-// const { controllers : { dynamic } } = getControllers(tcgTcgPlayerFleshAndBloodsDb);
-// const { httpResponseHandler } = require("../../middlewares");
-// const { filterObjectsByMethodName } = require("../../utilities");
-// const getMiddleWaresByName = filterObjectsByMethodName(httpResponseHandler(), ...dynamic);
+	const router = Router();
 
-
-module.exports = function(express, rebagBagsDb, getDynamicController)   {
-
-    const {Router} = express;
-    const router = Router();
-    const {
-        getAll,
-        getOneById,
-        getOneByFilter,
-        getAllFiltered,
-        getPaginatedResults,
-        create,
-        createMultiple,
-        update,
-        deleteById,
-        deleteAllFiltered,
-    } = getDynamicController(rebagBagsDb);
+	const {
+		getAll,
+		getOneById,
+		getOneByFilter,
+		getAllFiltered,
+		getPaginatedResults,
+		create,
+		createMultiple,
+		update,
+		deleteById,
+		deleteAllFiltered,
+	} = getDynamicController(rebagBagsDb);
 
 	// getAll Handler
-	router.get("/rebag-bags/", getAll);
+	router.get("/rebag-bags/", getAll, httpResponseHandler());
 
 
 	// getOneByFilter hanlder
-	router.get("/rebag-bags/single?", getOneByFilter);
+	router.get("/rebag-bags/single?", getOneByFilter, httpResponseHandler());
 
 
 	// getAllFiltered hanlder
-	router.get("/rebag-bags/all?", getAllFiltered);
+	router.get("/rebag-bags/all?", getAllFiltered, httpResponseHandler());
 
 
 	// getPaginatedResults hanlder
-	router.get("/rebag-bags/paginated?", getPaginatedResults);
+	router.get("/rebag-bags/paginated?", getPaginatedResults, httpResponseHandler());
 
 
 	// getOneById handler
-	router.get("/rebag-bags/:id", getOneById);
+	router.get("/rebag-bags/:id", getOneById, httpResponseHandler());
 
 
 	// create
-	router.post("/rebag-bags/", create);
+	router.post("/rebag-bags/", create, httpResponseHandler());
 
 
 	// updateHandler
-	router.put("/rebag-bags/:id", update);
+	router.put("/rebag-bags/:id", update, httpResponseHandler());
 
 
 	// deleteAllFilteredHandler
-	router.delete("/rebag-bags/all?", deleteAllFiltered);
+	router.delete("/rebag-bags/all?", deleteAllFiltered, httpResponseHandler());
 
 
 	// deleteHandler
-	router.delete("/rebag-bags/:id", deleteById);
+	router.delete("/rebag-bags/:id", deleteById, httpResponseHandler());
 
 
 	return router;
 
 }
-
-
-// let obj = {
-//     "fileName" : "rebag-bags",
-//     "fileType" : "js",
-//     "fileNameWithExt" : "rebags-bags.js",
-//     "textData" : ""
-// }

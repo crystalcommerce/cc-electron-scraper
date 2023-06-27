@@ -2,7 +2,7 @@ module.exports = function(db, mongoose)   {
 
     const { Schema } = mongoose;
 
-    const rebagBagSchema = new Schema({
+    const graingerPackagingAndShippingSupplySchema = new Schema({
         imageUris : {
             type : Array,
             required : false,
@@ -24,18 +24,6 @@ module.exports = function(db, mongoose)   {
             type : String,
             required : false,
         },
-        productCondition : {
-            type : String,
-            required : false,
-        },
-        originalPrice : {
-            type : String,
-            required : false,
-        },
-        regularPrice : {
-            type : String,
-            required : false,
-        },
         multiFaced : {
             type : String,
             required : false,
@@ -46,15 +34,15 @@ module.exports = function(db, mongoose)   {
         }
     }, {strict : false});
     
-    const RebagBag = mongoose.model("RebagBag", rebagBagSchema);
+    const graingerPackagingAndShippingSupply = mongoose.model("graingerPackagingAndShippingSupply", graingerPackagingAndShippingSupplySchema);
     
     // initializing tcgTcgPlayerFleshAndBloodsDb
-    const RebagBagsDb = db(RebagBag);
-    RebagBagsDb.recordName = "bag";
-    RebagBagsDb.addProps("uniqueProps", "productUri", "_id");
-    RebagBagsDb.addProps("immutableProps", "_id", "dateCreated", "productUri");
-    RebagBagsDb.addProps("defaultValuedProps", { dateCreated : Date.now() });
+    const graingerPackagingAndShippingSuppliesDb = db(graingerPackagingAndShippingSupply);
+    graingerPackagingAndShippingSuppliesDb.recordName = "bag";
+    graingerPackagingAndShippingSuppliesDb.addProps("uniqueProps", "productUri", "_id");
+    graingerPackagingAndShippingSuppliesDb.addProps("immutableProps", "_id", "dateCreated", "productUri");
+    graingerPackagingAndShippingSuppliesDb.addProps("defaultValuedProps", { dateCreated : Date.now() });
     
-    return RebagBagsDb;
+    return graingerPackagingAndShippingSuppliesDb;
 
 }

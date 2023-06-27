@@ -91,7 +91,7 @@ window.addEventListener("load", (e) => {
 		window.ccScraperWindow = ccScraperWindow;
 		window.ccDataProps = ccDataProps;
 
-		let waitForSelectors = [".plp__products-grid-container"],
+		let waitForSelectors = [".pdp__section--overview"],
 		{AppWindowId, componentId, windowId} = window.ccScraperWindow,
 			{ waitForSelector, timedReload, slowDown, queryStringToObject, objectToQueryString } = window.ccPageUtilities,
 			promises = waitForSelectors.map(selector => {
@@ -99,142 +99,76 @@ window.addEventListener("load", (e) => {
 					return await waitForSelector(() => document.querySelector(selector));
 				};
 			});
-		// let results = await Promise.all(promises.map(item => item()));
+		let results = await Promise.all(promises.map(item => item()));
 
-		// let {queryObject, urlWithoutQueryString} = queryStringToObject(window.location.href),
-		// 	currentWait = Number(queryObject.cc_failed_waits) || 0;
+		let {queryObject, urlWithoutQueryString} = queryStringToObject(window.location.href),
+			currentWait = Number(queryObject.cc_failed_waits) || 0;
 
-		// currentWait++;
-		// queryObject.cc_failed_waits = currentWait;
+		currentWait++;
+		queryObject.cc_failed_waits = currentWait;
 
-		// let newQueryString = objectToQueryString(queryObject);
-		// if(results.some(result => !result)) {
-		// 	ipcRenderer.send("cc-scraping-wait-for-selectors-failed", {
-		// 		payload : {
-		// 			AppWindowId,
-		// 			componentId,
-		// 			windowId,
-		// 			message : "Waiting for html selectors failed.",
-		// 			url : urlWithoutQueryString + "?" + newQueryString,
-		// 			currentWait,
-		// 		}
-		// 	});
+		let newQueryString = objectToQueryString(queryObject);
+		if(results.some(result => !result)) {
+			ipcRenderer.send("cc-scraping-wait-for-selectors-failed", {
+				payload : {
+					AppWindowId,
+					componentId,
+					windowId,
+					message : "Waiting for html selectors failed.",
+					url : urlWithoutQueryString + "?" + newQueryString,
+					currentWait,
+				}
+			});
 
 
-		// }
+		}
 
 
 		let callback = async (utilityProps, dataProps) => {
-
-            let { scrollToBottom, slowDown, queryStringToObject, objectToQueryString } = utilityProps;
-
-            await scrollToBottom(700);
-
-            // await scrollToTop();
-
-            console.log({
-                message : "this works... and this is for the grainger scripts",
-                author : "Michael Norward Miranda",
-                date : ccPageUtilities.formattedDate(new Date())
-            })
-
-            await slowDown(2525);
-
-            let { categoryObject } = dataProps
-
-            function getStartingPointUrl(categoryObject)  {
-
-                let categoryLinks = Array.from(document.querySelectorAll(".-jeeqs > li > a")),
-					branchViewList = Array.from(document.querySelectorAll("ul[data-testid^='branch-view-list']  li  a[data-test-id^='branch-item']")),
-					newCategorizedSet = [];
-
-                if(!categoryLinks.length && !branchViewList.length)    {
-
-                    return {
-                        newCategorizedSet : []
-                    };
-                    
-                } else  {
-                    // replace the categoryObject item from the categorizedSetsArr;
-
-					if(categoryLinks.length)	{
-						newCategorizedSet = categoryLinks.map(item => {
-
-							// categoryObject.additionalCategoryTags.push(item.title);
-	
-							let obj =  {
-								...categoryObject,
-								startingPointUrl : item.href,
-								// additionalCategoryTag,
-							};
-	
-							if(obj.setData && !Array.isArray(obj.setData.additionalCategoryTags))  {
-								obj.setData.additionalCategoryTags = [];
-							}
-	
-							if(categoryObject.setData && Array.isArray(categoryObject.setData.additionalCategoryTags))  {
-								// obj.additionalCategoryTags.push(...categoryObject.additionalCategoryTags);
-								for(let categoryTag of categoryObject.setData.additionalCategoryTags)  {
-									if(!obj.setData.additionalCategoryTags.includes(categoryTag))  {
-										obj.setData.additionalCategoryTags.push(categoryTag);
-									}
-								}
-							}
-	
-							obj.setData.additionalCategoryTags.push(item.title);
-	
-							return obj;
-	
-						});
-					} else if(branchViewList.length)	{
-
-
-						newCategorizedSet = branchViewList.map(item => {
-
-							// categoryObject.additionalCategoryTags.push(item.title);
-	
-							let obj =  {
-								...categoryObject,
-								startingPointUrl : item.href,
-								// additionalCategoryTag,
-							};
-	
-							if(!Array.isArray(obj.additionalCategoryTags))  {
-								obj.additionalCategoryTags = [];
-							}
-	
-							if(Array.isArray(categoryObject.additionalCategoryTags))  {
-								// obj.additionalCategoryTags.push(...categoryObject.additionalCategoryTags);
-								for(let categoryTag of categoryObject.additionalCategoryTags)  {
-									if(!obj.additionalCategoryTags.includes(categoryTag))  {
-										obj.additionalCategoryTags.push(categoryTag);
-									}
-								}
-							}
-							
-							if(item && item.innerText !== "")	{
-								obj.additionalCategoryTags.push(item.innerText.trim());
-							}
-							
-							return obj;
-	
-						});
-
-					}
-
-
-                    // replaceCategoryObject(categoryObject, categorizedSetsArr, newCategorizedSet);
-
-                    return {
-                        newCategorizedSet,
-                    };
-                }
-
-            }
-
-            return getStartingPointUrl(categoryObject)
-            
-        };
+    
+                let {scrollToBottom, slowDown, scrollToTop} = utilityProps;
+    
+                await scrollToBottom(700);
+    
+                await scrollToTop();
+    
+                await slowDown(2525);
+    
+    
+                let container = document.querySelector(".pdp__section--overview"),
+                    excludedKeys = ["Store Location", "store location"],
+                    additionalProductDetails = function(){
+                        let productObject = {};
+    
+                        if(container)   {
+    
+                            Array.from(container.querySelectorAll(".pdp__section-content .pdp__section-group")).forEach(section => {
+    
+                                let key = section.querySelector(".pdp__group-title") ? section.querySelector(".pdp__group-title").innerText.trim().replace(/\r\n+/g, ' <br />') : null,
+                                    val = function(){
+                                        let res = Array.from(section.querySelectorAll(".pdp__group-item .pdp__group-item"));
+    
+                                        if(res.length)  {
+                                            return res.map(item => item.innerText.trim().replace(/\r\n+/g, ' <br />')).join(" <br />");
+                                        } else  {
+                                            return section.querySelector(".pdp__group-item") ? section.querySelector(".pdp__group-item").innerText.trim().replace(/\r\n+/g, ' <br />') : null;
+                                        }
+                                    }();
+                                
+                                if(key && val && !excludedKeys.includes(key)) {
+                                    productObject[key] = val;
+                                }
+                            })
+    
+    
+                        }
+    
+                        return productObject;
+                    }();
+    
+                return {...dataProps, ...additionalProductDetails};
+    
+            };
 
 
 		//executing the callback function
@@ -265,5 +199,3 @@ window.addEventListener("load", (e) => {
 
 
 }());
-
-

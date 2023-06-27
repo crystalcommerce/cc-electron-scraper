@@ -99,29 +99,29 @@ window.addEventListener("load", (e) => {
 					return await waitForSelector(() => document.querySelector(selector));
 				};
 			});
-		// let results = await Promise.all(promises.map(item => item()));
+		let results = await Promise.all(promises.map(item => item()));
 
-		// let {queryObject, urlWithoutQueryString} = queryStringToObject(window.location.href),
-		// 	currentWait = Number(queryObject.cc_failed_waits) || 0;
+		let {queryObject, urlWithoutQueryString} = queryStringToObject(window.location.href),
+			currentWait = Number(queryObject.cc_failed_waits) || 0;
 
-		// currentWait++;
-		// queryObject.cc_failed_waits = currentWait;
+		currentWait++;
+		queryObject.cc_failed_waits = currentWait;
 
-		// let newQueryString = objectToQueryString(queryObject);
-		// if(results.some(result => !result)) {
-		// 	ipcRenderer.send("cc-scraping-wait-for-selectors-failed", {
-		// 		payload : {
-		// 			AppWindowId,
-		// 			componentId,
-		// 			windowId,
-		// 			message : "Waiting for html selectors failed.",
-		// 			url : urlWithoutQueryString + "?" + newQueryString,
-		// 			currentWait,
-		// 		}
-		// 	});
+		let newQueryString = objectToQueryString(queryObject);
+		if(results.some(result => !result)) {
+			ipcRenderer.send("cc-scraping-wait-for-selectors-failed", {
+				payload : {
+					AppWindowId,
+					componentId,
+					windowId,
+					message : "Waiting for html selectors failed.",
+					url : urlWithoutQueryString + "?" + newQueryString,
+					currentWait,
+				}
+			});
 
 
-		// }
+		}
 
 
 		let callback = async (utilityProps, dataProps) => {
@@ -132,69 +132,78 @@ window.addEventListener("load", (e) => {
 
             // await scrollToTop();
 
-            console.log({
-                message : "this works... and this is for the grainger scripts",
-                author : "Michael Norward Miranda",
-                date : ccPageUtilities.formattedDate(new Date())
-            })
-
             await slowDown(2525);
 
-            let { categoryObject } = dataProps
 
-            function getStartingPointUrl(categoryObject)  {
+            
+            let { setData, setId, startingPointUrl } = dataProps,
+                newUrl = function(){
+                    let nextLink = document.querySelector(".rbg-pagination__ul .next a");
 
-                let categoryLinks = Array.from(document.querySelectorAll(".-jeeqs > li > a"));
+                    if(!nextLink || nextLink.parentElement.classList.contains("disabled"))    {
+                        return null;
+                    }
 
-                if(!categoryLinks.length)    {
+                    let currentUrl = window.location.href,
+                        { queryObject, urlWithoutQueryString } = queryStringToObject(currentUrl),
+                        currentPage = queryObject && queryObject.page ? parseInt(queryObject.page) : 1,
+                        nextPage = currentPage + 1;
 
-                    return {
-                        newCategorizedSet : []
-                    };
+                    queryObject.page = nextPage;
+
+                    let queryString = objectToQueryString(queryObject);
+
+                    return `${urlWithoutQueryString}?${queryString}`;
                     
-                } else  {
-                    // replace the categoryObject item from the categorizedSetsArr;
+                }(),
+                productObjects = Array.from(document.querySelectorAll(".plp-product")).map(container => {
+                    let imageUris = Array.from(container.querySelectorAll(".product-image-wrap img")).map(img => {
+                            let src = img.src,
+                                largeImage = function(){
+                                    let urlObj = new URL(src),
+                                        pathNameArr = urlObj.pathname.split("/"),
+                                        file = pathNameArr.pop(),
+                                        fileExt = file.split(".").pop(),
+                                        fileName = file.split(".").shift().split("/").pop(),
+                                        fileSize = fileName.split("_");
 
-                    let newCategorizedSet = categoryLinks.map(item => {
+                                    fileSize.pop();
 
-                        // categoryObject.additionalCategoryTags.push(item.title);
+                                    
+                                    let newFileName = `${fileSize.join("_")}.${fileExt}`;
 
-                        let obj =  {
-                            ...categoryObject,
-                            startingPointUrl : item.href,
-                            // additionalCategoryTag,
-                        };
+                                    pathNameArr.push(newFileName);
 
-                        if(!Array.isArray(obj.additionalCategoryTags))  {
-                            obj.additionalCategoryTags = [];
-                        }
+                                    return `${urlObj.origin}${pathNameArr.join("/")}${urlObj.search}`;
 
-                        if(Array.isArray(categoryObject.additionalCategoryTags))  {
-                            // obj.additionalCategoryTags.push(...categoryObject.additionalCategoryTags);
-                            for(let item of categoryObject.additionalCategoryTags)  {
-                                if(!obj.additionalCategoryTags.includes(item))  {
-                                    obj.additionalCategoryTags.push(item);
-                                }
-                            }
-                        }
+                                }();
 
-                        obj.additionalCategoryTags.push(item.title);
-
-                        return obj;
-
-                    });
-
-                    // replaceCategoryObject(categoryObject, categorizedSetsArr, newCategorizedSet);
+                            return largeImage;
+                        }),
+                        productUri = container.querySelector("a") ? container.querySelector("a").href : null,
+                        productBrand = container.querySelector(".product-vendor") ? container.querySelector(".product-vendor").innerText.trim("").replace(/\r\n+/g, ' <br />') : null,
+                        productName = productBrand && container.querySelector(".product-title") ?`${productBrand} - ${container.querySelector(".product-title").innerText.trim("").replace(/\r\n+/g, ' <br />')}` : productBrand ? productBrand : null,
+                        productCondition = container.querySelector(".product-condition") ? container.querySelector(".product-condition").innerText.trim("").replace(/\r\n+/g, ' <br />') : null,
+                        originalPrice = container.querySelector(".product-price .bc-sf-filter-product-item-original-price") ? container.querySelector(".product-price .bc-sf-filter-product-item-original-price").innerText.trim("").replace(/\r\n+/g, ' <br />') : null,
+                        regularPrice = container.querySelector(".product-price .bc-sf-filter-product-item-regular-price") ? container.querySelector(".product-price .bc-sf-filter-product-item-regular-price").innerText.trim("").replace(/\r\n+/g, ' <br />') : null;
 
                     return {
-                        newCategorizedSet,
-                    };
-                }
+                        categorizedSetId : setId,
+                        ...setData,
+                        productName,
+                        productBrand,
+                        imageUris,
+                        productUri,
+                        originalPrice,
+                        regularPrice
+                    }
+                });
 
+            return {
+                productObjects,
+                newUrl,
             }
 
-            return getStartingPointUrl(categoryObject)
-            
         };
 
 
