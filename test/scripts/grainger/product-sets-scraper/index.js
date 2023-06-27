@@ -15,7 +15,7 @@ module.exports = async function(app)    {
                     "Content-Type" : "application/json",
                 },
             }, true),
-            {pageTotal, totalCount} = getResult;
+            {pageTotal, totalCount, data} = getResult;
         
         return {
             callback : async function(newPage) {
@@ -42,14 +42,18 @@ module.exports = async function(app)    {
             },
             pageTotal,
             totalCount,
+            page : parseInt(page),
+            data
     
         };
         
     }
 
-    async function scrapedDataByCategorizedSet(getPaginatedResults)    {
+    async function scrapedDataByCategorizedSet(getPaginatedResults, page=1)    {
 
-        let {data, pageTotal, page} = await getPaginatedResults();
+        let { data : categorizedSets, pageTotal } = await getPaginatedResults(page);
+
+        selectedPage = page ? page : page + 1;
 
         app.whenReady().then(async () => {
 
@@ -83,6 +87,9 @@ module.exports = async function(app)    {
                         console.log(productSetScraper);
                 
                         await productSetScraper.initialize();
+                        
+                        productSetScraper.ccScraperWindow.showWindow();
+
                     }
                 });
     
@@ -95,13 +102,16 @@ module.exports = async function(app)    {
         });
     
     
-        app.on('window-all-closed', (e) => {
+        app.on('window-all-closed', async (e) => {
     
             console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, categorizedSets : categorizedSets})
             // e.preventDefault();
             // if (process.platform !== 'darwin') {
             //     app.quit()
             // }
+
+            await scrapedDataByCategorizedSet(getPaginatedResults, page);
+
         });
     }
 
@@ -111,7 +121,7 @@ module.exports = async function(app)    {
                 siteName : "Grainger",
                 siteUrl : "www.grainger.com",
             },
-            getPaginatedResults = await getPaginatedResultsFn();
+            {callback : getPaginatedResults, pageTotal, } = await getPaginatedResultsFn();
 
         // return await getPaginatedResults(page);
 

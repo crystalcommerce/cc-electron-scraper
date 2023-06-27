@@ -86,8 +86,8 @@ async function productSetScraping(app)  {
 
         let jsonDirPath = await createDirPath(__dirname, "json");
 
-        await categorizedSetScraper(app, jsonDirPath);
-        // await productSetsScraper(app, jsonDirPath);
+        // await categorizedSetScraper(app, jsonDirPath);
+        await productSetsScraper(app);
 
 
     });
@@ -107,9 +107,9 @@ module.exports = async function(app)    {
     
     // await categorizedSetScraping(app);
 
-    await saveCategorizedSetsToDb();
+    // await saveCategorizedSetsToDb();
 
-    // await productSetScraping(app, jsonDirPath)
+    await productSetScraping(app)
 
 
 }
