@@ -119,7 +119,7 @@ module.exports = async function(app)    {
 
                 await Promise.all(promises.map(item => item()));
 
-            }, /* CcScraperWindow.maxOpenedWindows */1);
+            }, CcScraperWindow.maxOpenedWindows);
 
             console.log(i)
 
