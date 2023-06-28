@@ -107,7 +107,6 @@ module.exports = async function(app)    {
                             appAbsPath, 
                             serverUrl, 
                             payload, 
-                            closeOnEnd : false,
                         });
                 
                         console.log(productSetScraper);
