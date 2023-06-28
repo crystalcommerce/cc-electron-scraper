@@ -15,16 +15,16 @@ module.exports = async function(app)    {
                     "Content-Type" : "application/json",
                 },
             }, true),
-            {pageTotal, totalCount, data} = getResult;
+            { pageTotal : initialPageTotal, totalCount, data } = getResult;
         
         return {
             callback : async function(newPage) {
 
-                if(newPage > pageTotal)    {
+                if(newPage > initialPageTotal)    {
                     return;
                 }
-    
-                let selectedPage = newPage ? newPage : parseInt(page) + 1;
+                
+                let selectedPage = newPage ? newPage : page;
     
                 url = `${apiUrl}/paginated?page=${encodeURIComponent(selectedPage)}&limit=${encodeURIComponent(limit)}&${queryString}`;
     
@@ -37,10 +37,13 @@ module.exports = async function(app)    {
                 { pageTotal, totalCount } = getResult;
     
                 console.log({pageTotal, totalCount, page : selectedPage});
+
+                page = selectedPage;
+                page = parseInt(page) + 1;
     
                 return getResult;
             },
-            pageTotal,
+            pageTotal : initialPageTotal,
             totalCount,
             page : parseInt(page),
             data
@@ -49,32 +52,54 @@ module.exports = async function(app)    {
         
     }
 
-    async function scrapedDataByCategorizedSet(getPaginatedResults, page=1)    {
+    async function getPreReq()  {
+        let payload = {
+            ccScriptData : {
+                fileName : "grainger-packaging-and-shipping-supplies",
+            },
+            ccScraperData : {
+                AppWindowId : null,
+                componentId : null,
+                scraperType : "set",
+            },
+        },
+        appAbsPath = app.getAppPath(),
+        userDataPath = await createDirPath(app.getPath("appData"), "cc-electron-scraper"),
+        serverUrl = "http://localhost:7000",
+        categorizedSetApiUrl = `${serverUrl}/api/categorized-sets`,
+        {callback, page, pageTotal, data} = await getPaginatedResultsFn(categorizedSetApiUrl, {siteName : "Grainger", siteUrl : "www.grainger.com"});
 
-        let { data : categorizedSets, pageTotal } = await getPaginatedResults(page);
+        return {
+            callback, 
+            page, 
+            pageTotal,
+            data,
+            payload, 
+            appAbsPath, 
+            userDataPath,
+            serverUrl,
+        }
+    }
 
-        selectedPage = page ? page : page + 1;
+    async function scrapeByPage()  {
+        let i = 1,
+            {
+                callback, 
+                page, 
+                pageTotal,
+                data,
+                payload, 
+                appAbsPath, 
+                userDataPath,
+                serverUrl,
+            } = await getPreReq();
 
-        app.whenReady().then(async () => {
+        async function scrapeData(i = 1) {
+            let { data : categorizedSets } = await callback(i);
 
-            let payload = {
-                    ccScriptData : {
-                        fileName : "grainger-packaging-and-shipping-supplies",
-                    },
-                    ccScraperData : {
-                        AppWindowId : null,
-                        componentId : null,
-                        scraperType : "set",
-                    },
-                },
-                appAbsPath = app.getAppPath(),
-                userDataPath = await createDirPath(app.getPath("appData"), "cc-electron-scraper"),
-                serverUrl = "http://localhost:7000";
-                
-            
             await moderator(categorizedSets, async (slicedArr) => {
-    
-                let promises = slicedArr.map(categorizedSet => {
+
+                let promises = slicedArr.map((categorizedSet, item) => {
                     return async () => {
                         let productSetScraper = new ProductSetScraper({
                             categorizedSet : categorizedSet, 
@@ -82,54 +107,48 @@ module.exports = async function(app)    {
                             appAbsPath, 
                             serverUrl, 
                             payload, 
+                            closeOnEnd : false,
                         });
                 
                         console.log(productSetScraper);
                 
                         await productSetScraper.initialize();
                         
-                        productSetScraper.ccScraperWindow.showWindow();
-
                     }
                 });
-    
+
                 await Promise.all(promises.map(item => item()));
-    
-            }, CcScraperWindow.maxOpenedWindows);
-    
-            
-    
-        });
-    
-    
-        app.on('window-all-closed', async (e) => {
-    
-            console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, categorizedSets : categorizedSets})
-            // e.preventDefault();
-            // if (process.platform !== 'darwin') {
-            //     app.quit()
-            // }
 
-            await scrapedDataByCategorizedSet(getPaginatedResults, page);
+            }, /* CcScraperWindow.maxOpenedWindows */1);
 
-        });
+            console.log(i)
+
+            i++;
+
+            await scrapeData(i);
+
+        }
+
+        await scrapeData(i);
+
     }
 
-    async function getProductsFromSet(page)    {
-        let apiUrl = "http://localhost:7000/api/categorized-sets",
-            filter = {
-                siteName : "Grainger",
-                siteUrl : "www.grainger.com",
-            },
-            {callback : getPaginatedResults, pageTotal, } = await getPaginatedResultsFn();
-
-        // return await getPaginatedResults(page);
-
-        scrapedDataByCategorizedSet(getPaginatedResults)
+    app.whenReady().then(async () => {
         
-    }
+        await scrapeByPage();
 
-    let categorizedSets = [];
+    });
+
+
+    app.on('window-all-closed', async (e) => {
+
+        console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, categorizedSets : categorizedSets})
+        // e.preventDefault();
+        // if (process.platform !== 'darwin') {
+        //     app.quit()
+        // }
+
+    });
 
     
 }
