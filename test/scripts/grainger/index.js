@@ -20,8 +20,9 @@ const path = require("path");
 const categorizedSetScraper = require("./categorized-set-scraper");
 const { createDirPath, createJsonFileObject, apiRequest, moderator } = require("../../../utilities");
 const productSetsScraper = require("./product-sets-scraper");
+const singleProductScraper = require("./single-product-scraper");
 
-async function categorizedSetScraping(app)  {
+async function categorizedSetScraping(app, ipcMain)  {
 
     app.whenReady().then(async () => {
 
@@ -78,7 +79,7 @@ async function saveCategorizedSetsToDb()    {
 
 }
 
-async function productSetScraping(app)  {
+async function productSetScraping(app, ipcMain)  {
 
     // let jsonDirPath = await createDirPath(__dirname, "json", "products");
 
@@ -87,7 +88,7 @@ async function productSetScraping(app)  {
         let jsonDirPath = await createDirPath(__dirname, "json");
 
         // await categorizedSetScraper(app, jsonDirPath);
-        await productSetsScraper(app);
+        await productSetsScraper(app, ipcMain);
 
 
     });
@@ -103,13 +104,15 @@ async function productSetScraping(app)  {
     });
 }   
 
-module.exports = async function(app)    {
+module.exports = async function(app, ipcMain)    {
     
     // await categorizedSetScraping(app);
 
     // await saveCategorizedSetsToDb();
 
-    await productSetScraping(app)
+    // await productSetScraping(app, ipcMain);
+
+    await singleProductScraper(app, ipcMain);
 
 
 }

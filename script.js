@@ -1,7 +1,7 @@
 const grainger = require("./test/scripts/grainger");
-const { app } = require('electron');
+const { app, ipcMain } = require('electron');
 
 
 (async function(){
-    await grainger(app);
+    await grainger(app, ipcMain);
 }())

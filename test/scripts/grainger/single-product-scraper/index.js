@@ -1,12 +1,12 @@
 const path = require("path");
 const CcScraperWindow = require('../../../../electron/classes/cc-scraper-window');
 const { createDirPath, generateUuid, moderator, waitForCondition, readFile, objectToQueryString, apiRequest } = require('../../../../utilities');
-const ProductSetScraper = require("../../../../core/scraper/classes/product-set-scraper");
+const SingleProductScraper = require("../../../../core/scraper/classes/single-product-scraper");
 
-module.exports = async function(app, ipcMain)    {
+module.exports = async function(app, ipcMain)   {
 
     async function getPaginatedResultsFn(apiUrl, filter, page = 1, limit = 5)  {
-
+    
         let queryString = objectToQueryString(filter),
             url = `${apiUrl}/paginated?page=${encodeURIComponent(page)}&limit=${encodeURIComponent(limit)}&${queryString}`,
             getResult = await apiRequest(url, {
@@ -19,7 +19,7 @@ module.exports = async function(app, ipcMain)    {
         
         return {
             callback : async function(newPage) {
-
+    
                 if(newPage > initialPageTotal)    {
                     return;
                 }
@@ -37,7 +37,7 @@ module.exports = async function(app, ipcMain)    {
                 { pageTotal, totalCount } = getResult;
     
                 console.log({pageTotal, totalCount, page : selectedPage});
-
+    
                 page = selectedPage;
                 page = parseInt(page) + 1;
     
@@ -60,14 +60,14 @@ module.exports = async function(app, ipcMain)    {
             ccScraperData : {
                 AppWindowId : null,
                 componentId : null,
-                scraperType : "set",
+                scraperType : "single",
             },
         },
         appAbsPath = app.getAppPath(),
         userDataPath = await createDirPath(app.getPath("appData"), "cc-electron-scraper"),
         serverUrl = "http://localhost:7000",
-        categorizedSetApiUrl = `${serverUrl}/api/categorized-sets`,
-        {callback, page, pageTotal, data} = await getPaginatedResultsFn(categorizedSetApiUrl, {siteName : "Grainger", siteUrl : "www.grainger.com"});
+        apiUrl = `${serverUrl}/api/grainger-packaging-and-shipping-supplies`,
+        {callback, page, pageTotal, data} = await getPaginatedResultsFn(apiUrl, {});
 
         return {
             callback, 
@@ -80,6 +80,8 @@ module.exports = async function(app, ipcMain)    {
             serverUrl,
         }
     }
+
+    // we apply the singleproduct scraping
 
     async function scrapeByPage()  {
         let i = 1,
@@ -95,23 +97,23 @@ module.exports = async function(app, ipcMain)    {
             } = await getPreReq();
 
         async function scrapeData(i = 1) {
-            let { data : categorizedSets } = await callback(i);
+            let { data : productObjects } = await callback(i);
 
-            await moderator(categorizedSets, async (slicedArr) => {
+            await moderator(productObjects, async (slicedArr) => {
 
-                let promises = slicedArr.map((categorizedSet, item) => {
+                let promises = slicedArr.map((productObject, item) => {
                     return async () => {
-                        let productSetScraper = new ProductSetScraper({
-                            categorizedSet : categorizedSet, 
+                        let singleProductScraper = new SingleProductScraper({
+                            productObject : productObject, 
                             userDataPath, 
                             appAbsPath, 
                             serverUrl, 
                             payload, 
                         });
                 
-                        console.log(productSetScraper);
+                        console.log(singleProductScraper);
                 
-                        await productSetScraper.initialize();
+                        await singleProductScraper.initialize();
                         
                     }
                 });
@@ -131,6 +133,7 @@ module.exports = async function(app, ipcMain)    {
         await scrapeData(i);
 
     }
+
 
     app.whenReady().then(async () => {
 
@@ -153,6 +156,4 @@ module.exports = async function(app, ipcMain)    {
         // }
 
     });
-
-    
 }

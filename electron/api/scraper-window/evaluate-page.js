@@ -77,7 +77,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
                 scrapingDone = true;
                 removeEventListeners();
                 if(closeOnEnd)  {
-                    ccScraperWindow.close();
+                    await ccScraperWindow.close();
                 }
 
             });
@@ -92,7 +92,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
                     scrapingDone = true;
                     removeEventListeners();
                     clearUserData();
-                    ccScraperWindow.close();
+                    await ccScraperWindow.close();
 
                 } else  {
 

@@ -73,8 +73,8 @@ class SingleProductScraper {
 
             sendDataToMainProcess("scraper-window", {...this.scraperInfo, data : updateResult});
             
-            if(createResult.status === 200) {
-                return createResult;
+            if(updateResult.status === 200) {
+                return updateResult;
             }
 
         } catch(err)    {

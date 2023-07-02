@@ -1,4 +1,4 @@
-const { createNodeModule, toUrl } = require("../../../../utilities");
+const { createNodeModule, toUrl, generateUuid } = require("../../../../utilities");
 const createCallbackCode = require("./create-callback-code");
 const createIpcrendererSendResult = require("./create-ipcrenderer-send-result");
 const createLoadListenerCode = require("./create-load-listener-code");
@@ -10,6 +10,7 @@ const path = require('path');
 module.exports = async function({evaluator, utilitiesPath, fileName, scraperType, targetPath, serverUrl, evaluatorIndex})  {
 
     let {callback, waitForSelectors} = evaluator,
+        uuid = generateUuid(),
         codeOutput = "";
 
     codeOutput += createUtilsCode(utilitiesPath);
@@ -51,11 +52,11 @@ module.exports = async function({evaluator, utilitiesPath, fileName, scraperType
 
     // console.log(codeOutput);
 
-    let fileNameWithExt = `${toUrl(`${[fileName, scraperType, evaluatorIndex].filter(item => item.toString().trim() !== "").join(" ")}`)}.js`,
+    let fileNameWithExt = `${toUrl(`${[fileName, uuid, scraperType, evaluatorIndex].filter(item => item.toString().trim() !== "").join(" ")}`)}.js`,
         result = await createNodeModule(targetPath, fileNameWithExt, codeOutput);;
 
         console.log(result)
 
-    return {result, preloadedScript : path.join(targetPath, fileNameWithExt)};
+    return {result, preloadedScript : path.join(targetPath, fileNameWithExt), fileNameWithExt};
 
 }

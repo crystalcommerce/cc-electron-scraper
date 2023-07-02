@@ -53,4 +53,8 @@ module.exports = function({ipcMain, appAbsPath, userDataPath, serverUrl, appObje
         
     });
 
+    ipcMain.on("scraper-window-log", (e, data) => {
+        console.log(data);
+    });
+
 }

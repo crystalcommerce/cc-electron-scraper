@@ -82,11 +82,14 @@ function getRandomNumber(initialIndex = 0, limit = 10)  {
     return Math.floor(Math.random() * limit) + initialIndex;
 }
 
+
+
+
 module.exports = {
     moderator,
     slowDown,
     enumerate,
     generateUuid,
     waitForCondition,
-    getRandomNumber,
+    getRandomNumber
 }

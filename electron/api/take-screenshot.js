@@ -1,6 +1,7 @@
 const { BrowserWindow, nativeImage } = require("electron");
 const AppWindow = require("../classes/app-window");
 const sharp = require('sharp');
+const session = require("electron").session;
 
 module.exports = function(payload) {
     const hiddenWindow = new BrowserWindow({
@@ -16,6 +17,11 @@ module.exports = function(payload) {
     
     // Wait for the page to finish loading
     hiddenWindow.webContents.on('did-finish-load', () => {
+        // cookie session
+        session.defaultSession.cookies.set({url: 'https://www.google.com', name: 'cookieName', value: 'cookieValue', domain: '.google.com'});
+
+        // user agent string...
+        hiddenWindow.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36');
 
         // Take a screenshot
         hiddenWindow.webContents.capturePage()

@@ -21,13 +21,13 @@ module.exports = async function(appAbsPath, userDataPath, fileName, scraperType,
             evaluatorIndex
         });
 
-        let { result, preloadedScript } = resultObject;
+        let { result, preloadedScript, fileNameWithExt } = resultObject;
 
         if(!result.status)  {
             throw Error(result.reason);
         }
 
-        return { preloadedScript, evaluator };
+        return { preloadedScript, evaluator, fileNameWithExt };
 
     } catch(err)    {
         console.log(err);
