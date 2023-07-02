@@ -56,7 +56,7 @@ async function scrollToElement(el)  {
                     window.removeEventListener("scroll", scroll);
                     resolve();
                 }
-            }, 70);
+            }, 7);
     });
 
 }
