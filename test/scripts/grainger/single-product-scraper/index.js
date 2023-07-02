@@ -6,7 +6,7 @@ const SingleProductScraper = require("../../../../core/scraper/classes/single-pr
 module.exports = async function(app, ipcMain)   {
 
     async function getPaginatedResultsFn(apiUrl, filter, page = 1, limit = 5)  {
-    
+
         let queryString = objectToQueryString(filter),
             url = `${apiUrl}/paginated?page=${encodeURIComponent(page)}&limit=${encodeURIComponent(limit)}&${queryString}`,
             getResult = await apiRequest(url, {
@@ -19,7 +19,7 @@ module.exports = async function(app, ipcMain)   {
         
         return {
             callback : async function(newPage) {
-    
+
                 if(newPage > initialPageTotal)    {
                     return;
                 }
@@ -37,7 +37,7 @@ module.exports = async function(app, ipcMain)   {
                 { pageTotal, totalCount } = getResult;
     
                 console.log({pageTotal, totalCount, page : selectedPage});
-    
+
                 page = selectedPage;
                 page = parseInt(page) + 1;
     
@@ -67,7 +67,7 @@ module.exports = async function(app, ipcMain)   {
         userDataPath = await createDirPath(app.getPath("appData"), "cc-electron-scraper"),
         serverUrl = "http://localhost:7000",
         apiUrl = `${serverUrl}/api/grainger-packaging-and-shipping-supplies`,
-        {callback, page, pageTotal, data} = await getPaginatedResultsFn(apiUrl, {});
+        { callback, page, pageTotal, data } = await getPaginatedResultsFn(apiUrl, {});
 
         return {
             callback, 
@@ -97,36 +97,45 @@ module.exports = async function(app, ipcMain)   {
             } = await getPreReq();
 
         async function scrapeData(i = 1) {
-            let { data : productObjects } = await callback(i);
 
-            await moderator(productObjects, async (slicedArr) => {
+            try {
+                let { data : productObjects } = await callback(i);
 
-                let promises = slicedArr.map((productObject, item) => {
-                    return async () => {
-                        let singleProductScraper = new SingleProductScraper({
-                            productObject : productObject, 
-                            userDataPath, 
-                            appAbsPath, 
-                            serverUrl, 
-                            payload, 
-                        });
-                
-                        console.log(singleProductScraper);
-                
-                        await singleProductScraper.initialize();
-                        
-                    }
+                await moderator(productObjects, async (slicedArr) => {
+
+                    let promises = slicedArr.map((productObject, item) => {
+                        return async () => {
+                            let singleProductScraper = new SingleProductScraper({
+                                productObject : productObject, 
+                                userDataPath, 
+                                appAbsPath, 
+                                serverUrl, 
+                                payload, 
+                            });
+                    
+                            console.log(singleProductScraper);
+                    
+                            await singleProductScraper.initialize();
+                            
+                        }
+                    });
+
+                    await Promise.all(promises.map(item => item()));
+
+                }, CcScraperWindow.maxOpenedWindows);
+
+                console.log(i)
+
+                i++;
+
+                await scrapeData(i);
+            } catch(err)    {
+                console.log({
+                    type : "error",
+                    message : err.message
                 });
-
-                await Promise.all(promises.map(item => item()));
-
-            }, CcScraperWindow.maxOpenedWindows);
-
-            console.log(i)
-
-            i++;
-
-            await scrapeData(i);
+            }
+            
 
         }
 
