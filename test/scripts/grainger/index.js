@@ -110,7 +110,7 @@ module.exports = async function(app, ipcMain)    {
 
     // await saveCategorizedSetsToDb();
 
-    // await productSetScraping(app, ipcMain);
+    await productSetScraping(app, ipcMain);
 
     await singleProductScraper(app, ipcMain);
 
