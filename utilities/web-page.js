@@ -50,7 +50,7 @@ async function scrollToElement(el)  {
     await new Promise(resolve => {
         let interval = setInterval(() => {
                 window.scrollTo(0, currentScroll + 10);
-                if(currentScroll >= el.offsetTop + (el.offsetHeight / 2)) {
+                if(currentScroll >= el.offsetTop + (el.offsetHeight)) {
 
                     clearInterval(interval);
                     window.removeEventListener("scroll", scroll);
