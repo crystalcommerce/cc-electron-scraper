@@ -3,30 +3,25 @@ const axios = require("axios");
 const { moderator, slowDown, waitForCondition } = require("./general");
 const { getAllObjectKeys } = require("./objects-array");
 
-async function scrollToBottom(num = 300, containingEl = null)  {
+async function scrollToBottom(num = 75, containingEl = null)  {
 
-    let totalHeight = containingEl ? containingEl.offsetHeight : document.body.offsetHeight,
-        currentScroll = 0;
+    let scrollableHeight = Math.max(
+            document.documentElement.scrollHeight,
+            document.body.scrollHeight
+        ) - window.innerHeight,
+        currentScroll = window.scrollY;
 
     function scroll()   {
         currentScroll = window.scrollY;
-        totalHeight = document.body.offsetHeight;
-
-        
     }
 
-    
-    
     window.addEventListener("scroll", scroll);
 
     await new Promise(resolve => {
         let interval = setInterval(() => {
                 window.scrollTo(0, currentScroll + 10);
 
-                console.log({currentScroll, totalHeihgtMinusNum : totalHeight - num, isEqual : currentScroll >= totalHeight - num});
-
-                if(currentScroll >= totalHeight - num) {
-                    
+                if(currentScroll >= scrollableHeight - num) {
                     clearInterval(interval);
                     window.removeEventListener("scroll", scroll);
                     resolve();
@@ -37,12 +32,14 @@ async function scrollToBottom(num = 300, containingEl = null)  {
 }
 
 async function scrollToElement(el)  {
-    let totalHeight = document.body.offsetHeight,
-        currentScroll = 0;
+    let scrollableHeight = Math.max(
+            document.documentElement.scrollHeight,
+            document.body.scrollHeight
+        ) - window.innerHeight,
+        currentScroll = window.scrollY;
 
     function scroll()   {
         currentScroll = window.scrollY;
-        totalHeight = document.body.offsetHeight;
     }
 
     window.addEventListener("scroll", scroll);
@@ -50,7 +47,9 @@ async function scrollToElement(el)  {
     await new Promise(resolve => {
         let interval = setInterval(() => {
                 window.scrollTo(0, currentScroll + 10);
-                if(currentScroll >= el.offsetTop + (el.offsetHeight)) {
+                parallaxOffsetTop = el.offsetTop + el.offsetHeight;
+
+                if(currentScroll >= parallaxOffsetTop) {
 
                     clearInterval(interval);
                     window.removeEventListener("scroll", scroll);
@@ -61,6 +60,23 @@ async function scrollToElement(el)  {
 
 }
 
+async function toggleScroll()   {
+
+    let scrollableHeight = Math.max(
+            document.documentElement.scrollHeight,
+            document.body.scrollHeight
+        ) - window.innerHeight,
+        currentScroll = window.scrollY,
+        halfPageScroll = scrollableHeight / 2;
+
+    if(halfPageScroll > currentScroll)  {
+        await scrollToBottom();
+    } else  {
+        await scrollToTop();
+    }
+
+    await toggleScroll();
+}
 
 async function scrollToTop()   {
     let totalHeight = document.body.offsetHeight - window.innerHeight,
@@ -75,6 +91,7 @@ async function scrollToTop()   {
     await new Promise(resolve => {
         let interval = setInterval(() => {
             window.scrollTo(0, currentScroll - 10);
+            
             if(currentScroll <= 0) {
 
                 clearInterval(interval);
@@ -380,6 +397,7 @@ module.exports = {
     scrollToBottom,
     scrollToElement,
     scrollToTop,
+    toggleScroll,
     waitForSelector,
     typeIt,
     createJSONBlob,
