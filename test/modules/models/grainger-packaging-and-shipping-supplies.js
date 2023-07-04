@@ -39,7 +39,7 @@ module.exports = function(db, mongoose)   {
     // initializing tcgTcgPlayerFleshAndBloodsDb
     const graingerPackagingAndShippingSuppliesDb = db(graingerPackagingAndShippingSupply);
     graingerPackagingAndShippingSuppliesDb.recordName = "packaging and shipping supply";
-    graingerPackagingAndShippingSuppliesDb.addProps("uniqueProps", "_id");
+    graingerPackagingAndShippingSuppliesDb.addProps("uniqueProps", "_id", "productUri");
     graingerPackagingAndShippingSuppliesDb.addProps("immutableProps", "_id", "dateCreated");
     graingerPackagingAndShippingSuppliesDb.addProps("defaultValuedProps", { dateCreated : Date.now() });
     
