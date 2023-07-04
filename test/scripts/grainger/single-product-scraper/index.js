@@ -113,7 +113,7 @@ module.exports = async function(app, ipcMain, pageIndex = 1)   {
                                 payload, 
                             });
                     
-                            console.log(singleProductScraper);
+                            // console.log(singleProductScraper);
                     
                             await singleProductScraper.initialize();
                             

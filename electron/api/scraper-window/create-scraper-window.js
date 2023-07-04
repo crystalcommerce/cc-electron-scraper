@@ -22,7 +22,7 @@ module.exports = async function(payload, userDataPath, appAbsPath, serverUrl, ap
     
     } catch(err)    {
 
-        console.log(err);
+        // console.log(err);
 
         return null;
 

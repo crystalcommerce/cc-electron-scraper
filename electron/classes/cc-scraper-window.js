@@ -2,7 +2,7 @@ const { BrowserWindow, screen } = require("electron");
 const AppWindow = require("./app-window");
 const getUuid = require("mnm-uuid");
 const path = require("path");
-const { fileExists, deleteFile } = require("../../utilities");
+const { fileExists, deleteFile, waitForCondition } = require("../../utilities");
 
     
 class CcScraperWindow {
@@ -280,13 +280,16 @@ class CcScraperWindow {
     }
 
     async close() {
-        await deleteFile(this.preloadedScript);
-        this.hideWindow();
-        this.removeFromWindowObjects();
-        this.windowObject.close();
 
-        
-        // this.windowObject = null;
+        try {
+            this.windowObject.close();
+            await deleteFile(this.preloadedScript);
+            this.removeFromWindowObjects();
+            
+        } catch(err)    {
+            console.log(err.message);
+        }
+
     }
 
 }

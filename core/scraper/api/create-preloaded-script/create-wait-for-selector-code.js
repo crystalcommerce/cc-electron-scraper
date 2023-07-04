@@ -7,7 +7,7 @@ module.exports = function(waitForSelectors) {
     codeOutput += `\t\t\t{ waitForSelector, timedReload, slowDown, queryStringToObject, objectToQueryString } = window.ccPageUtilities,\n`;
     codeOutput += `\t\t\tpromises = waitForSelectors.map(selector => {\n`;
     codeOutput += `\t\t\t\treturn async function(){\n`;
-    codeOutput += `\t\t\t\t\treturn await waitForSelector(() => document.querySelector(selector), 43);\n`;
+    codeOutput += `\t\t\t\t\treturn await waitForSelector(() => document.querySelector(selector));\n`;
     codeOutput += `\t\t\t\t};\n`;
     codeOutput += `\t\t\t});\n`;
     codeOutput += `\t\tlet results = await Promise.all(promises.map(item => item()));\n`;
