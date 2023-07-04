@@ -22,6 +22,17 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         console.log({message : "loading uri"})
         ccScraperWindow.load(selectedUri);
 
+        // Register a listener for network requests
+        session.defaultSession.webRequest.onCompleted(async (details) => {
+            if (details.webContentsId === ccScraperWindow.windowObject.webContents.id) {
+                // console.log(`Response code: ${details.statusCode}`);
+                if(details.statusCode >= 300 || details.statusCode < 200)   {
+                    await ccScraperWindow.close();
+                    return dataObject
+                }
+            }
+        });
+
         const preventDefaultFunction = (e) => {
             e.preventDefault();
         }
