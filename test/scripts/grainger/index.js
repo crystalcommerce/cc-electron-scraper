@@ -21,6 +21,7 @@ const categorizedSetScraper = require("./categorized-set-scraper");
 const { createDirPath, createJsonFileObject, apiRequest, moderator } = require("../../../utilities");
 const productSetsScraper = require("./product-sets-scraper");
 const singleProductScraper = require("./single-product-scraper");
+const imageCheckerAndUriUpdater = require("./image-checker-and-uri-updater");
 
 async function categorizedSetScraping(app, ipcMain)  {
 
@@ -110,9 +111,11 @@ module.exports = async function(app, ipcMain)    {
 
     // await saveCategorizedSetsToDb();
 
-    await productSetScraping(app, ipcMain);
+    // await productSetScraping(app, ipcMain);
 
-    await singleProductScraper(app, ipcMain);
+    await imageCheckerAndUriUpdater();
+
+    // await singleProductScraper(app, ipcMain);
 
 
 }

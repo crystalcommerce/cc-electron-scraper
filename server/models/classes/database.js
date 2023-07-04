@@ -107,7 +107,7 @@ module.exports = function(model) {
             let unsavedDataProps = [];
             for(let key in data)    {
                 if(
-                    (data[key] === foundRecord[key]) || 
+                    (JSON.stringify(data[key]) === JSON.stringify(foundRecord[key])) || 
                     this.hashedProps.includes(key) && this.hashCompare(data[key], foundRecord[key])
                 )  {
                     unsavedDataProps.push({[key] : data[key]});

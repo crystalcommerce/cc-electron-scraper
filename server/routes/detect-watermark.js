@@ -1,6 +1,7 @@
 const vision = require('@google-cloud/vision');
 const fetch = require('node-fetch');
 const express = require('express');
+const googleIwdFilters = require('../../config/google-iwd-filters'); // contains all the searchTerms that iwd has to use
 const {Router} = express;
 const router = Router();
 
@@ -27,11 +28,10 @@ module.exports = function() {
 
 
             // Check if any of the detected labels match the text of the watermark
-            let	watermarkSearchTerms = ["copyright", "©", "Ⓒ", "(c)", "https", "http", '.com', "www.", ".net", ".org", "@"], // Replace with your watermark text
-                foundWatermarkText = null,
+            let	foundWatermarkText = null,
                 detectedWatermark = texts.find(text => {
                 
-                    return watermarkSearchTerms.some(item  => {
+                    return googleIwdFilters.some(item  => {
 
                         // console.log({text, item, result : text.toLowerCase().includes(item)});
 
@@ -44,9 +44,6 @@ module.exports = function() {
                     })
 
                 });
-
-            
-            // in every scan, we also want to log it, somewhere... and save the result to database
 
             res.json({ success: true, detectedWatermark, hasWatermark : detectedWatermark ? true : false, foundWatermarkText });
         } catch (error) {

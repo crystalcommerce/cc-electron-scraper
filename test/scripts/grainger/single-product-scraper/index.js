@@ -126,9 +126,15 @@ module.exports = async function(app, ipcMain)   {
 
                 console.log(i)
 
-                i++;
+                if(i < pageTotal)   {
 
-                await scrapeData(i);
+                    i++;
+
+                    await scrapeData(i);
+
+                }
+
+                
             } catch(err)    {
                 console.log({
                     type : "error",
