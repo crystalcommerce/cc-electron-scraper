@@ -6,7 +6,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
 
     try {
 
-        let scrapingDone = false;
+        let scrapingDone = false,
             selectedUri = null,
             responseStatusCodeChecked = false;
 
@@ -24,42 +24,32 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         ccScraperWindow.load(selectedUri);
 
         // Register a listener for network requests
-        // session.defaultSession.webRequest.onCompleted(async (details) => {
-        //     try {
-        //         if(details.webContentsId === ccScraperWindow.windowObject.webContents.id) {
-        //             console.log({
-        //                 message : `Response code: ${details.statusCode}`,
-        //                 statusCode : details.statusCode, 
-        //                 id : details.webContentsId,
-        //             });
+        session.defaultSession.webRequest.onCompleted(async (details) => {
+            try {
 
-        //             if(details.statusCode >= 300 || details.statusCode < 200 || details.statusCode === 204)   {
-        //                 throw Error(details.statusCode);
-        //             }
+                if(details.webContentsId === ccScraperWindow.windowObject.webContents.id) {
+                    console.log({
+                        message : `Response code: ${details.statusCode}`,
+                        statusCode : details.statusCode, 
+                        id : details.webContentsId,
+                    });
 
-        //             responseStatusCodeChecked = true;
-        //         }
-        //     } catch(err)    {
-        //         if(details.webContentsId === ccScraperWindow.windowObject.webContents.id) {
-        //             scrapingDone = true;
-        //             if(closeOnEnd && ccScraperWindow)  {
-        //                 await ccScraperWindow.close();
-        //             }
+                    if(details.statusCode >= 300 || details.statusCode < 200 || details.statusCode === 204)   {
+                        throw Error(details.statusCode);
+                    }
 
-        //             responseStatusCodeChecked = true;
-        //         }
-        //     }
-        // });
+                    responseStatusCodeChecked = true;
+                }
+            } catch(err)    {
+                if(details.webContentsId === ccScraperWindow.windowObject.webContents.id) {
+                    scrapingDone = true;
+                    if(closeOnEnd && ccScraperWindow)  {
+                        await ccScraperWindow.close();
+                    }
 
-        ccScraperWindow.windowObject.webContents.once('did-get-response-details', async (event, status, newURL, originalURL, httpResponseCode) => {
-            if(httpResponseCode >= 300 || httpResponseCode < 200 || httpResponseCode === 204)   {
-                scrapingDone = true;
-                console.log(httpResponseCode)
-                if(closeOnEnd && ccScraperWindow)  {
-                    await ccScraperWindow.close();
+                    responseStatusCodeChecked = true;
                 }
             }
-            responseStatusCodeChecked = true;
         });
 
         await waitForCondition({
@@ -87,15 +77,24 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
             }
         }
 
-        if(responseStatusCodeChecked && !scrapingDone && ccScraperWindow) {
+        // if(responseStatusCodeChecked && !scrapingDone && ccScraperWindow) {
             ccScraperWindow.windowObject.webContents.on("will-redirect", preventDefaultFunction);
 
             ccScraperWindow.windowObject.webContents.once("did-finish-load", async (e) => {
+
                 // cookie session
                 session.defaultSession.cookies.set({url: 'https://www.google.com', name: 'cookieName', value: 'cookieValue', domain: '.google.com'});
 
                 // user agent string...
+                // chrome;
                 ccScraperWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36');
+
+                // // firefox
+                // ccScraperWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0');
+
+                // edge
+                // ccScraperWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36 Edg/91.0.864.59');
+
 
                 ccScraperWindow.windowObject.webContents.on("will-navigate", preventDefaultFunction);
             
@@ -160,7 +159,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
                 });
 
             });
-        }
+        // }
 
 
         await waitForCondition({
@@ -176,7 +175,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
 
     } catch(err)    {
 
-        // console.log(err.message);
+        console.log(err.message);
 
     }
     
