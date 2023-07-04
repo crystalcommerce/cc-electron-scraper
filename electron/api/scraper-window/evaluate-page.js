@@ -25,8 +25,12 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         // Register a listener for network requests
         session.defaultSession.webRequest.onCompleted(async (details) => {
             if (details.webContentsId === ccScraperWindow.windowObject.webContents.id) {
-                // console.log(`Response code: ${details.statusCode}`);
-                if(details.statusCode >= 300 || details.statusCode < 200)   {
+                console.log({
+                    message : `Response code: ${details.statusCode}`,
+                    statusCode : details.statusCode, 
+                    id : details.webContentsId,
+                });
+                if(details.statusCode >= 300 || details.statusCode < 200 || details.status || details.statusCode === 204)   {
                     await ccScraperWindow.close();
                     return dataObject
                 }
