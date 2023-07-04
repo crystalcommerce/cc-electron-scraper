@@ -3,7 +3,7 @@ const CcScraperWindow = require('../../../../electron/classes/cc-scraper-window'
 const { createDirPath, generateUuid, moderator, waitForCondition, readFile, objectToQueryString, apiRequest } = require('../../../../utilities');
 const SingleProductScraper = require("../../../../core/scraper/classes/single-product-scraper");
 
-module.exports = async function(app, ipcMain)   {
+module.exports = async function(app, ipcMain, pageIndex = 1)   {
 
     async function getPaginatedResultsFn(apiUrl, filter, page = 1, limit = 5)  {
 
@@ -84,7 +84,7 @@ module.exports = async function(app, ipcMain)   {
     // we apply the singleproduct scraping
 
     async function scrapeByPage()  {
-        let i = 1,
+        let i = pageIndex ? pageIndex : 1,
             {
                 callback, 
                 page, 

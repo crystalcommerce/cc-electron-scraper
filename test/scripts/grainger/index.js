@@ -113,9 +113,9 @@ module.exports = async function(app, ipcMain)    {
 
     // await productSetScraping(app, ipcMain);
 
-    await imageCheckerAndUriUpdater();
+    // await imageCheckerAndUriUpdater();
 
-    // await singleProductScraper(app, ipcMain);
+    await singleProductScraper(app, ipcMain, 35);
 
 
 }
