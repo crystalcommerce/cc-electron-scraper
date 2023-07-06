@@ -35,6 +35,8 @@ class SingleProductScraper {
         this.payload = payload;
         this.appObject = appObject && appObject.ready ? appObject : {ready : true};
         this.idPropName = "_id";
+        this.noredirect = true;
+        this.selectedBrowserSignature = "chrome";
         
         this.setApiUrl(payload);
 
@@ -99,6 +101,8 @@ class SingleProductScraper {
             dataObject : this.productObject,
             uriPropName : this.evaluator.uriPropName,
             closeOnEnd : this.closeOnEnd,
+            noredirect : this.noredirect,
+            selectedBrowserSignature : this.selectedBrowserSignature,
         });
 
         console.log({ dataObject, productObject : this.productObject });

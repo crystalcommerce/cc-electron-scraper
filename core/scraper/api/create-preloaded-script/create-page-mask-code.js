@@ -34,7 +34,8 @@ module.exports = function(serverUrl) {
     codeOutput += `// modalContainer styles\n`;
     codeOutput += `modalContainer.className = 'cc-scraper-window-modal-container';\n`;
     codeOutput += `modalContainer.style.height = 'auto';\n`;
-    codeOutput += `modalContainer.style.width = '500px';\n`;
+    codeOutput += `modalContainer.style.minWidth = '500px';\n`;
+    codeOutput += `modalContainer.style.width = 'auto';\n`;
     codeOutput += `modalContainer.style.color = 'white';\n`;
     codeOutput += `modalContainer.style.pointerEvents = 'none';\n`;
     codeOutput += `modalContainer.style.backgroundColor = '#2f8a97bf';\n`;

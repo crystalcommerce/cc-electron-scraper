@@ -110,11 +110,11 @@ module.exports = async function(app, ipcMain, pageIndex = 1)   {
                                 userDataPath, 
                                 appAbsPath, 
                                 serverUrl, 
-                                payload, 
+                                payload,
                             });
                     
                             // console.log(singleProductScraper);
-                    
+                            singleProductScraper.noredirect = false;
                             await singleProductScraper.initialize();
                             
                         }

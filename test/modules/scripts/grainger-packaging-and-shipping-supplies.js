@@ -4,7 +4,7 @@ module.exports = {
 
             let {scrollToBottom, slowDown, scrollToTop} = utilityProps;
 
-            await scrollToBottom(700);
+            await scrollToBottom(340);
 
             await scrollToTop();
 
@@ -37,60 +37,146 @@ module.exports = {
     set : {
         callback : async (utilityProps, dataProps) => {
 
-            let { scrollToBottom, slowDown, queryStringToObject, objectToQueryString, moderator, waitForSelector, isObjectInArray } = utilityProps;
+            document.body.style.height = "auto";
 
-            await scrollToBottom(700);
-
-            // await scrollToTop();
+            let { scrollToBottom, slowDown, scrollToElement, scrollToTop, queryStringToObject, objectToQueryString, moderator, waitForCondition, waitForSelector, isObjectInArray } = utilityProps;
 
             await slowDown(2525);
 
+            await scrollToBottom(340);
 
-            
-            let { setData, setId, startingPointUrl } = dataProps,
+
+            await slowDown(3434);
+
+            await scrollToTop();
+
+            await slowDown(2525);
+
+            let { setData, _id : categorizedSetId, startingPointUrl } = dataProps,
                 newUrl = null,
-                clickableRows = Array.from(document.querySelectorAll("table[aria-describedby^='collection-table'] tbody tr[aria-label^='Product']")),
-                branchViewList = Array.from(document.querySelectorAll("ul[data-testid^='branch-view-list']  li  a[data-test-id^='branch-item']")),
+                categorySections = Array.from(document.querySelectorAll("#category-container section")),
+                gridList = Array.from(document.querySelectorAll("[aria-label='Category products'] ul[data-testid='grid-list']  li  a[data-testid='product-detail-title']")),
                 productObjects = [];
 
-            if(clickableRows.length)    {
-                await moderator(clickableRows, async (slicedArr) => {
-                
-                    let [clickableRow] = slicedArr;
-    
-                    clickableRow.click();
-    
-                    await waitForSelector(() => clickableRow.querySelector("a[data-test-id^='product-detail-link']"));
-    
-                    let productLink =  clickableRow.querySelector("a[data-test-id^='product-detail-link']"),
-                        productUri = productLink ? productLink.href : null,
-                        productObject = {
-                            setId,
-                            ...setData,
-                            productUri
-                        };
-    
-                    if(productUri && !isObjectInArray(productObject, productObjects, ["productUri"]))  {
-                        productObjects.push(productObject);
-                    }
-    
-                }, 1);
-            } else if(branchViewList.length)  {
-                let products =  branchViewList.map(item => {
-                    return {
-                        setId,
-                        ...setData,
-                        productUri : item.href,
-                    }
-                });
+            
+            
+            async function getProductInfo(productId)    {
 
-                for(let productObject of products)    {
-                    if(productObject.productUri && !isObjectInArray(productObject, productObjects, ["productUri"]))  {
-                        productObjects.push(productObject);
-                    }
+                try {
+                    let url = `https://www.grainger.com/product/info?productArray=${productId}`,
+                    res = await fetch(url),
+                    data = await res.json(),
+
+                    productInfo = getProductDetails(data[productId]);
+
+                    return productInfo;
+                } catch(err)    {
+                    return {};
                 }
                 
             }
+
+            function getProductDetails(obj) {
+                let {
+                    productDetailUrl : productUri,
+                    pictureUrl : imageUrl
+                } = obj
+
+                return {
+                    productUri : `https://www.grainger.com${productUri}`,
+                    imageUris : [`https:${imageUrl}`],
+                }
+            }
+
+            async function getTableRows(table)   {
+
+                    // await scrollToElement(table);
+
+                    let tableRows = Array.from(table.querySelectorAll("tbody tr"));
+
+                    return tableRows;
+            }
+
+            async function getDataFromTableRows(tableRows)    {
+                await moderator(tableRows, async (tRows) => {
+                        
+                    let [tableRow] = tRows;
+
+                    // await scrollToElement(tableRow);
+
+                    let attr = tableRow.getAttribute("aria-label"),
+                        productId = attr ? attr.split(" ").pop() : null;
+
+                    console.log(productId);    
+
+                    if(productId)   {
+                        // get the product info
+                        let additionalProductDetails = await getProductInfo(productId);
+
+
+                        if(additionalProductDetails.productUri && additionalProductDetails.productUri !== "") {
+                            
+                            let productObject = {
+                                categorizedSetId,
+                                ...setData,
+                                ...additionalProductDetails
+                            };
+    
+                            console.log(productObject); 
+    
+                            productObjects.push(productObject);
+                        }
+
+                    }
+                    
+                }, 1);
+
+            }
+
+            // application of scraping starts here...
+
+            if(categorySections.length)    {
+
+                await moderator(categorySections, async (slicedArr) => {
+
+                    let [categorySection] = slicedArr;
+
+                    await scrollToElement(categorySection);
+
+                    console.log("waiting for table element");
+                    await waitForSelector(() => categorySection.querySelector("table"));
+                    
+                    let tables = Array.from(categorySection.querySelectorAll("table"));
+
+                    await moderator(tables, async (slicedTablesArr) => {
+
+                        let [table] = slicedTablesArr;
+
+                        // await scrollToElement(table);
+
+                        let tableRows = await getTableRows(table);
+
+                        await getDataFromTableRows(tableRows);
+
+                    }, 1);
+                    
+                }, 1);
+
+            } else if(gridList.length)  {
+                productObjects = gridList.map(item => {
+                    let productUri = item.href,
+                        productObject = {
+                            categorizedSetId,
+                            ...setData,
+                            productUri
+                        };
+                    return productObject;
+                }).filter(item => item.productUri);
+
+                await slowDown(3434);
+            }
+
+            await slowDown(3434);
             
 
             return {
@@ -100,7 +186,7 @@ module.exports = {
 
         },
         waitForSelectors : [
-            "#category-container"
+            "#content-ui"
         ]
     },
     single : [
@@ -109,20 +195,20 @@ module.exports = {
     
                 let {scrollToBottom, slowDown, scrollToTop} = utilityProps;
     
-                await scrollToBottom(700);
+                await scrollToBottom(340);
     
                 // await scrollToTop();
     
                 await slowDown(2525);
     
-    
-                let container = document.querySelector(".content-ui"),
+                try {
+                    let container = document.querySelector(".content-ui"),
                     imageElements = Array.from(container.querySelectorAll("div[data-testid^='product-image-to-zoom'] img[alt^='Main product photo']")),
                     productDetailsContainer = container.querySelector("dl[data-testid^='product-techs']"),
                     productDescriptionContainer = container.querySelector("div[data-testid^='product-description'] dd p"),
                     productNameContainer = container.querySelector("div[data-testid^='pdp-header'] h1"),//pdp-header
                     productDescription = function(){
-                        return productDescriptionContainer.innerText.trim().replace(/\r\n+/g, ' <br />');
+                        return productDescriptionContainer ? productDescriptionContainer.innerText.trim().replace(/\r\n+/g, ' <br />') : null;
                     }(),
                     productBrand = null,
                     productDetails = function(){
@@ -140,7 +226,7 @@ module.exports = {
                         return imageElements.map(item => item.src);
                     }(),
                     productName = function(){
-                        return productNameContainer.innerText.trim().replace(/\r\n+/g, ' <br />');
+                        return productNameContainer ? productNameContainer.innerText.trim().replace(/\r\n+/g, ' <br />') : null;
                     }(),
                     additionalProductDetails = {
                         productName,
@@ -150,11 +236,14 @@ module.exports = {
                         imageUris,
                     }
     
-                return {...dataProps, ...additionalProductDetails};
-    
+                    return {...dataProps, ...additionalProductDetails};
+                } catch(err)    {
+                    return {...dataProps};
+                }
+                
             },
             waitForSelectors : [
-                "div[data-testid^='product-gallery']"
+                "#content-ui"
             ],
             uriPropName : "productUri",
         }
