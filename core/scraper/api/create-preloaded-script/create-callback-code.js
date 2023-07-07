@@ -17,7 +17,7 @@ module.exports = function (callback)   {
     codeOutput += `\t\t\tlet value = function(){\n`;
     codeOutput += `\t\t\t\tlet val = ccScrapingResult[key];\n`;
     codeOutput += `\t\t\t\tif(typeof val !== "string")	{\n`;
-    codeOutput += `\t\t\t\t\treturn <div><pre>JSON.stringify(val, null, 4)</pre></div>;\n`;
+    codeOutput += `\t\t\t\t\treturn "<div><pre>" + JSON.stringify(val, null, 4) + "</pre></div>";\n`;
     codeOutput += `\t\t\t\t} else   {\n`;
     codeOutput += `\t\t\t\t\treturn val\n`;
     codeOutput += `\t\t\t\t}\n`;
