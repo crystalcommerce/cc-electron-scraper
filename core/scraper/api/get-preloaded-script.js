@@ -10,7 +10,7 @@ module.exports = async function(appAbsPath, userDataPath, fileName, scraperType,
             evaluatorObject = require(path.join(scriptsPath, `${fileName}.js`)),
             { evaluator, evaluatorIndex } = getEvaluator(evaluatorObject, scraperType, evaluatorItemIndex);
 
-
+        // TODO: appAbsPath must be changed... this may need to be changed when the app gets compiled...
         let resultObject = await createPreloadedScript({
             utilitiesPath : path.join(appAbsPath, "utilities").replace(/\\/g,"/"),
             evaluator,
