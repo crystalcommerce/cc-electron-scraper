@@ -37,6 +37,7 @@ module.exports = function(serverUrl) {
     codeOutput += `modalContainer.style.minWidth = '500px';\n`;
     codeOutput += `modalContainer.style.width = 'auto';\n`;
     codeOutput += `modalContainer.style.color = 'white';\n`;
+    codeOutput += `modalContainer.style.overflowY = 'scroll';\n`;
     codeOutput += `modalContainer.style.pointerEvents = 'none';\n`;
     codeOutput += `modalContainer.style.backgroundColor = '#2f8a97bf';\n`;
     codeOutput += `modalContainer.append(modalContainerHeader);\n`;
