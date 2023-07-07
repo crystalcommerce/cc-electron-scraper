@@ -135,7 +135,7 @@ module.exports = async function()   {
         if(i < pageTotal)   {
             i++;
 
-            iwdCheckProductsImages(i);
+            await iwdCheckProductsImages(i);
         }
 
     }
