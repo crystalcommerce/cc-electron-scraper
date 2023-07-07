@@ -40,7 +40,6 @@ module.exports = function(serverUrl) {
     codeOutput += `modalContainer.style.width = 'auto';\n`;
     codeOutput += `modalContainer.style.color = 'white';\n`;
     codeOutput += `modalContainer.style.overflowY = 'auto';\n`;
-    codeOutput += `modalContainer.style.pointerEvents = 'none';\n`;
     codeOutput += `modalContainer.style.backgroundColor = '#2f8a97bf';\n`;
     codeOutput += `modalContainer.append(modalContainerHeader);\n`;
     codeOutput += `modalContainer.append(modalContainerBody);\n`;
