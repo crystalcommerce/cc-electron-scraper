@@ -16,6 +16,11 @@ module.exports = async function(app, ipcMain)    {
                 },
             }, true),
             { pageTotal : initialPageTotal, totalCount, data } = getResult;
+
+        console.log({
+            page,
+            limit
+        });
         
         return {
             callback : async function(newPage) {

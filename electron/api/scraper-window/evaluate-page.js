@@ -109,7 +109,13 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
             ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-result", async(e, data) => {
                 
                 if(data.payload.windowId === ccScraperWindow.windowId)   {
-                    Object.assign(dataObject, data.payload.ccScrapingResult);
+
+                    if(!Array.isArray(data.payload.ccScrapingResult))   {
+                        Object.assign(dataObject, data.payload.ccScrapingResult);
+                    } else  {
+                        dataObject = data.payload.ccScrapingResult;
+                    }
+                    
                 }
 
                 scrapingDone = true;

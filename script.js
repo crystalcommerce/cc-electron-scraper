@@ -1,7 +1,12 @@
 const grainger = require("./test/scripts/grainger");
 const { app, ipcMain } = require('electron');
+const officeDepot = require("./test/scripts/office-depot");
 
 
 (async function(){
-    await grainger(app, ipcMain);
+
+
+    await officeDepot(app, ipcMain);
+
+    // await grainger(app, ipcMain);
 }())

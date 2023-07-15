@@ -68,11 +68,6 @@ module.exports = function(modelInstanceDb) {
                     a[b] = filter[b];
                     return a;
                 }, {});
-
-            console.log({
-                page,
-                limit
-            });
             
             // setting page and limit if they were not part of the query string;
             page = page ? page : 1;
