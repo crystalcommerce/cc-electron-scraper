@@ -4,10 +4,11 @@ const CcScraperWindow = require('../../../../electron/classes/cc-scraper-window'
 const { createDirPath, generateUuid, moderator, waitForCondition, readFile, objectToQueryString, apiRequest } = require('../../../../utilities');
 const ProductSetScraper = require("../../../../core/scraper/classes/product-set-scraper");
 
-async function getPreReq()  {
+async function getPreReq(app)  {
     let payload = {
         ccScriptData : {
             fileName : "office-depot",
+            apiEndpoint : "office-depots",
         },
         ccScraperData : {
             AppWindowId : null,
@@ -33,7 +34,7 @@ async function getPreReq()  {
     }
 }
 
-async function scrapeByPage()  {
+async function scrapeByPage(app)  {
     let i = 1,
         {
             callback, 
@@ -44,7 +45,7 @@ async function scrapeByPage()  {
             appAbsPath, 
             userDataPath,
             serverUrl,
-        } = await getPreReq();
+        } = await getPreReq(app);
 
     async function scrapeData(i = 1) {
         let { data : categorizedSets } = await callback(i);
@@ -97,7 +98,7 @@ module.exports = async function(app, ipcMain)   {
         });
     
         
-        await scrapeByPage();
+        await scrapeByPage(app);
 
     });
 
