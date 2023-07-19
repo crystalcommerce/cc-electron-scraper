@@ -112,13 +112,13 @@ module.exports = async function(app, ipcMain)    {
 
     // await saveCategorizedSetsToDb();
 
-    await productSetScraping(app, ipcMain);
+    // await productSetScraping(app, ipcMain);
 
     // await imageCheckerAndUriUpdater();
 
     await imageWatermarkChecker();
 
-    await singleProductScraper(app, ipcMain, 1);
+    // await singleProductScraper(app, ipcMain, 1);
 
 
 }

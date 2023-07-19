@@ -1,7 +1,7 @@
 const AppWindow = require("../classes/app-window");
 const session = require('electron').session;
 
-module.exports = function ({resourceLocation, appAbsPath, userDataPath, serverUrl}) {
+module.exports = function ({resourceLocation, appAbsPath, userDataPath, serverUrl, selectedBrowserSignature}) {
     
     let mainAppWindow;
 
@@ -9,23 +9,27 @@ module.exports = function ({resourceLocation, appAbsPath, userDataPath, serverUr
 
     mainAppWindow.initialize();
 
-    mainAppWindow.windowObject.webContents.openDevTools();
+    selectedBrowserSignature = typeof selectedBrowserSignature !== "undefined" ? selectedBrowserSignature : "chrome";
 
-    mainAppWindow.windowObject.webContents.on('ready-to-show', () => {
+    // mainAppWindow.windowObject.webContents.openDevTools();
 
-        // const session = mainAppWindow.windowObject.webContents.session;
-        // const partition = session.partition;
+    mainAppWindow.windowObject.webContents.once('ready-to-show', () => {
 
-        // session.webRequest.onHeadersReceived({ urls: ['*://*/*'] }, (details, callback) => {
-        //     callback({
-        //         responseHeaders: {
-        //             ...details.responseHeaders,
-        //             'Access-Control-Allow-Origin': ['*'],
-        //             'Access-Control-Allow-Methods': ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
-        //             'Access-Control-Allow-Headers': ['Content-Type', 'Authorization'],
-        //         },
-        //     });
-        // });
+        
+
+        console.log({message : "ready-to-show event...", from : "App Window"});
+
+        // cookie session
+        session.defaultSession.cookies.set({url: 'https://www.google.com', name: 'cookieName', value: 'cookieValue', domain: '.google.com'});
+
+        // user agent string...
+        if(selectedBrowserSignature === "chrome")    {
+            mainAppWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36');
+        } else if(selectedBrowserSignature === "firefox")   {
+            mainAppWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0');
+        } else  {
+            mainAppWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36 Edg/91.0.864.59');
+        } 
 
     });
 

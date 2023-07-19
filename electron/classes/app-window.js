@@ -20,7 +20,8 @@ class AppWindow {
             webPreferences : {
                 nodeIntegration : true,
                 contextIsolation : false,
-                // webSecurity: false,
+                contentSecurityPolicy: "default-src *;",
+                webSecurity: false,
             }
         }
         this.windowOptions = {

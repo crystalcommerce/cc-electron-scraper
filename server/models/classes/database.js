@@ -110,6 +110,12 @@ module.exports = function(model) {
                     (JSON.stringify(data[key]) === JSON.stringify(foundRecord[key])) || 
                     this.hashedProps.includes(key) && this.hashCompare(data[key], foundRecord[key])
                 )  {
+
+                    console.log({
+                        where : "removeSamePropVal",
+                        condition : JSON.stringify(data[key]) === JSON.stringify(foundRecord[key]),
+                    })
+
                     unsavedDataProps.push({[key] : data[key]});
                     delete(data[key]);
                 }

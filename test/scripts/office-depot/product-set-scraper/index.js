@@ -100,6 +100,8 @@ module.exports = async function(app, ipcMain)   {
         
         await scrapeByPage(app);
 
+        app.quit();
+
     });
 
 

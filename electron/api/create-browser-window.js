@@ -1,8 +1,10 @@
 const { ipcRenderer } = require("electron");
+const session = require('electron').session;
 const CcBrowserWindow = require("../classes/cc-browser-window");
 const { isFile } = require("../../utilities");
 
-module.exports = function (payload, appObject, callback = () => {}) {
+
+module.exports = function (payload, appObject, callback = () => {}, selectedBrowserSignature = "chrome") {
 
     if(!appObject.ready)    {
         callback(false);
@@ -10,10 +12,32 @@ module.exports = function (payload, appObject, callback = () => {}) {
     
     let {AppWindowId, componentId, browserWindowId, url} = payload,
         browserWindow = new CcBrowserWindow(AppWindowId, componentId, browserWindowId, url);
+        
 
     browserWindow.initialize();
 
     browserWindow.setViewedFrame({prevFrame : false, callback});
+
+
+    browserWindow.windowObject.webContents.once('ready-to-show', () => {
+
+        console.log({message : "ready-to-show event...", from : "Browser Window"});
+
+        
+
+        // cookie session
+        session.defaultSession.cookies.set({url: 'https://www.google.com', name: 'cookieName', value: 'cookieValue', domain: '.google.com'});
+
+        // user agent string...
+        if(selectedBrowserSignature === "chrome")    {
+            browserWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36');
+        } else if(selectedBrowserSignature === "firefox")   {
+            browserWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0');
+        } else  {
+            browserWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36 Edg/91.0.864.59');
+        } 
+
+    });
 
     browserWindow.windowObject.webContents.on("did-finish-load", (e) => {
 
@@ -25,9 +49,12 @@ module.exports = function (payload, appObject, callback = () => {}) {
 
         //         
         browserWindow.windowObject.webContents.executeJavaScript(`
-            const favicon = document.querySelector("link[rel~='icon']");
-            if (favicon) {
-                favicon.href;
+            if(!window.ccBrowserFavicon)   {
+                window.ccBrowserFavicon = document.querySelector("link[rel~='icon']");
+            }
+            
+            if (window.ccBrowserFavicon) {
+                window.ccBrowserFavicon.href;
             }
         `).then((iconUrl) => {
             browserWindow.windowObject.webContents.executeJavaScript('document.title')

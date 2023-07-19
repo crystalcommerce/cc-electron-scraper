@@ -6,7 +6,7 @@ const officeDepot = require("./test/scripts/office-depot");
 (async function(){
 
 
-    await officeDepot(app, ipcMain);
+    // await officeDepot(app, ipcMain);
 
-    // await grainger(app, ipcMain);
+    await grainger(app, ipcMain);
 }())

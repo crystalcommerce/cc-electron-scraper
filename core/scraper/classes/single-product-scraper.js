@@ -50,9 +50,10 @@ class SingleProductScraper {
 
     setApiUrl(payload) {
         let { ccScriptData } = payload,
-            { fileName } = ccScriptData;
+            { apiEndpoint, fileName } = ccScriptData,
+            selectedApiEndpoint = apiEndpoint ? apiEndpoint : fileName;
 
-        this.apiUrl = `${this.serverUrl}/api/${fileName}`;
+        this.apiUrl = `${this.serverUrl}/api/${selectedApiEndpoint}`;
     }
 
     clearUserData() {

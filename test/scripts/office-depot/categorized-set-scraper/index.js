@@ -76,7 +76,6 @@ module.exports = async function(app, ipcMain)    {
 
         console.log(createResults);
 
-
         app.quit();
         
     });

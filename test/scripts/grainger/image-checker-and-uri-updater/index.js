@@ -123,7 +123,7 @@ module.exports = async function()   {
             let promises = slicedArr.map(productObject => {
                 return async function() {
 
-                    productObject.imageUris = productObject.imageUris.map(item => getImageUrl(item));
+                    // productObject.imageUris = productObject.imageUris.map(item => getImageUrl(item));
 
                     let iwdCheckResult = await checkImageWatermark(productObject, apiUrl, serverUrl);
 
@@ -132,13 +132,13 @@ module.exports = async function()   {
                     iwdCheckResults.push(iwdCheckResult);
 
 
-                    productObject.productUri = `https://www.grainger.com${getProductUriPath(productObject)}`;
+                    // productObject.productUri = `https://www.grainger.com${getProductUriPath(productObject)}`;
 
                     // console.log({productObject, apiUrl});
 
                     let updateResult = await updateProductUri(productObject, apiUrl);
 
-                    console.log(updateResult);
+                    console.log(JSON.stringify(updateResult, null, 4));
                 }
             });
 

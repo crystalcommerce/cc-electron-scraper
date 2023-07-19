@@ -204,7 +204,7 @@ module.exports = {
                 
             },
             waitForSelectors : [
-                ".od-graphql-price-little-price"
+                ".image-gallery-slides .image-gallery-image-container img"
             ],
             uriPropName : "productUri",
         }
