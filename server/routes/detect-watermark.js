@@ -53,7 +53,6 @@ module.exports = function() {
             // in every scan, we also want to log it, somewhere...
 
             // save the result to database;
-
             res.json({ success: false, message: 'Error analyzing image' });
         }
     });

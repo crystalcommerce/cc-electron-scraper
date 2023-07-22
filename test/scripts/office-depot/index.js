@@ -15,8 +15,8 @@ module.exports = async function(app, ipcMain)   {
 
     // await singleProductScraper(app, ipcMain);
 
-    await iwdScanImage(app);
+    // await iwdScanImage(app);
 
-    await printDataToCsv(app);
+    // await printDataToCsv(app);
 
 }

@@ -86,8 +86,6 @@ async function updateProduct(productObject, apiUrl)   {
 
 }
 
-
-
 module.exports = async function()   {
     let i = 1,
         {
@@ -103,8 +101,6 @@ module.exports = async function()   {
     async function iwdCheckProductsImages(i = 1)    {
 
         let { data : productObjects } = await callback(i);
-
-        
         
         await moderator(productObjects, async (slicedArr) => {
 

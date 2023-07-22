@@ -135,7 +135,7 @@ module.exports = async function({productObject, productsApiUrl, serverUrl}) {
         console.log({
             statusOk : false,
             message : `Error in saving the scanned image : ${err.message}`,
-        })
+        });
     }
 
     
