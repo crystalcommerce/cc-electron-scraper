@@ -8,6 +8,10 @@ const scannedImagesSchema = new Schema({
         required  : true,
         unique : true,
     },
+    successfullyScanned : {
+        type : Boolean,
+        required : true,
+    },
     scanResult : {
         type : Object,
         required  : true,

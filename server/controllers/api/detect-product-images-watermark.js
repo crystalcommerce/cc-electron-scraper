@@ -29,6 +29,7 @@ async function createScannedImageOnDb({imageUrl, scanResult, productApiUrl, serv
         method : "POST",
         body : JSON.stringify({
             imageUrl,
+            successfullyScanned : scanResult.success,
             scanResult,
             productApiUrl,
         }),
@@ -45,10 +46,13 @@ async function updateScannedImageOnDb({foundData, imageUrl, scanResult, productA
         return null;
     }
     
-    let updateResult = await apiRequest(`${serverUrl}/api/scanned-images/${encodeURIComponent(foundData._id)}`, {
+    console.log({foundData, message : "here's the update of scanned Image db"});
+
+    let updateResult = await apiRequest(`${serverUrl}/api/scanned-images/${foundData._id}`, {
         method : "PUT",
         body : JSON.stringify({
             imageUrl,
+            successfullyScanned : scanResult.success,
             scanResult,
             productApiUrl,
         }),
@@ -81,16 +85,16 @@ module.exports = async function({productObject, productsApiUrl, serverUrl}) {
 
                     await slowDown();
 
-                    let foundData = await apiRequest(`${serverUrl}/api/scanned-images/single?imageUrl=${encodeURIComponent(imageUri)}&productApiUrl=${encodeURIComponent(productSpecificApiUrl)}`),
+                    let result = await apiRequest(`${serverUrl}/api/scanned-images/single?imageUrl=${encodeURIComponent(imageUri)}&productApiUrl=${encodeURIComponent(productSpecificApiUrl)}`),
                         dbQueryResult = null;
 
-                    console.log({productsApiUrl, serverUrl});
+                    console.log({productsApiUrl, serverUrl, foundData : result.data, message : "Scanning of images"});
 
-                    if(foundData)   {
+                    if(result.data)   {
 
                         dbQueryResult = await updateScannedImageOnDb({
                             serverUrl,
-                            foundData, 
+                            foundData : result.data, 
                             imageUrl : imageUri,
                             scanResult,
                             productApiUrl : productSpecificApiUrl,
