@@ -9,4 +9,4 @@ const officeDepot = require("./test/scripts/office-depot");
 
     // await grainger(app, ipcMain);
 
-}())
+}());

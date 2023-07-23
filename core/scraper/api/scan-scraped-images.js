@@ -42,6 +42,10 @@ module.exports = async function({app, ipcMain, serverUrl, apiEndpoint, filter, c
 
     async function iwdCheckProductsImages(i = 1)    {
 
+        if(pageTotal === 0) {
+            return;
+        }
+
         let { data : productObjects } = await callback(i);
         
         await moderator(productObjects, async (slicedArr) => {
