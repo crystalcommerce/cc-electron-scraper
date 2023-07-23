@@ -1,8 +1,7 @@
 const path = require('path');
-const { getAllObjectKeys, toNormalString } = require('../../utilities');
+const { getAllObjectKeys, toNormalString } = require('../../../utilities');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const csvToObject = require("./csv-to-object");
-
 
 module.exports = async function(dirPath, fileName, data=[], excludedKeys = [], newFile = false)   {
 
@@ -29,8 +28,6 @@ module.exports = async function(dirPath, fileName, data=[], excludedKeys = [], n
     } else  {
         await csvWriter.writeRecords([...prevData, ...data]);
     }
-    
-    
 
     return csvWriter;
 }

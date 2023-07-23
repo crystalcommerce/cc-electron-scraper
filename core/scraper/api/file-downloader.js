@@ -1,7 +1,7 @@
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
-const { toUrl, getFileSize, getFileExtensionsByMimeType, getSpecifiedExt, createDirPath, fileExists } = require("../../utilities");
+const { toUrl, getFileSize, getFileExtensionsByMimeType, getSpecifiedExt, createDirPath, fileExists } = require("../../../utilities");
 
 async function fileDownloader(url, givenFileName, downloadPath, preferedFileExt)    {
 

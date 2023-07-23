@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { readFile, toCamelCase } = require("../../utilities");
+const { readFile, toCamelCase } = require("../../../utilities");
 
 
 module.exports = async function(filePath)    {

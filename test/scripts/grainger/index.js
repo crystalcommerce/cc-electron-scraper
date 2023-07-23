@@ -23,6 +23,7 @@ const productSetsScraper = require("./product-sets-scraper");
 const singleProductScraper = require("./single-product-scraper");
 const imageCheckerAndUriUpdater = require("./image-checker-and-uri-updater");
 const imageWatermarkChecker = require("./image-watermark-checker");
+const printDataToCsv = require("./print-data-to-csv");
 
 async function categorizedSetScraping(app, ipcMain)  {
 
@@ -114,11 +115,15 @@ module.exports = async function(app, ipcMain)    {
 
     // await productSetScraping(app, ipcMain);
 
+    // await singleProductScraper(app, ipcMain, 1);
+
     // await imageCheckerAndUriUpdater();
 
-    await imageWatermarkChecker(175);
+    // await imageWatermarkChecker(1);
 
-    // await singleProductScraper(app, ipcMain, 1);
+    
+
+    printDataToCsv(app, ipcMain);
 
 
 }

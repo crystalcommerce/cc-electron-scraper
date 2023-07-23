@@ -1,6 +1,55 @@
 const path = require("path");
-const fileDownloader = require("../file-downloader");
-const { toUrl } = require("../../../utilities");
+const fileDownloader = require("./file-downloader");
+const { toUrl, getInitials } = require("../../../utilities");
+
+function getScannedImageObject(productObject, imageUri)    {
+    let foundScannedImage = null;
+    if(Array.isArray(productObject.scannedImageUris) && productObject.scannedImageUris.length)  {
+        foundScannedImage = productObject.scannedImageUris.find(item => item.imageUri === imageUri);
+    }
+
+    return foundScannedImage;
+}
+
+function getScannedImageResult(scannedImageObj)   {
+
+    if(!scannedImageObj)    {
+        return "";
+    }
+
+    let output = "",
+        i = 0;
+    for(let key in scannedImageObj) {
+        output += i > 0 ? `\n` : "";
+        output += `${key} : ${scannedImageObj[key]}`;
+        i++;
+    }
+
+    return output;
+}
+
+function setAddedName(scannedImageObj)  {
+    let addedNames = [];
+
+    if(!scannedImageObj)    {
+        return [];
+    }
+
+    if(scannedImageObj.success) {
+        addedNames.push("img-scan-success");
+        if(scannedImageObj.hasWatermark)    {
+            addedNames.push("img-has-watermark");
+        } else  {
+            addedNames.push("img-no-watermark");
+        }
+
+    } else  {
+        addedNames.push("img-scan-failed");
+        addedNames.push("img-may-have-watermark");
+    }
+
+    return addedNames;
+}
 
 function getNameObjects(productObject, imageNameObject, imageDirPath, preferredExt,  i) {
 
@@ -8,9 +57,11 @@ function getNameObjects(productObject, imageNameObject, imageDirPath, preferredE
         return [];
     }
 
+    productObject.scannedImagesResults = "";
+
     let { imageUris } = productObject,
         { shared, split } = imageNameObject,
-        fileNameLength = 255 - (imageDirPath.length + preferredExt.length + 7),
+        fileNameLength = 500 - (imageDirPath.length + preferredExt.length + 7),
         splitNames = function()    {
             let names = [];
             for(let prop of split) {
@@ -23,21 +74,25 @@ function getNameObjects(productObject, imageNameObject, imageDirPath, preferredE
             for(let prop of shared) {
                 productObject[prop] && names.push(productObject[prop]);
             }
-            return names;
+            return names.map(item => getInitials(item));
         }(),
         nameObjects = [];
     
     for(let j = 0; j < imageUris.length; j++)   {
 
         let nm = splitNames.reduce((a, b) => {
-                a += b.split("//").map(item => item.trim())[j];
+                a += b.split("//").map(item => getInitials(item.trim()))[j];
                 return a;
             }, ""),
-            imageName = toUrl([`${i + 1} ${j + 1}`, nm, ...sharedNames].join(" ").slice(0, fileNameLength)),
             imageUri = imageUris[j],
+            scannedImageObj = getScannedImageObject(productObject, imageUri),
+            addedNames = setAddedName(scannedImageObj),
+            imageName = toUrl([`${i + 1} ${j + 1}`, nm, sharedNames.join(" "), ...addedNames].join(" ").slice(0, fileNameLength)),
             fileName = `${imageName}.${preferredExt}`,
+            scannedImageresult = getScannedImageResult(scannedImageObj),
             filePath = path.join(imageDirPath, fileName);
-
+        productObject.scannedImagesResults += j > 0 ? `\n\n` : "";
+        productObject.scannedImagesResults += `${scannedImageresult}`;
         nameObjects.push({imageName, imageUri, fileName, filePath});
     }
 
@@ -57,6 +112,9 @@ module.exports = async function(productObject, imageDirPath, imagePropName, imag
 
     let promises = nameObjects.map(item => {
             let {imageUri, imageName} = item;
+
+            console.log(imageName);
+
             return fileDownloader.bind(null, imageUri, imageName, imageDirPath, preferredExt);
         });
 
