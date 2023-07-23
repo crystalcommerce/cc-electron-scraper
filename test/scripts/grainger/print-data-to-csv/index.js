@@ -50,4 +50,6 @@ module.exports = async function(app, ipcMain)   {
 
     }, 1);
 
+    app.quit();
+
 }

@@ -121,7 +121,6 @@ module.exports = async function(app, ipcMain)    {
 
     // await imageWatermarkChecker(1);
 
-    
 
     printDataToCsv(app, ipcMain);
 

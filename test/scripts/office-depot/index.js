@@ -11,12 +11,12 @@ module.exports = async function(app, ipcMain)   {
 
     // await categorizedSetScraper(app, ipcMain);
 
-    // await productSetScraper(app, ipcMain);
+    await productSetScraper(app, ipcMain);
 
-    // await singleProductScraper(app, ipcMain);
+    await singleProductScraper(app, ipcMain);
 
-    // await iwdScanImage(1);
+    await iwdScanImage(1);
 
-    // await printDataToCsv({app, ipcMain, apiEndpoint, serverUrl, siteUrl, targetPath, setData, currentPage, limit});
+    await printDataToCsv(app, ipcMain);
 
 }
