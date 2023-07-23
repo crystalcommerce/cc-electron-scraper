@@ -47,7 +47,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
             ccScraperWindow.windowObject.webContents.on("will-redirect", preventDefaultFunction);
         }
 
-        browserWindow.windowObject.webContents.once('ready-to-show', () => {
+        ccScraperWindow.windowObject.webContents.once("did-finish-load", async (e) => {
 
             console.log({message : "ready-to-show event...", from : "Scraper Window"});
 
@@ -61,13 +61,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
                 ccScraperWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0');
             } else  {
                 ccScraperWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36 Edg/91.0.864.59');
-            }   
-    
-        });
-
-        ccScraperWindow.windowObject.webContents.once("did-finish-load", async (e) => {
-
-                     
+            }     
             
 
             ccScraperWindow.windowObject.webContents.on("will-navigate", preventDefaultFunction);

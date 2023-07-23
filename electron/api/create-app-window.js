@@ -13,11 +13,7 @@ module.exports = function ({resourceLocation, appAbsPath, userDataPath, serverUr
 
     // mainAppWindow.windowObject.webContents.openDevTools();
 
-    mainAppWindow.windowObject.webContents.once('ready-to-show', () => {
-
-        
-
-        console.log({message : "ready-to-show event...", from : "App Window"});
+    mainAppWindow.windowObject.webContents.on("did-finish-load", (e) => {
 
         // cookie session
         session.defaultSession.cookies.set({url: 'https://www.google.com', name: 'cookieName', value: 'cookieValue', domain: '.google.com'});
@@ -30,10 +26,6 @@ module.exports = function ({resourceLocation, appAbsPath, userDataPath, serverUr
         } else  {
             mainAppWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36 Edg/91.0.864.59');
         } 
-
-    });
-
-    mainAppWindow.windowObject.webContents.on("did-finish-load", (e) => {
 
         // we add the windowObject to the global and static properties of the class that created them
         mainAppWindow.addToWindowObjects();
