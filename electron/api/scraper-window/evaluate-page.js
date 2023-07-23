@@ -47,9 +47,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
             ccScraperWindow.windowObject.webContents.on("will-redirect", preventDefaultFunction);
         }
 
-        ccScraperWindow.windowObject.webContents.once("did-finish-load", async (e) => {
-
-            console.log({message : "ready-to-show event...", from : "Scraper Window"});
+        ccScraperWindow.windowObject.webContents.on("did-finish-load", async (e) => {
 
             // cookie session
             session.defaultSession.cookies.set({url: 'https://www.google.com', name: 'cookieName', value: 'cookieValue', domain: '.google.com'});

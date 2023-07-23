@@ -30,13 +30,13 @@ module.exports = function ({resourceLocation, appAbsPath, userDataPath, serverUr
         // we add the windowObject to the global and static properties of the class that created them
         mainAppWindow.addToWindowObjects();
 
-        /* App Window configurations */
+        // /* App Window configurations */
 
-            // cookie session
-            session.defaultSession.cookies.set({url: 'https://www.google.com', name: 'cookieName', value: 'cookieValue', domain: '.google.com'});
+        //     // cookie session
+        //     session.defaultSession.cookies.set({url: 'https://www.google.com', name: 'cookieName', value: 'cookieValue', domain: '.google.com'});
 
-            // user agent string...
-            mainAppWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36');
+        //     // user agent string...
+        //     mainAppWindow.windowObject.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36');
 
             
         
