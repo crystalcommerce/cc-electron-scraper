@@ -43,7 +43,7 @@ module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, ca
                 // modify the products based on their scan result;
                 let dirPathNamesArr = Object.values(setData).map(item => toUrl(item)),
                     lastIndex = i + limit < slicedArr.length ? i + limit : slicedArr.length,
-                    csvFileName = `${toUrl(dirPathNamesArr.join(" "))}-${i}-${lastIndex}.csv`,
+                    csvFileName = `${toUrl(dirPathNamesArr.join(" "))}-${i}-${lastIndex}-of-${productObjects.length}.csv`,
                     dirPath = await createDirPath(path.join(mainDirPath, ...dirPathNamesArr, `${i}-${lastIndex}-of-${productObjects.length}`));
                 
                 // download the images with the products;
