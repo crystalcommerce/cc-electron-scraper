@@ -44,7 +44,7 @@ module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, ca
                 let dirPathNamesArr = Object.values(setData).map(item => toUrl(item)),
                     lastIndex = i + limit < slicedArr.length ? i + limit : slicedArr.length,
                     csvFileName = `${toUrl(dirPathNamesArr.join(" "))}-${i}-${lastIndex}.csv`,
-                    dirPath = await createDirPath(path.join(mainDirPath, ...dirPathNamesArr, `${i}-${lastIndex}`));
+                    dirPath = await createDirPath(path.join(mainDirPath, ...dirPathNamesArr, `${i}-${lastIndex}-of-${productObjects.length}`));
                 
                 // download the images with the products;
                 // print data to csv;
