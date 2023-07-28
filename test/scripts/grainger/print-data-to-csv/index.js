@@ -17,8 +17,8 @@ module.exports = async function(app, ipcMain)   {
         serverUrl = "http://localhost:7000",
         apiEndpoint = payload.ccScriptData.apiEndpoint,
         downloadsPath = app.getPath("downloads"),
-        targetPath = await createDirPath(downloadsPath, "cc-scraper"),
-        // targetPath = `H:/My Drive/Crystal Commerce`,
+        // targetPath = await createDirPath(downloadsPath, "cc-scraper"),
+        targetPath = `H:/My Drive/Crystal Commerce`,
         categorizedSetApiUrl = `${serverUrl}/api/categorized-sets/all?siteUrl=${encodeURIComponent(payload.ccScriptData.siteUrl)}`,
         categorizedSets = await apiRequest(categorizedSetApiUrl);
 
