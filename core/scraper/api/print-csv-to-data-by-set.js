@@ -1,4 +1,4 @@
-const { fileExists, isDirectory, toUrl, createDirPath, apiRequest, moderator } = require("../../../utilities");
+const { fileExists, isDirectory, toUrl, createDirPath, apiRequest, moderator, getInitials } = require("../../../utilities");
 const path = require("path");
 const bulkImageDownloader = require("./bulk-image-downloader");
 const downloadImage = require("./download-image");
@@ -41,9 +41,17 @@ module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, ca
 
                 // check the images products with watermarked images... 
                 // modify the products based on their scan result;
-                let dirPathNamesArr = Object.values(setData).map(item => toUrl(item)),
+                let dirPathNamesArr = Object.keys(setData).map(key => {
+                        if(key === "subcategory")  {
+                            return toUrl(getInitials(setData[key]));
+                        } else  {
+                            return toUrl(setData[key]);
+                        }
+                        
+                    }),
+                    csvFileNamesArr = Object.values(setData).map(value => toUrl(value)),
                     lastIndex = i + limit < slicedArr.length ? i + limit : slicedArr.length,
-                    csvFileName = `${toUrl(dirPathNamesArr.join(" "))}-${i}-${lastIndex}-of-${productObjects.length}.csv`,
+                    csvFileName = `${toUrl(csvFileNamesArr.join(" "))}-${i}-${lastIndex}-of-${productObjects.length}.csv`,
                     dirPath = await createDirPath(path.join(mainDirPath, ...dirPathNamesArr, `${i}-${lastIndex}-of-${productObjects.length}`));
                 
                 // download the images with the products;
