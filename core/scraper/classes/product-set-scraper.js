@@ -25,7 +25,7 @@
 const clearUserData = require("../../../electron/api/scraper-window/clear-user-data");
 const createScraperWindow = require("../../../electron/api/scraper-window/create-scraper-window");
 const evaluatePage = require("../../../electron/api/scraper-window/evaluate-page");
-const { apiRequest, moderator, sendDataToMainProcess } = require("../../../utilities");
+const { apiRequest, moderator, sendDataToMainProcess, isObjectInArray } = require("../../../utilities");
 
 class ProductSetScraper {
 
@@ -64,6 +64,8 @@ class ProductSetScraper {
         this.totalProductObjects = 0;
 
         this.setApiUrl(payload);
+
+        this.allProductObjects = [];
 
         this.scraperInfo = {
             windowId : this.windowId,
@@ -145,6 +147,16 @@ class ProductSetScraper {
         return {productObjects, newUrl};
     }
 
+    addToAllProductObjects(productObjects)    {
+
+        for(let productObject of productObjects)    {
+            if(!isObjectInArray(productObject, this.allProductObjects, ["productUri"]))  {
+                this.allProductObjects.push(productObject);
+            }
+        }
+
+    }
+
     // async getNewUrl();
     async scrapeDataByUrl(url)   {
         let {productObjects, newUrl} = await this.scrapeData(url);
@@ -153,6 +165,14 @@ class ProductSetScraper {
         this.totalProductObjects += productObjects.length;
 
         console.log({productObjects, newUrl, totalProductObjects : this.totalProductObjects});
+
+        this.addToAllProductObjects(productObjects);
+
+        console.log({
+            totalProductObjects : this.totalProductObjects,
+            totalUniqueProductObjects : this.allProductObjects.length,
+            allProductObjects : this.allProductObjects,
+        });
 
         let createResults = await this.saveData(productObjects);
 

@@ -25,7 +25,7 @@ module.exports = async function(app, ipcMain)   {
 
     // console.log({categorizedSets, categorizedSetApiUrl});
 
-    await moderator(categorizedSets.slice(0,1), async (slicedArr) => {
+    await moderator(categorizedSets, async (slicedArr) => {
 
         let [categorizedSet] = slicedArr,
             { siteName, setData } = categorizedSet;
