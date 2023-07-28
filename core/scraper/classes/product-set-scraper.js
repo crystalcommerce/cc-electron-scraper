@@ -164,14 +164,13 @@ class ProductSetScraper {
         // add the productObjects.length to the total;
         this.totalProductObjects += productObjects.length;
 
-        console.log({productObjects, newUrl, totalProductObjects : this.totalProductObjects});
+        // console.log({productObjects, newUrl, totalProductObjects : this.totalProductObjects});
 
         this.addToAllProductObjects(productObjects);
 
         console.log({
-            totalProductObjects : this.totalProductObjects,
+            totalScrapedProductObjects : this.totalProductObjects,
             totalUniqueProductObjects : this.allProductObjects.length,
-            allProductObjects : this.allProductObjects,
         });
 
         let createResults = await this.saveData(productObjects);

@@ -49,7 +49,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
             ccScraperWindow.windowObject.webContents.on("will-redirect", preventDefaultFunction);
         }
 
-        ccScraperWindow.windowObject.webContents.on("did-finish-load", async (e) => {
+        ccScraperWindow.windowObject.webContents.once("did-finish-load", async (e) => {
 
             // cookie session
             session.defaultSession.cookies.set({url: 'https://www.google.com', name: 'cookieName', value: 'cookieValue', domain: '.google.com'});
@@ -64,31 +64,10 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
             }     
             
 
-            ccScraperWindow.windowObject.webContents.on("will-navigate", preventDefaultFunction);
+            ccScraperWindow.windowObject.webContents.once("will-navigate", preventDefaultFunction);
         
-            ccScraperWindow.windowObject.webContents.on('did-start-loading', preventDefaultFunction);
+            ccScraperWindow.windowObject.webContents.once('did-start-loading', preventDefaultFunction);
 
-            ccScraperWindow.windowObject.webContents.session.webRequest.onCompleted((details) => {
-                // console.log({
-                //     id : details.id,
-                //     webContentsId : details.webContentsId,
-                //     statusCode : details.statusCode,
-                //     from : "request completed.."
-                // });
-            });
-
-            ccScraperWindow.windowObject.webContents.session.webRequest.onErrorOccurred((details) => {
-                // console.log({
-                //     id : details.id,
-                //     webContentsId : details.webContentsId,
-                //     statusCode : details.statusCode,
-                //     from : "error occured.."
-                // });
-                
-                // scrapingDone = true;
-                // responseStatusCodeError = true;
-    
-            });
 
             ccScraperWindow.windowObject.webContents.ipc.on('document-ready', (e, data) => {
                 // Handle the received IPC message
