@@ -19,6 +19,7 @@ module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, ca
             pageTotal,
             data,
             apiUrl,
+            totalCount,
         } = await getPaginatedCallbackObject({serverUrl, apiEndpoint, filter : setData, currentPage, limit});
 
     async function printDataToCsv(i = 1)    {
@@ -49,11 +50,11 @@ module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, ca
                         }
                         
                     }),
-                    csvFileNamesArr = Object.values(setData).map(value => toUrl(value)),
+                    csvFileNamesArr = Object.values(setData).map(value => toUrl(value.trim())),
                     firstIndex = ((i - 1) * limit) + 1,
                     lastIndex = slicedArr.length < limit ? firstIndex + slicedArr.length - 1 : firstIndex + limit - 1,
-                    csvFileName = `${toUrl(csvFileNamesArr.join(" "))}-${i}-${lastIndex}-of-${productObjects.length}.csv`,
-                    dirPath = await createDirPath(path.join(mainDirPath, ...dirPathNamesArr, `${firstIndex}-${lastIndex}-of-${productObjects.length}`));
+                    csvFileName = `${toUrl(csvFileNamesArr.join(" "))}-${firstIndex}-${lastIndex}-of-${totalCount}.csv`,
+                    dirPath = await createDirPath(path.join(mainDirPath, ...dirPathNamesArr, `${firstIndex}-${lastIndex}-of-${totalCount}`));
                 
                 // download the images with the products;
                 // print data to csv;

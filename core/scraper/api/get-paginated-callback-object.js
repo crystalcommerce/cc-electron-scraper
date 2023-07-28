@@ -2,7 +2,7 @@ const getPaginatedResultsFn = require("../../../server/controllers/api/get-pagin
 
 module.exports = async function ({serverUrl, apiEndpoint, filter, currentPage, limit})  {
     let apiUrl = `${serverUrl}/api/${apiEndpoint}`,
-        { callback, page, pageTotal, data } = await getPaginatedResultsFn(apiUrl, filter, currentPage, limit);
+        { callback, page, pageTotal, data, totalCount } = await getPaginatedResultsFn(apiUrl, filter, currentPage, limit);
 
     return {
         callback, 
@@ -11,5 +11,6 @@ module.exports = async function ({serverUrl, apiEndpoint, filter, currentPage, l
         data,
         apiUrl,
         serverUrl,
+        totalCount
     }
 }
