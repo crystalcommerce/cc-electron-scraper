@@ -20,7 +20,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         }
 
         closeOnEnd = typeof closeOnEnd !== "undefined" ? closeOnEnd : false;
-        noredirect = typeof noredirect !== "undefined" ? noredirect : true;
+        noredirect = typeof noredirect !== "undefined" ? noredirect : false;
         selectedBrowserSignature = typeof selectedBrowserSignature !== "undefined" ? selectedBrowserSignature : "chrome";
 
         console.log({message : "loading uri"})
@@ -39,19 +39,6 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
 
         const preventDefaultFunction = (e) => {
             e.preventDefault();
-        };
-    
-        const removeEventListeners = () => {
-            if(!ccScraperWindow) {
-                return;
-            }
-            let eventsArr = ["will-redirect", "will-navigate", "did-start-loading"];
-    
-            for(let event of eventsArr) {
-    
-                ccScraperWindow.removeEvent(event, preventDefaultFunction);
-    
-            }
         };
     
         const removeFinishLoadCallback = () => {
@@ -176,6 +163,24 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
                 }
             }
         }
+
+        // event listeners removal
+        const removeEventListeners = () => {
+            if(!ccScraperWindow) {
+                return;
+            }
+            let eventsArr = ["will-redirect", "will-navigate", "did-start-loading"];
+    
+            for(let event of eventsArr) {
+    
+                ccScraperWindow.removeEvent(event, preventDefaultFunction);
+    
+            }
+
+            ccScraperWindow.removeEvent('did-stop-loading', stopLoadingCallback);
+
+            ccScraperWindow.removeEvent('did-fail-load', failedLoadCallback);
+        };
     
         const didFinishLoadCallback = async (e) => {
     
