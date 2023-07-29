@@ -304,13 +304,6 @@ class CcScraperWindow {
         if(!foundEvent)    {
             this.windowObject.webContents.on(eventName, callback);
 
-            console.log({
-                message : `New Event Added`,
-                eventName,
-                callback : callback.name,
-                windowId : this.windowId,
-            })
-
             this.addedEvents.push({
                 eventName,
                 callback : callback.name
