@@ -119,12 +119,12 @@ async function scrapeByPage(app, categorizedSetPage)  {
         
     }
 
-    await scrapeData(i);
+    // await scrapeData(i);
 
 
 
     // check the unscraped data;
-    // await checkTheUnscrapedData(serverUrl, payload);    
+    await checkTheUnscrapedData(serverUrl, payload);    
 
 }
 
@@ -137,7 +137,7 @@ module.exports = async function(app, ipcMain)   {
         });
     
         
-        await scrapeByPage(app, 4);
+        await scrapeByPage(app, 5);
 
         app.quit();
 
