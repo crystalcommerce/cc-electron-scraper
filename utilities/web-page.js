@@ -26,7 +26,7 @@ async function scrollToBottom(num = 75, containingEl = null)  {
                     window.removeEventListener("scroll", scroll);
                     resolve();
                 }
-            }, 7);
+            }, 1);
     });
     
 }
@@ -55,7 +55,7 @@ async function scrollToElement(el)  {
                     window.removeEventListener("scroll", scroll);
                     resolve();
                 }
-            }, 7);
+            }, 1);
     });
 
 }
@@ -98,7 +98,7 @@ async function scrollToTop()   {
                 window.removeEventListener("scroll", scroll);
                 resolve();
             }
-        }, 7);
+        }, 1);
     });
 }
 
