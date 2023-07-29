@@ -80,6 +80,10 @@ module.exports = {
             if(!nextButton.disabled)    {
                 let {queryObject, urlWithoutQueryString} = queryStringToObject(window.location.href);
 
+                if(!queryObject.page)   {
+                    queryObject.page = 1;
+                }
+
                 queryObject.page = Number(queryObject.page) + 1;
 
                 newUrl = `${urlWithoutQueryString}?${objectToQueryString(queryObject)}`;
