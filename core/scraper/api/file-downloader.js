@@ -45,6 +45,12 @@ async function fileDownloader(url, givenFileName, downloadPath, preferedFileExt)
                     fileStreamEnded : fileStream.writableFinished,
                     message : `download retries : ${iteration} times`,
                 });
+
+                if(iteration > 350) {
+                    clearInterval(interval);
+                    resolve();
+                }
+
                 if(fileStream.writableFinished) {
                     console.log({
                         fileName, 
