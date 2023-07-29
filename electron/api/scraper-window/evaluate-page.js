@@ -23,7 +23,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         noredirect = typeof noredirect !== "undefined" ? noredirect : false;
         selectedBrowserSignature = typeof selectedBrowserSignature !== "undefined" ? selectedBrowserSignature : "chrome";
 
-        console.log({message : "loading uri"})
+        console.log({message : "loading uri", selectedUri});
         ccScraperWindow.load(selectedUri);
 
         
@@ -186,7 +186,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
     
             setBrowserSessionSignature();
               
-            ccScraperWindow.addEvent("will-navigate", preventDefaultFunction);
+            // ccScraperWindow.addEvent("will-navigate", preventDefaultFunction);
         
             ccScraperWindow.addEvent('did-start-loading', preventDefaultFunction);
 
