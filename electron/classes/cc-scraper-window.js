@@ -68,6 +68,8 @@ class CcScraperWindow {
         this.windowIndex = 0;
         this.getWindowIndex();
 
+        this.addedEvents = [];
+
     }
 
     static windowObjects = [];
@@ -292,6 +294,40 @@ class CcScraperWindow {
         } catch(err)    {
             console.log(err.message);
         }
+
+    }
+
+    addEvent(eventName, callback, type = null)  {
+
+        let foundEvent = this.addedEvents.find(item => item.eventName === eventName && item.callback === callback.name);
+
+        if(!foundEvent)    {
+            this.windowObject.webContents.on(eventName, callback);
+
+            console.log({
+                message : `New Event Added`,
+                eventName,
+                callback : callback.name,
+                windowId : this.windowId,
+            })
+
+            this.addedEvents.push({
+                eventName,
+                callback : callback.name
+            });
+        }
+        
+    }
+
+    removeEvent(eventName, callback)  {
+
+        let foundEvent = this.addedEvents.find(item => item.eventName === eventName && item.callback === callback.name);
+
+        if(foundEvent)    {
+            this.addedEvents = this.addedEvents.filter(item => item.callback !== callback.name && item.eventName !== eventName);
+        }
+
+        this.windowObject.webContents.removeListener(eventName, callback);
 
     }
 

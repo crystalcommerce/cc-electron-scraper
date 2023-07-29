@@ -1,7 +1,7 @@
 const path = require("path");
 const getPaginatedResultsFn = require("../../../../server/controllers/api/get-paginated-results-fn");
 const CcScraperWindow = require('../../../../electron/classes/cc-scraper-window');
-const { createDirPath, generateUuid, moderator, waitForCondition, readFile, objectToQueryString, apiRequest } = require('../../../../utilities');
+const { createDirPath, generateUuid, moderator, waitForCondition, readFile, objectToQueryString, apiRequest, slowDown } = require('../../../../utilities');
 const ProductSetScraper = require("../../../../core/scraper/classes/product-set-scraper");
 
 async function getPreReq(app)  {
@@ -34,8 +34,41 @@ async function getPreReq(app)  {
     }
 }
 
-async function scrapeByPage(app)  {
-    let i = 1,
+async function checkTheUnscrapedData(serverUrl, payload)  {
+    // some tests to check the total number of data scraped...
+
+    let categorizedSets = await apiRequest(`${serverUrl}/api/categorized-sets/all?siteUrl=https://www.officedepot.com/`),
+        productObjectsByCategory = [],
+        index = 0;
+
+    // console.log(categorizedSets);
+
+    await moderator(categorizedSets, async (slicedArr) => {
+
+        let [categorizedSet] = slicedArr,
+            {setData} = categorizedSet,
+            queryString = objectToQueryString(setData),
+            apiEndpoint = payload.ccScriptData.apiEndpoint,
+            apiUrl = `${serverUrl}/api/${apiEndpoint}/paginated?${queryString}`,
+            result = await apiRequest(apiUrl),
+            obj = {...setData, totalCount : result.totalCount, index};
+
+        // console.log(result);
+
+        
+        productObjectsByCategory.push(obj);
+        console.log(obj);
+        // await slowDown();
+
+        index++;
+
+    }, 1);
+
+    console.log(productObjectsByCategory);
+}
+
+async function scrapeByPage(app, page = 1)  {
+    let i = page,
         {
             callback, 
             page, 
@@ -45,6 +78,7 @@ async function scrapeByPage(app)  {
             appAbsPath, 
             userDataPath,
             serverUrl,
+            apiEndpoint, // optional
         } = await getPreReq(app);
 
     async function scrapeData(i = 1) {
@@ -87,6 +121,11 @@ async function scrapeByPage(app)  {
 
     await scrapeData(i);
 
+
+
+    // check the unscraped data;
+    // await checkTheUnscrapedData(serverUrl, payload);    
+
 }
 
 module.exports = async function(app, ipcMain)   {
@@ -98,7 +137,7 @@ module.exports = async function(app, ipcMain)   {
         });
     
         
-        await scrapeByPage(app);
+        await scrapeByPage(app, 4);
 
         app.quit();
 
