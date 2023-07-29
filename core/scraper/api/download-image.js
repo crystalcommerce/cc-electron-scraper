@@ -1,6 +1,6 @@
 const path = require("path");
 const fileDownloader = require("./file-downloader");
-const { toUrl, getInitials } = require("../../../utilities");
+const { toUrl, getInitials, generateUuid } = require("../../../utilities");
 
 function getScannedImageObject(productObject, imageUri)    {
     let foundScannedImage = null;
@@ -81,13 +81,14 @@ function getNameObjects(productObject, imageNameObject, imageDirPath, preferredE
     for(let j = 0; j < imageUris.length; j++)   {
 
         let nm = splitNames.reduce((a, b) => {
-                a += b.split("//").map(item => getInitials(item.trim()))[j];
+                a += b.split("//").map(item => item.trim())[j];
                 return a;
             }, ""),
             imageUri = imageUris[j],
             scannedImageObj = getScannedImageObject(productObject, imageUri),
             addedNames = setAddedName(scannedImageObj),
-            imageName = toUrl([`${i + 1} ${j + 1}`, nm, sharedNames.join(" "), ...addedNames].join(" ").slice(0, fileNameLength)),
+            // imageName = toUrl([`${i + 1} ${j + 1}`, nm, sharedNames.join(" "), ...addedNames].join(" ").slice(0, fileNameLength)),
+            imageName = toUrl([`${i + 1} ${j + 1}`, generateUuid(4), ...addedNames].join(" ").slice(0, fileNameLength)),
             fileName = `${imageName}.${preferredExt}`,
             scannedImageresult = getScannedImageResult(scannedImageObj),
             filePath = path.join(imageDirPath, fileName);

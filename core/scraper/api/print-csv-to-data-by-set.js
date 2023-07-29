@@ -42,14 +42,7 @@ module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, ca
 
                 // check the images products with watermarked images... 
                 // modify the products based on their scan result;
-                let dirPathNamesArr = Object.keys(setData).map(key => {
-                        if(key === "subcategory")  {
-                            return toUrl(getInitials(setData[key].trim()));
-                        } else  {
-                            return toUrl(setData[key].trim());
-                        }
-                        
-                    }),
+                let dirPathNamesArr = Object.keys(setData).map(key => toUrl(setData[key].trim())),
                     csvFileNamesArr = Object.values(setData).map(value => toUrl(value.trim())),
                     firstIndex = ((i - 1) * limit) + 1,
                     lastIndex = slicedArr.length < limit ? firstIndex + slicedArr.length - 1 : firstIndex + limit - 1,
