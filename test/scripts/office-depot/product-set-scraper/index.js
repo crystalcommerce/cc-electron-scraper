@@ -67,8 +67,8 @@ async function checkTheUnscrapedData(serverUrl, payload)  {
     console.log(productObjectsByCategory);
 }
 
-async function scrapeByPage(app, page = 1)  {
-    let i = page,
+async function scrapeByPage(app, categorizedSetPage)  {
+    let i = categorizedSetPage,
         {
             callback, 
             page, 
