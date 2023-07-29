@@ -20,7 +20,7 @@ module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, ca
             data,
             apiUrl,
             totalCount,
-        } = await getPaginatedCallbackObject({serverUrl, apiEndpoint, filter : setData, currentPage, limit : 5});
+        } = await getPaginatedCallbackObject({serverUrl, apiEndpoint, filter : setData, currentPage, limit});
 
     async function printDataToCsv(i = 1)    {
 
