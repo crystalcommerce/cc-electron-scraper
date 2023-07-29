@@ -1,7 +1,6 @@
 const { waitForCondition } = require("../../../utilities");
 const clearUserData = require("./clear-user-data");
 const session = require("electron").session;
-const {URL} = require("url");
 
 module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature })  {
 
@@ -146,6 +145,37 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
             }
     
         };
+
+        const stopLoadingCallback = async () => {
+            // Check if the view's URL is blank
+            if (ccScraperWindow.windowObject.webContents.getURL() === 'about:blank') {
+                console.log('The page is blank.');
+
+                scrapingDone = true;
+                removeEventListeners();
+                removeFinishLoadCallback();
+    
+                clearUserData();
+                if(ccScraperWindow) {
+                    await ccScraperWindow.close();
+                }
+            }
+        }
+
+        const failedLoadCallback = async (event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+            if (validatedURL === 'about:blank') {
+                console.log('The page failed to load and is blank.');
+
+                scrapingDone = true;
+                removeEventListeners();
+                removeFinishLoadCallback();
+    
+                clearUserData();
+                if(ccScraperWindow) {
+                    await ccScraperWindow.close();
+                }
+            }
+        }
     
         const didFinishLoadCallback = async (e) => {
     
@@ -154,6 +184,10 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
             ccScraperWindow.addEvent("will-navigate", preventDefaultFunction);
         
             ccScraperWindow.addEvent('did-start-loading', preventDefaultFunction);
+
+            ccScraperWindow.addEvent('did-stop-loading', stopLoadingCallback);
+
+            ccScraperWindow.addEvent('did-fail-load', failedLoadCallback);
     
     
             ccScraperWindow.windowObject.webContents.ipc.on('document-ready', documentReadyCallback);
