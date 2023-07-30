@@ -6,11 +6,12 @@ const getPaginatedCallbackObject = require("./get-paginated-callback-object");
 const csvDataWriter = require("./csv-data-writer");
 
 
-module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, callback, currentPage, limit})   {
+module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, callback, currentPage, limit, dirPathIndex})   {
     currentPage = currentPage && typeof currentPage === "number" && currentPage > 0 ? currentPage : 1;
     limit = limit ? limit : 500;
     setData = setData && typeof setData === "object" ? setData : {};
     callback = callback ? callback : async () => {};
+    dirPathIndex = dirPathIndex ? dirPathIndex : 1;
 
     let mainDirPath = await createDirPath(path.join(targetPath, toUrl(apiEndpoint))),
         {
@@ -36,7 +37,7 @@ module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, ca
                 "categorizedSetId",
                 "productUri",
                 "scannedImageUris",
-            ]
+            ];
         
         await moderator(productObjects, async (slicedArr) => {
 
@@ -45,7 +46,7 @@ module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, ca
                 let dirPathNamesArr = Object.values(setData).map((value, index, arr) => {
                         let lastIndex = arr.length - 1;
                         if(index === lastIndex) {
-                            return toUrl(`${value.trim()} ${index}`);
+                            return toUrl(`${dirPathIndex} ${value.trim()}`);
                         } else  {
                             return toUrl(value.trim());
                         }

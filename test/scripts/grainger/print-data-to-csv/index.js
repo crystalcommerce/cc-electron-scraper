@@ -21,7 +21,8 @@ module.exports = async function(app, ipcMain)   {
         // targetPath = await createDirPath(downloadsPath, "cc-scraper"),
         targetPath = `F:/My Drive/Crystal Commerce`,
         categorizedSetApiUrl = `${serverUrl}/api/categorized-sets/all?siteUrl=${encodeURIComponent(payload.ccScriptData.siteUrl)}`,
-        categorizedSets = await apiRequest(categorizedSetApiUrl);
+        categorizedSets = await apiRequest(categorizedSetApiUrl),
+        dirPathIndex = 1;
 
 
     console.log({total : categorizedSets.length, categorizedSetApiUrl});
@@ -48,8 +49,10 @@ module.exports = async function(app, ipcMain)   {
             callback : async (data) => {
                 console.log(data);
             },
-            
+            dirPathIndex,
         });
+
+        dirPathIndex++;
 
     }, 1);
 
