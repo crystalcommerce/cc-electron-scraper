@@ -1,4 +1,4 @@
-const { fileExists, isDirectory, toUrl, createDirPath, apiRequest, moderator, getInitials } = require("../../../utilities");
+const { fileExists, isDirectory, toUrl, createDirPath, apiRequest, moderator, getInitials, generateUuid } = require("../../../utilities");
 const path = require("path");
 const bulkImageDownloader = require("./bulk-image-downloader");
 const downloadImage = require("./download-image");
@@ -42,7 +42,15 @@ module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, ca
 
                 // check the images products with watermarked images... 
                 // modify the products based on their scan result;
-                let dirPathNamesArr = Object.keys(setData).map(key => toUrl(setData[key].trim())),
+                let dirPathNamesArr = Object.values(setData).map((value, index, arr) => {
+                        let lastIndex = arr.length - 1;
+                        if(index === lastIndex) {
+                            return toUrl(`${value.trim()} ${generateUuid()}`);
+                        } else  {
+                            return toUrl(value.trim());
+                        }
+                        
+                    }),
                     csvFileNamesArr = Object.values(setData).map(value => toUrl(value.trim())),
                     firstIndex = ((i - 1) * limit) + 1,
                     lastIndex = slicedArr.length < limit ? firstIndex + slicedArr.length - 1 : firstIndex + limit - 1,

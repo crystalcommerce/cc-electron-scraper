@@ -1,4 +1,5 @@
-const printCsvToDataBySet = require("../../../../core/scraper/api/print-csv-to-data-by-set")
+
+const printDataToCsvBySet = require("../../../../core/scraper/api/print-data-to-csv-by-set");
 const { moderator, apiRequest, createDirPath } = require("../../../../utilities");
 
 module.exports = async function(app, ipcMain)   {
@@ -17,13 +18,15 @@ module.exports = async function(app, ipcMain)   {
         serverUrl = "http://localhost:7000",
         apiEndpoint = payload.ccScriptData.apiEndpoint,
         downloadsPath = app.getPath("downloads"),
-        targetPath = await createDirPath(downloadsPath, "cc-scraper"),
-        // targetPath = `H:/My Drive/Crystal Commerce`,
+        // targetPath = await createDirPath(downloadsPath, "cc-scraper"),
+        targetPath = `F:/My Drive/Crystal Commerce`,
         categorizedSetApiUrl = `${serverUrl}/api/categorized-sets/all?siteUrl=${encodeURIComponent(payload.ccScriptData.siteUrl)}`,
         categorizedSets = await apiRequest(categorizedSetApiUrl);
 
 
-    // console.log({categorizedSets, categorizedSetApiUrl});
+    console.log({total : categorizedSets.length, categorizedSetApiUrl});
+
+    console.log(categorizedSets);
 
     await moderator(categorizedSets, async (slicedArr) => {
 
@@ -34,7 +37,7 @@ module.exports = async function(app, ipcMain)   {
         console.log({siteName, setData});
 
 
-        await printCsvToDataBySet({
+        await printDataToCsvBySet({
             apiEndpoint,
             serverUrl,
             targetPath,
@@ -45,7 +48,7 @@ module.exports = async function(app, ipcMain)   {
             callback : async (data) => {
                 console.log(data);
             },
-
+            
         });
 
     }, 1);

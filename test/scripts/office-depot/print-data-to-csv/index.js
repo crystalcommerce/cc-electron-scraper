@@ -1,4 +1,4 @@
-const printCsvToDataBySet = require("../../../../core/scraper/api/print-csv-to-data-by-set")
+const printDataToCsvBySet = require("../../../../core/scraper/api/print-data-to-csv-by-set");
 const { moderator, apiRequest, createDirPath } = require("../../../../utilities");
 
 module.exports = async function(app, ipcMain)   {
@@ -34,7 +34,7 @@ module.exports = async function(app, ipcMain)   {
         console.log({siteName, setData});
 
 
-        await printCsvToDataBySet({
+        await printDataToCsvBySet({
             apiEndpoint,
             serverUrl,
             targetPath,
