@@ -55,7 +55,7 @@ class ProductSetScraper {
         this.apiUrl = null;
         this.payload = payload;
         this.appObject = appObject && appObject.ready ? appObject : {ready : true};
-        this.noredirect = true;
+        this.noredirect = false;
         this.selectedBrowserSignature = "chrome";
 
         this.maxRequestLimit = 10;

@@ -1,7 +1,6 @@
 const { waitForCondition } = require("../../../utilities");
 const clearUserData = require("./clear-user-data");
 const session = require("electron").session;
-const {URL} = require("url");
 
 module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature })  {
 
@@ -21,10 +20,10 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         }
 
         closeOnEnd = typeof closeOnEnd !== "undefined" ? closeOnEnd : false;
-        noredirect = typeof noredirect !== "undefined" ? noredirect : true;
+        noredirect = typeof noredirect !== "undefined" ? noredirect : false;
         selectedBrowserSignature = typeof selectedBrowserSignature !== "undefined" ? selectedBrowserSignature : "chrome";
 
-        console.log({message : "loading uri"})
+        console.log({message : "loading uri", selectedUri});
         ccScraperWindow.load(selectedUri);
 
         
@@ -40,19 +39,6 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
 
         const preventDefaultFunction = (e) => {
             e.preventDefault();
-        };
-    
-        const removeEventListeners = () => {
-            if(!ccScraperWindow) {
-                return;
-            }
-            let eventsArr = ["will-redirect", "will-navigate", "did-start-loading"];
-    
-            for(let event of eventsArr) {
-    
-                ccScraperWindow.removeEvent(event, preventDefaultFunction);
-    
-            }
         };
     
         const removeFinishLoadCallback = () => {
@@ -146,14 +132,67 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
             }
     
         };
+
+        const stopLoadingCallback = async () => {
+            // Check if the view's URL is blank
+            if (ccScraperWindow.windowObject.webContents.getURL() === 'about:blank') {
+                console.log('The page is blank.');
+
+                scrapingDone = true;
+                removeEventListeners();
+                removeFinishLoadCallback();
+    
+                clearUserData();
+                if(ccScraperWindow) {
+                    await ccScraperWindow.close();
+                }
+            }
+        }
+
+        const failedLoadCallback = async (event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+            if (validatedURL === 'about:blank') {
+                console.log('The page failed to load and is blank.');
+
+                scrapingDone = true;
+                removeEventListeners();
+                removeFinishLoadCallback();
+    
+                clearUserData();
+                if(ccScraperWindow) {
+                    await ccScraperWindow.close();
+                }
+            }
+        }
+
+        // event listeners removal
+        const removeEventListeners = () => {
+            if(!ccScraperWindow) {
+                return;
+            }
+            let eventsArr = ["will-redirect", "will-navigate", "did-start-loading"];
+    
+            for(let event of eventsArr) {
+    
+                ccScraperWindow.removeEvent(event, preventDefaultFunction);
+    
+            }
+
+            ccScraperWindow.removeEvent('did-stop-loading', stopLoadingCallback);
+
+            ccScraperWindow.removeEvent('did-fail-load', failedLoadCallback);
+        };
     
         const didFinishLoadCallback = async (e) => {
     
             setBrowserSessionSignature();
               
-            ccScraperWindow.addEvent("will-navigate", preventDefaultFunction);
+            // ccScraperWindow.addEvent("will-navigate", preventDefaultFunction);
         
             ccScraperWindow.addEvent('did-start-loading', preventDefaultFunction);
+
+            ccScraperWindow.addEvent('did-stop-loading', stopLoadingCallback);
+
+            ccScraperWindow.addEvent('did-fail-load', failedLoadCallback);
     
     
             ccScraperWindow.windowObject.webContents.ipc.on('document-ready', documentReadyCallback);
