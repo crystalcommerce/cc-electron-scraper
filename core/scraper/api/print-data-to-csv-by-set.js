@@ -45,7 +45,7 @@ module.exports = async function({apiEndpoint, serverUrl, targetPath, setData, ca
                 let dirPathNamesArr = Object.values(setData).map((value, index, arr) => {
                         let lastIndex = arr.length - 1;
                         if(index === lastIndex) {
-                            return toUrl(`${value.trim()} ${generateUuid()}`);
+                            return toUrl(`${value.trim()} ${index}`);
                         } else  {
                             return toUrl(value.trim());
                         }
