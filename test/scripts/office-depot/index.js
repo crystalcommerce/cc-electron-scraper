@@ -9,18 +9,21 @@ const singleProductScraper = require("./single-product-scraper");
 module.exports = async function(app, ipcMain)   {
 
 
-    // await categorizedSetScraper(app, ipcMain);
+    app.whenReady().then(async () => {
 
-    await productSetScraper(app, ipcMain);
+        // await categorizedSetScraper(app, ipcMain);
 
-    // await singleProductScraper(app, ipcMain);
+        await productSetScraper(app, ipcMain);
 
-    // await iwdScanImage(app, ipcMain, 1);
+        await singleProductScraper(app, ipcMain);
 
-    // await printDataToCsv(app, ipcMain);
+        await iwdScanImage(app, ipcMain, 1);
+
+        await printDataToCsv(app, ipcMain);
 
 
+        app.quit();
 
+    });
     
-
 }

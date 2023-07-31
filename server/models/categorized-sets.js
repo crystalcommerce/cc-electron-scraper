@@ -19,6 +19,11 @@ const categorizedSetsSchema = new Schema({
         type : String,
         required : true,
     },
+    prevPointUrl : {
+        type : String,
+        required : false,
+        default : null,
+    },
     dateCreated : {
         type : Date,
         default : Date.now(),

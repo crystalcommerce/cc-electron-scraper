@@ -129,29 +129,14 @@ async function scrapeByPage(app, categorizedSetPage)  {
 }
 
 module.exports = async function(app, ipcMain)   {
-    
-    app.whenReady().then(async () => {
 
-        ipcMain.on("scraper-window-log", (e, data) => {
-            console.log(data);
-        });
-    
-        
-        await scrapeByPage(app, 5);
-
-        app.quit();
-
+    ipcMain.on("scraper-window-log", (e, data) => {
+        console.log(data);
     });
 
+    await scrapeByPage(app, 7);
 
-    app.on('window-all-closed', async (e) => {
-
-        console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length});
-        // e.preventDefault();
-        // if (process.platform !== 'darwin') {
-        //     app.quit()
-        // }
-
-    });
+    console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, message : "Finished Product-set-scraping"});
+    
 
 }

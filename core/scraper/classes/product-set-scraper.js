@@ -43,6 +43,7 @@ class ProductSetScraper {
         this.categorizedSetId = this.categorizedSet[this.uniquePropName];
         this.categoryObject = this.categorizedSet.categoryObject;
         this.startingPointUrl = this.categorizedSet.startingPointUrl;
+        this.prevPointUrl = this.categorizedSet.prevPointUrl;
 
         this.ccScraperWindow = null;
         this.evaluator = null;
@@ -157,6 +158,23 @@ class ProductSetScraper {
 
     }
 
+    async updatePrevPointUrl(newUrl)    {
+        
+        let apiUrl = `${this.serverUrl}/api/categorized-sets/${this.categorizedSetId}`,
+            result = await apiRequest(apiUrl, {
+                method : "PUT",
+                body : JSON.stringify({
+                    prevPointUrl : newUrl,
+                }),
+                headers : {
+                    "Content-Type" : "application/json"
+                }
+            }, true);
+
+        return result;
+
+    }
+
     // async getNewUrl();
     async scrapeDataByUrl(url)   {
         let {productObjects, newUrl} = await this.scrapeData(url);
@@ -178,7 +196,13 @@ class ProductSetScraper {
         sendDataToMainProcess('product-set-scraping-process', createResults);
 
         if(newUrl)  {
+
+            let updateResult = await updatePrevPointUrl(newUrl);
+
+            console.log(updateResult);
+
             await this.scrapeDataByUrl(newUrl);
+
         } else if(this.closeOnEnd) {
             this.ccScraperWindow.close();
         }
@@ -191,7 +215,9 @@ class ProductSetScraper {
 
         this.ccScraperWindow.showWindow();
 
-        await this.scrapeDataByUrl(this.categorizedSet.startingPointUrl);
+        let startingPointUrl = this.prevPointUrl ? this.prevPointUrl : this.startingPointUrl;
+
+        await this.scrapeDataByUrl(startingPointUrl);
 
     }
 

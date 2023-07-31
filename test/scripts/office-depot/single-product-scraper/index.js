@@ -103,28 +103,13 @@ module.exports = async function(app, ipcMain, pageIndex = 1)   {
 
     }
 
-
-    app.whenReady().then(async () => {
-
-        ipcMain.on("scraper-window-log", (e, data) => {
-            console.log(data);
-        });
+    ipcMain.on("scraper-window-log", (e, data) => {
+        console.log(data);
+    });
     
         
-        await scrapeByPage();
+    await scrapeByPage();
 
-        app.quit()
+    console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, message : "Finished Single-Product Scraping"});
 
-    });
-
-
-    app.on('window-all-closed', async (e) => {
-
-        console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length})
-        // e.preventDefault();
-        // if (process.platform !== 'darwin') {
-        //     app.quit()
-        // }
-
-    });
 }
