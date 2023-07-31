@@ -40,7 +40,7 @@ class ProductSetScraper {
         this.closeOnEnd = typeof closeOnEnd === "boolean" ? closeOnEnd : true;
 
         this.categorizedSet = categorizedSet;
-        this.categorizedSetId = this.categorizedSet[this.uniquePropName];
+        this.categorizedSetId = this.categorizedSet['_id'];
         this.categoryObject = this.categorizedSet.categoryObject;
         this.startingPointUrl = this.categorizedSet.startingPointUrl;
         this.prevPointUrl = this.categorizedSet.prevPointUrl;
@@ -197,7 +197,7 @@ class ProductSetScraper {
 
         if(newUrl)  {
 
-            let updateResult = await updatePrevPointUrl(newUrl);
+            let updateResult = await this.updatePrevPointUrl(newUrl);
 
             console.log(updateResult);
 
