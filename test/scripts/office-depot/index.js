@@ -15,15 +15,21 @@ module.exports = async function(app, ipcMain)   {
 
         await productSetScraper(app, ipcMain);
 
-        await singleProductScraper(app, ipcMain);
+        // await singleProductScraper(app, ipcMain);
 
-        await iwdScanImage(app, ipcMain, 1);
+        // await iwdScanImage(app, ipcMain, 1);
 
-        await printDataToCsv(app, ipcMain);
+        // await printDataToCsv(app, ipcMain);
 
 
-        app.quit();
+        // app.quit();
 
+    });
+
+    app.on('window-all-closed', (e) => {
+
+        e.preventDefault();
+        
     });
     
 }

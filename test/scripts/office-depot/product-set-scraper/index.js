@@ -94,6 +94,7 @@ async function scrapeByPage(app, categorizedSetPage)  {
                         appAbsPath, 
                         serverUrl, 
                         payload, 
+                        updateOnPrevPointUrl : true,
                     });
             
                     console.log(productSetScraper);
@@ -107,7 +108,7 @@ async function scrapeByPage(app, categorizedSetPage)  {
 
         }, CcScraperWindow.maxOpenedWindows);
 
-        console.log(i)
+        console.log({i, pageTotal})
 
         if(i < pageTotal)   {
 

@@ -44,7 +44,7 @@ class ProductSetScraper {
         this.categoryObject = this.categorizedSet.categoryObject;
         this.startingPointUrl = this.categorizedSet.startingPointUrl;
         
-        this.updatePrevPointUrl = updateOnPrevPointUrl ? updateOnPrevPointUrl : false;
+        this.updateOnPrevPointUrl = updateOnPrevPointUrl ? updateOnPrevPointUrl : false;
         this.prevPointUrl = this.updateOnPrevPointUrl && this.categorizedSet.prevPointUrl ? this.categorizedSet.prevPointUrl : null;
 
         this.ccScraperWindow = null;
@@ -218,6 +218,8 @@ class ProductSetScraper {
         this.ccScraperWindow.showWindow();
 
         let startingPointUrl = this.prevPointUrl ? this.prevPointUrl : this.startingPointUrl;
+
+        console.log({startingPointUrl});
 
         await this.scrapeDataByUrl(startingPointUrl);
 
