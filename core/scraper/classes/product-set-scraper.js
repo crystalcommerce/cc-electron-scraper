@@ -29,7 +29,7 @@ const { apiRequest, moderator, sendDataToMainProcess, isObjectInArray } = requir
 
 class ProductSetScraper {
 
-    constructor({categorizedSet, userDataPath, appAbsPath, serverUrl, payload, appObject, saveDataOnFinish, closeOnEnd})    {
+    constructor({categorizedSet, userDataPath, appAbsPath, serverUrl, payload, appObject, saveDataOnFinish, closeOnEnd, updateOnPrevPointUrl})    {
 
         if(!categorizedSet) {
             return null;
@@ -43,7 +43,9 @@ class ProductSetScraper {
         this.categorizedSetId = this.categorizedSet['_id'];
         this.categoryObject = this.categorizedSet.categoryObject;
         this.startingPointUrl = this.categorizedSet.startingPointUrl;
-        this.prevPointUrl = this.categorizedSet.prevPointUrl;
+        
+        this.updatePrevPointUrl = updateOnPrevPointUrl ? updateOnPrevPointUrl : false;
+        this.prevPointUrl = this.updateOnPrevPointUrl && this.categorizedSet.prevPointUrl ? this.categorizedSet.prevPointUrl : null;
 
         this.ccScraperWindow = null;
         this.evaluator = null;
