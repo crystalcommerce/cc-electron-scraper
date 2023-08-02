@@ -56,7 +56,7 @@ async function startServer(userDataPath)  {
      * 
     ***********************/
     // OLD_PROD_DB_CONNECT => DEV_DB_CONNECT =>  PROD_DB_CONNECT 
-    mongoose.connect(process.env.OLD_PROD_DB_CONNECT, {
+    mongoose.connect(process.env.PROD_DB_CONNECT, {
         useNewUrlParser : true, 
         useUnifiedTopology : true, 
     })

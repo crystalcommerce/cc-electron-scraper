@@ -122,6 +122,8 @@ async function scrapeByPage(app, categorizedSetPage)  {
 
     await scrapeData(i);
 
+    
+
 
 
     // check the unscraped data;
@@ -135,7 +137,7 @@ module.exports = async function(app, ipcMain)   {
         console.log(data);
     });
 
-    await scrapeByPage(app, 7);
+    await scrapeByPage(app, 15);
 
     console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, message : "Finished Product-set-scraping"});
     

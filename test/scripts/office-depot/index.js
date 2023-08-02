@@ -22,7 +22,7 @@ module.exports = async function(app, ipcMain)   {
         await printDataToCsv(app, ipcMain);
 
 
-        // app.quit();
+        app.quit();
 
     });
 
