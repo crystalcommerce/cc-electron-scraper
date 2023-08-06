@@ -56,7 +56,12 @@ async function startServer(userDataPath)  {
      * 
     ***********************/
     // OLD_PROD_DB_CONNECT => DEV_DB_CONNECT =>  PROD_DB_CONNECT 
-    mongoose.connect(process.env.PROD_DB_CONNECT, {
+
+    const selectedDatabase = process.env.COMPUTER_ENV === "Development" ? process.env.OLD_PROD_DB_CONNECT : process.env.PROD_DB_CONNECT;
+
+    console.log({selectedDatabase, env : process.env.COMPUTER_ENV});
+
+    mongoose.connect(selectedDatabase, {
         useNewUrlParser : true, 
         useUnifiedTopology : true, 
     })

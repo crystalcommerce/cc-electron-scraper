@@ -137,7 +137,7 @@ module.exports = async function(app, ipcMain)   {
         console.log(data);
     });
 
-    await scrapeByPage(app, 15);
+    await scrapeByPage(app, 20);
 
     console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, message : "Finished Product-set-scraping"});
     
