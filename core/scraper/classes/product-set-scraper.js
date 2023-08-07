@@ -121,7 +121,10 @@ class ProductSetScraper {
             return createResults;
 
         } catch(err)    {
-            console.log(err.message);
+            console.log({
+                message : err.message,
+                type : "Error in saving data to db",
+            });
         }
     }
 

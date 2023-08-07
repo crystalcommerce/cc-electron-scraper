@@ -192,8 +192,8 @@ module.exports = {
                     return {
                         productName,
                         productBrand,
-                        imageUris,
                         ...dataProps,
+                        imageUris,
                         itemNumber,
                         manufacturer,
                         manufacturerNumber,
