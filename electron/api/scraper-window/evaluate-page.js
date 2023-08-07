@@ -180,6 +180,8 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
             ccScraperWindow.removeEvent('did-stop-loading', stopLoadingCallback);
 
             ccScraperWindow.removeEvent('did-fail-load', failedLoadCallback);
+
+            ccScraperWindow.removeEvent('crashed', failedLoadCallback);
         };
     
         const didFinishLoadCallback = async (e) => {
@@ -190,10 +192,6 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         
             ccScraperWindow.addEvent('did-start-loading', preventDefaultFunction);
 
-            ccScraperWindow.addEvent('did-stop-loading', stopLoadingCallback);
-
-            ccScraperWindow.addEvent('did-fail-load', failedLoadCallback);
-    
     
             ccScraperWindow.windowObject.webContents.ipc.on('document-ready', documentReadyCallback);
     
@@ -219,6 +217,12 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
 
             ccScraperWindow.addEvent("will-redirect", preventDefaultFunction);
         }
+
+        ccScraperWindow.addEvent('did-stop-loading', stopLoadingCallback);
+
+        ccScraperWindow.addEvent('did-fail-load', failedLoadCallback);
+
+        ccScraperWindow.removeEvent('crashed', failedLoadCallback);
 
         ccScraperWindow.addEvent("did-finish-load", didFinishLoadCallback);
         
