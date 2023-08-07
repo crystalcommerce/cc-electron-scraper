@@ -61,7 +61,7 @@ class ProductSetScraper {
         this.noredirect = false;
         this.selectedBrowserSignature = "chrome";
 
-        this.maxRequestLimit = 50;
+        this.maxRequestLimit = 5;
 
         this.nextUrl = null;
         this.totalProductObjects = 0;
