@@ -20,6 +20,7 @@ const initializeModulesWriter = (callback) => {
         if(data.message === "required-modules-created") {
 
             // console.log({message : "data retrieved in the main process", ...data});
+            console.log("Models, Routes and Script modules have been created.");
 
             initialServerProcess.kill();
 

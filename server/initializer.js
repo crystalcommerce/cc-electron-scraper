@@ -44,6 +44,7 @@ async function createFiles(payload) {
         routesResults = await Promise.all(routesPromises.map(item => item())),
         scriptsResults = await Promise.all(scriptsPromises.map(item => item()));
 
+    
 
     return {
         modelsResults,
@@ -63,7 +64,8 @@ process.on("message", async(data) => {
         })
             .then(() => {
 
-                console.log("We are connected.. to db");
+                console.log("DB Connection established...");
+                console.log("Creating the necessary JS modules.");
 
                 createFiles(data.payload)
                     .then((result) => {
