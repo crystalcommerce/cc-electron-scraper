@@ -2,22 +2,12 @@ const { waitForCondition } = require("../../../utilities");
 const clearUserData = require("./clear-user-data");
 const session = require("electron").session;
 
-module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature })  {
-
+async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature })   {
     try {
 
         let scrapingDone = false,
             selectedUri = null,
-            responseStatusCodeError = false,
-            timer = 0,
-            maxTime = 421, // 7 minutes 1 sec;
-            intervalCount = 1000, // ms
-            interval = setInterval(() => {
-                timer++;
-                if(timer >= maxTime)    {
-                    clearInterval(interval);
-                }
-            }, intervalCount);
+            responseStatusCodeError = false;
             
 
         if(resourceUri) {
@@ -34,8 +24,6 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
 
         console.log({message : "loading uri", selectedUri});
         ccScraperWindow.load(selectedUri);
-
-        
 
         /* *********************
         ************************
@@ -159,9 +147,9 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         }
 
         const failedLoadCallback = async (event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+
             if (validatedURL === 'about:blank') {
                 console.log('The page failed to load and is blank.');
-
                 scrapingDone = true;
                 removeEventListeners();
                 removeFinishLoadCallback();
@@ -170,7 +158,44 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
                 if(ccScraperWindow) {
                     await ccScraperWindow.close();
                 }
+                
             }
+
+        }
+
+
+        const reloadUri = async (numberOfWaitTimes = 0, maxWaitTimes = 3) =>  {
+
+            let maxTimeout = 421000,
+                timeout = setTimeout(async () => {
+                    // Manually trigger the did-fail-load event
+                    clearTimeout(timeout);
+                    if(numberOfWaitTimes < maxWaitTimes && !scrapingDone)    {
+                        
+                        numberOfWaitTimes += 1;
+        
+                        console.log("reloading url")
+        
+                        ccScraperWindow.load(selectedUri);
+        
+                        reloadUri(numberOfWaitTimes, maxWaitTimes);
+            
+                    } else  {
+                        
+                        scrapingDone = true;
+                        removeEventListeners();
+                        removeFinishLoadCallback();
+
+                        clearUserData();
+                        if(ccScraperWindow) {
+                            await ccScraperWindow.close();
+                        }
+                        
+        
+                    }
+                    
+                }, maxTimeout);
+        
         }
 
         // event listeners removal
@@ -210,8 +235,6 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
     
         }
 
-
-
         /* *********************
         ************************
 
@@ -220,6 +243,7 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         ************************
         ********************* */
 
+        reloadUri();
 
         if(noredirect)  {
             // ccScraperWindow.windowObject.webContents.on("will-redirect", preventDefaultFunction);
@@ -234,20 +258,6 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         ccScraperWindow.removeEvent('crashed', failedLoadCallback);
 
         ccScraperWindow.addEvent("did-finish-load", didFinishLoadCallback);
-
-        // wait for 7 minutes and reload the application;
-
-        if(timer >= maxTime)  {
-            
-            console.log({
-                message : "This window has been lagging for more than 7 minutes, and we're reloading the same uri",
-                timer,
-                maxTime,
-            });
-
-            failedLoadCallback();
-
-        }
 
         
         await waitForCondition({
@@ -265,5 +275,13 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         console.log(err.message);
 
     }
+}
+
+module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature })  {
+
+    let result = await evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature });
+
+
+    return result ? result : dataObject;
     
 }
