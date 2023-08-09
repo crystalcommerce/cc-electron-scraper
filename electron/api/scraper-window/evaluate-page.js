@@ -2,8 +2,8 @@ const { waitForCondition } = require("../../../utilities");
 const clearUserData = require("./clear-user-data");
 const session = require("electron").session;
 
+module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature })  {
 
-async function scrapeData({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature }) {
     try {
 
         let scrapingDone = false,
@@ -239,6 +239,12 @@ async function scrapeData({ ccScraperWindow, resourceUri, dataObject, uriPropNam
 
         if(timer >= maxTime)  {
             
+            console.log({
+                message : "This window has been lagging for more than 7 minutes, and we're reloading the same uri",
+                timer,
+                maxTime,
+            });
+
             failedLoadCallback();
 
         }
@@ -259,13 +265,5 @@ async function scrapeData({ ccScraperWindow, resourceUri, dataObject, uriPropNam
         console.log(err.message);
 
     }
-}
-
-
-
-
-module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature })  {
-
-    await scrapeData({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature });
     
 }
