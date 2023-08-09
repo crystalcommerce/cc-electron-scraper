@@ -3,17 +3,16 @@ const clearUserData = require("./clear-user-data");
 const session = require("electron").session;
 
 
-async function scrapeData({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature }, requestTimes = 0) {
+async function scrapeData({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature }) {
     try {
 
         let scrapingDone = false,
             selectedUri = null,
             responseStatusCodeError = false,
-            maxRequestTimes = 3,
             timer = 0,
             maxTime = 421, // 7 minutes 1 sec;
             intervalCount = 1000, // ms
-            interval = setInterval(async () => {
+            interval = setInterval(() => {
                 timer++;
                 if(timer >= maxTime)    {
                     clearInterval(interval);
@@ -238,15 +237,9 @@ async function scrapeData({ ccScraperWindow, resourceUri, dataObject, uriPropNam
 
         // wait for 7 minutes and reload the application;
 
-        if(timer < maxTime && requestTimes < maxRequestTimes)  {
+        if(timer >= maxTime)  {
             
-            requestTimes += 1;
-
-            return await scrapeData({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature }, requestTimes);
-
-        } else  {
-
-            scrapingDone = true;
+            failedLoadCallback();
 
         }
 
