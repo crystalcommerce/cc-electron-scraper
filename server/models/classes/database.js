@@ -40,6 +40,7 @@ module.exports = function(model) {
                     enumerable : true,
                 },
             });
+            
         }
 
         setRecordName(recordName) {

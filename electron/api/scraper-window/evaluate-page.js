@@ -2,13 +2,23 @@ const { waitForCondition } = require("../../../utilities");
 const clearUserData = require("./clear-user-data");
 const session = require("electron").session;
 
-module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature })  {
 
+async function scrapeData({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature }, requestTimes = 0) {
     try {
 
         let scrapingDone = false,
             selectedUri = null,
-            responseStatusCodeError = false;
+            responseStatusCodeError = false,
+            maxRequestTimes = 3,
+            timer = 0,
+            maxTime = 421, // 7 minutes 1 sec;
+            intervalCount = 1000, // ms
+            interval = setInterval(async () => {
+                timer++;
+                if(timer >= maxTime)    {
+                    clearInterval(interval);
+                }
+            }, intervalCount);
             
 
         if(resourceUri) {
@@ -225,6 +235,21 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         ccScraperWindow.removeEvent('crashed', failedLoadCallback);
 
         ccScraperWindow.addEvent("did-finish-load", didFinishLoadCallback);
+
+        // wait for 7 minutes and reload the application;
+
+        if(timer < maxTime && requestTimes < maxRequestTimes)  {
+            
+            requestTimes += 1;
+
+            return await scrapeData({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature }, requestTimes);
+
+        } else  {
+
+            scrapingDone = true;
+
+        }
+
         
         await waitForCondition({
             conditionCallback : () => scrapingDone,
@@ -241,5 +266,13 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
         console.log(err.message);
 
     }
+}
+
+
+
+
+module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature })  {
+
+    await scrapeData({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature });
     
 }

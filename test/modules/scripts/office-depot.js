@@ -115,7 +115,7 @@ module.exports = {
 
                 try {
                     let productNameContainer = document.querySelector("h1[itemprop='name']"),
-                        priceContainer = document.querySelector(".od-graphql-price-little-price"),
+                        priceContainer = document.querySelector(".od-price-reg"),
                         productName = productNameContainer ? productNameContainer.innerText.trim() : '',
                         imageUris = Array.from(document.querySelectorAll(".image-gallery-slides .image-gallery-image-container img")).map(item => item.src),
                         productBrand = null,
