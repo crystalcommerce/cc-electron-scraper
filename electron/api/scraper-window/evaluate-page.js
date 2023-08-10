@@ -114,9 +114,6 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 removeFinishLoadCallback();
     
                 clearUserData();
-                if(ccScraperWindow) {
-                    await ccScraperWindow.close();
-                }
                 
     
             } else  {
@@ -139,9 +136,6 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 removeFinishLoadCallback();
     
                 clearUserData();
-                if(ccScraperWindow) {
-                    await ccScraperWindow.close();
-                }
                 
             }
 
