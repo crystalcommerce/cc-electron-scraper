@@ -130,22 +130,6 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
     
         };
 
-        const stopLoadingCallback = async () => {
-            // Check if the view's URL is blank
-            if (ccScraperWindow.windowObject.webContents.getURL() === 'about:blank') {
-                console.log('The page is blank.');
-
-                scrapingDone = true;
-                removeEventListeners();
-                removeFinishLoadCallback();
-    
-                clearUserData();
-                if(ccScraperWindow) {
-                    await ccScraperWindow.close();
-                }
-            }
-        }
-
         const failedLoadCallback = async (event, errorCode, errorDescription, validatedURL, isMainFrame) => {
 
             if (validatedURL === 'about:blank') {
@@ -163,41 +147,6 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
         }
 
-
-        const reloadUri = async (numberOfWaitTimes = 0, maxWaitTimes = 3) =>  {
-
-            let maxTimeout = 421000,
-                timeout = setTimeout(async () => {
-                    // Manually trigger the did-fail-load event
-                    clearTimeout(timeout);
-                    if(numberOfWaitTimes < maxWaitTimes && !scrapingDone)    {
-                        
-                        numberOfWaitTimes += 1;
-        
-                        console.log("reloading url")
-        
-                        ccScraperWindow.load(selectedUri);
-        
-                        reloadUri(numberOfWaitTimes, maxWaitTimes);
-            
-                    } else  {
-                        
-                        scrapingDone = true;
-                        removeEventListeners();
-                        removeFinishLoadCallback();
-
-                        clearUserData();
-                        if(ccScraperWindow) {
-                            await ccScraperWindow.close();
-                        }
-                        
-        
-                    }
-                    
-                }, maxTimeout);
-        
-        }
-
         // event listeners removal
         const removeEventListeners = () => {
             if(!ccScraperWindow) {
@@ -211,7 +160,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
     
             }
 
-            ccScraperWindow.removeEvent('did-stop-loading', stopLoadingCallback);
+            ccScraperWindow.removeEvent('did-stop-loading', failedLoadCallback);
 
             ccScraperWindow.removeEvent('did-fail-load', failedLoadCallback);
 
@@ -243,7 +192,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
         ************************
         ********************* */
 
-        reloadUri();
+        
 
         if(noredirect)  {
             // ccScraperWindow.windowObject.webContents.on("will-redirect", preventDefaultFunction);
@@ -251,14 +200,15 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
             ccScraperWindow.addEvent("will-redirect", preventDefaultFunction);
         }
 
-        ccScraperWindow.addEvent('did-stop-loading', stopLoadingCallback);
+        ccScraperWindow.addEvent('unresponsive', failedLoadCallback);
+
+        ccScraperWindow.addEvent('did-stop-loading', failedLoadCallback);
 
         ccScraperWindow.addEvent('did-fail-load', failedLoadCallback);
 
         ccScraperWindow.removeEvent('crashed', failedLoadCallback);
 
         ccScraperWindow.addEvent("did-finish-load", didFinishLoadCallback);
-
         
         await waitForCondition({
             conditionCallback : () => scrapingDone,
