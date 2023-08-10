@@ -182,35 +182,50 @@ class ProductSetScraper {
 
     // async getNewUrl();
     async scrapeDataByUrl(url)   {
-        let {productObjects, newUrl} = await this.scrapeData(url);
 
-        // add the productObjects.length to the total;
-        this.totalProductObjects += productObjects.length;
+        try {
 
-        // console.log({productObjects, newUrl, totalProductObjects : this.totalProductObjects});
 
-        this.addToAllProductObjects(productObjects);
+            let {productObjects, newUrl} = await this.scrapeData(url);
 
-        console.log({
-            totalScrapedProductObjects : this.totalProductObjects,
-            totalUniqueProductObjects : this.allProductObjects.length,
-        });
+            // add the productObjects.length to the total;
+            this.totalProductObjects += productObjects.length;
 
-        let createResults = await this.saveData(productObjects);
+            // console.log({productObjects, newUrl, totalProductObjects : this.totalProductObjects});
 
-        sendDataToMainProcess('product-set-scraping-process', createResults);
+            this.addToAllProductObjects(productObjects);
 
-        if(newUrl)  {
+            console.log({
+                totalScrapedProductObjects : this.totalProductObjects,
+                totalUniqueProductObjects : this.allProductObjects.length,
+            });
 
-            let updateResult = await this.updatePrevPointUrl(newUrl);
+            let createResults = await this.saveData(productObjects);
 
-            console.log(updateResult);
+            sendDataToMainProcess('product-set-scraping-process', createResults);
 
-            await this.scrapeDataByUrl(newUrl);
+            if(newUrl)  {
 
-        } else if(this.closeOnEnd) {
-            this.ccScraperWindow.close();
+                let updateResult = await this.updatePrevPointUrl(newUrl);
+
+                console.log(updateResult);
+
+                await this.scrapeDataByUrl(newUrl);
+
+            } else if(this.closeOnEnd) {
+                this.ccScraperWindow.close();
+            }
+
+
+        } catch(err)    {
+
+            if(this.closeOnEnd) {
+                this.ccScraperWindow.close();
+            }
+
         }
+
+        
 
     }
 
