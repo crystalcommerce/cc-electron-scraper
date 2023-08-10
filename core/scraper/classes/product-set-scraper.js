@@ -213,14 +213,14 @@ class ProductSetScraper {
                 await this.scrapeDataByUrl(newUrl);
 
             } else if(this.closeOnEnd) {
-                this.ccScraperWindow.close();
+                await this.ccScraperWindow.close();
             }
 
 
         } catch(err)    {
 
             if(this.closeOnEnd) {
-                this.ccScraperWindow.close();
+                await this.ccScraperWindow.close();
             }
 
         }

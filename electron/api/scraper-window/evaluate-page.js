@@ -7,7 +7,10 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
         let scrapingDone = false,
             selectedUri = null,
-            responseStatusCodeError = false;
+            responseStatusCodeError = false,
+            failedLoadCount = 0,
+            maxFailedLoadCount = 3,
+            maxWaitTime = 70000;
             
 
         if(resourceUri) {
@@ -114,14 +117,34 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 removeFinishLoadCallback();
     
                 clearUserData();
+
+                if(closeOnEnd && ccScraperWindow)  {
+                    await ccScraperWindow.close();
+                }
                 
     
             } else  {
     
                 console.log(data.payload);
                 console.log("failed waiting");
-    
-                ccScraperWindow.load(data.payload.url);
+
+                if(ccScraperWindow && ccScraperWindow.windowObject) {
+
+                    ccScraperWindow.load(data.payload.url);
+
+                } else  {
+
+                    scrapingDone = true;
+                    removeEventListeners();
+                    removeFinishLoadCallback();
+        
+                    clearUserData();
+
+                    if(closeOnEnd && ccScraperWindow)  {
+                        await ccScraperWindow.close();
+                    }
+
+                }
     
             }
     
@@ -131,12 +154,30 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
             if (validatedURL === 'about:blank') {
                 console.log('The page failed to load and is blank.');
+            }
+
+            await new Promise((resolve) => {
+                let timeout = setTimeout(() => {
+                    clearTimeout(timeout);
+                    resolve();
+                }, maxWaitTime);
+            });
+
+            if(ccScraperWindow && ccScraperWindow.windowObject && failedLoadCount < maxFailedLoadCount)    {
+                // reload the page;
+
+                ccScraperWindow.load(selectedUri);
+
+            } else  {
                 scrapingDone = true;
                 removeEventListeners();
                 removeFinishLoadCallback();
-    
+
                 clearUserData();
-                
+
+                if(closeOnEnd && ccScraperWindow)  {
+                    await ccScraperWindow.close();
+                }
             }
 
         }
@@ -169,12 +210,11 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
         
             ccScraperWindow.addEvent('did-start-loading', preventDefaultFunction);
 
-    
             ccScraperWindow.windowObject.webContents.ipc.on('document-ready', documentReadyCallback);
     
-            ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-result", scrapingResultCallback);
-    
             ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-wait-for-selectors-failed", waitForSelectorsFailedCallback);
+
+            ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-result", scrapingResultCallback);
     
         }
 
@@ -189,9 +229,9 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
         
 
         if(noredirect)  {
-            // ccScraperWindow.windowObject.webContents.on("will-redirect", preventDefaultFunction);
 
             ccScraperWindow.addEvent("will-redirect", preventDefaultFunction);
+
         }
 
         ccScraperWindow.addEvent('unresponsive', failedLoadCallback);

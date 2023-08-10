@@ -275,13 +275,18 @@ class CcScraperWindow {
     }
 
     load(resourceLocation = null, loadMethod = "loadURL")  {
-        if(resourceLocation)  {
-            this.resourceLocation = resourceLocation;
-            let currentLoadMethod = loadMethod ? loadMethod : this.loadMethod;
-            this.windowObject.webContents[currentLoadMethod](this.resourceLocation);
-        } else  {
-            this.windowObject.webContents[this.loadMethod](this.resourceLocation);
+        try {
+            if(resourceLocation)  {
+                this.resourceLocation = resourceLocation;
+                let currentLoadMethod = loadMethod ? loadMethod : this.loadMethod;
+                this.windowObject.webContents[currentLoadMethod](this.resourceLocation);
+            } else  {
+                this.windowObject.webContents[this.loadMethod](this.resourceLocation);
+            }
+        } catch(err)    {
+            console.log(err.message);
         }
+        
     }
 
     async close() {
