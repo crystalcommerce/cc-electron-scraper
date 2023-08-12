@@ -1,4 +1,4 @@
-const { waitForCondition, queryStringToObject } = require("../../../utilities");
+const { waitForCondition, queryStringToObject, objectToQueryString } = require("../../../utilities");
 const clearUserData = require("./clear-user-data");
 const session = require("electron").session;
 
@@ -11,7 +11,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
             failedLoadCount = 0,
             maxFailedLoadCount = 3,
             maxWaitTime = 70000, 
-            hasReloaded = false;
+            hasReloaded = false,
+            waitForSelectorFailedEventHandled = false;
             
 
         if(resourceUri) {
@@ -110,6 +111,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
         const waitForSelectorsFailedCallback = async(e, data) => {
 
             let {currentWait} = data.payload;
+
+            waitForSelectorFailedEventHandled = true;
     
             if(currentWait > 3) {
     
@@ -153,10 +156,15 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
     
         };
 
-        const failedLoadCallback = async (event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+        const failedLoadCallback = async (callback) => {
 
-            if (validatedURL === 'about:blank') {
-                console.log('The page failed to load and is blank.');
+            if(waitForSelectorFailedEventHandled)   {
+                console.log({
+                    message : "event was handled by 'cc-scraping-wait-for-selectors-failed'",
+                    callback : failedLoadCallback.name,
+                });
+
+                return;
             }
 
             await new Promise((resolve) => {
@@ -166,12 +174,14 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 }, maxWaitTime);
             });
 
+            callback = callback ? callback : async () => {};
+
             if(ccScraperWindow && ccScraperWindow.windowObject && failedLoadCount < maxFailedLoadCount)    {
                 // reload the page;
 
                 hasReloaded = true;
 
-                let {queryObject, urlWithoutQueryString} = queryStringToObject(window.location.href),
+                let {queryObject, urlWithoutQueryString} = queryStringToObject(selectedUri),
                     newQueryString = null;
 
                 failedLoadCount = Number(queryObject.cc_failed_waits) || 0;
@@ -197,6 +207,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 }
             }
 
+            await callback();
+
         }
 
         // event listeners removal
@@ -211,6 +223,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 ccScraperWindow.removeEvent(event, preventDefaultFunction);
     
             }
+
+            ccScraperWindow.removeEvent('unresponsive', failedLoadCallback);
 
             ccScraperWindow.removeEvent('did-stop-loading', failedLoadCallback);
 
@@ -236,8 +250,15 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-result", scrapingResultCallback);
 
             }
-        
-            
+
+            await failedLoadCallback(() => {
+                console.log({
+                    eventName : "got unresponsive after not getting error from 'cc-scraping-wait-for-selectors-failed' event.",
+                    type : "error",
+                    callbackName : failedLoadCallback.name,
+                    message : "triggered by 'did-finish-load' event."
+                })
+            });
     
         }
 
@@ -257,13 +278,41 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
         }
 
-        ccScraperWindow.addEvent('unresponsive', failedLoadCallback);
+        ccScraperWindow.addEvent('unresponsive', failedLoadCallback.bind(null,() => {
+            console.log({
+                eventName : "unresponsive",
+                type : "error",
+                callbackName : failedLoadCallback.name,
+                message : "triggered by 'unresponsive' event."
+            })
+        }));
 
-        ccScraperWindow.addEvent('did-stop-loading', failedLoadCallback);
+        ccScraperWindow.addEvent('did-stop-loading', failedLoadCallback.bind(null,() => {
+            console.log({
+                eventName : "did-stop-loading",
+                type : "error",
+                callbackName : failedLoadCallback.name,
+                message : "triggered by 'did-stop-loading' event."
+            })
+        }));
 
-        ccScraperWindow.addEvent('did-fail-load', failedLoadCallback);
+        ccScraperWindow.addEvent('did-fail-load', failedLoadCallback.bind(null,() => {
+            console.log({
+                eventName : "did-fail-load",
+                type : "error",
+                callbackName : failedLoadCallback.name,
+                message : "triggered by 'did-fail-load' event."
+            })
+        }));
 
-        ccScraperWindow.removeEvent('crashed', failedLoadCallback);
+        ccScraperWindow.addEvent('crashed', failedLoadCallback.bind(null,() => {
+            console.log({
+                eventName : "crashed",
+                type : "error",
+                callbackName : failedLoadCallback.name,
+                message : "triggered by 'crashed' event."
+            })
+        }));
 
         ccScraperWindow.addEvent("did-finish-load", didFinishLoadCallback);
         
