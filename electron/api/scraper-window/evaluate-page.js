@@ -10,9 +10,11 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
             responseStatusCodeError = false,
             failedLoadCount = 0,
             maxFailedLoadCount = 3,
-            maxWaitTime = 70000, 
+            maxWaitTime = 210000, 
             hasReloaded = false,
-            waitForSelectorFailedEventHandled = false;
+            waitForSelectorFailedEventHandled = false,
+            scrapingResultRecieved = false;
+
             
 
         if(resourceUri) {
@@ -88,6 +90,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
         };
     
         const scrapingResultCallback = async(e, data) => {
+
+            scrapingResultRecieved = true;
                 
             if(data.payload.windowId === ccScraperWindow.windowId)   {
     
