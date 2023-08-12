@@ -1,4 +1,4 @@
-const { waitForCondition } = require("../../../utilities");
+const { waitForCondition, queryStringToObject } = require("../../../utilities");
 const clearUserData = require("./clear-user-data");
 const session = require("electron").session;
 
@@ -10,7 +10,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
             responseStatusCodeError = false,
             failedLoadCount = 0,
             maxFailedLoadCount = 3,
-            maxWaitTime = 70000;
+            maxWaitTime = 70000, 
+            hasReloaded = false;
             
 
         if(resourceUri) {
@@ -107,7 +108,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
         };
     
         const waitForSelectorsFailedCallback = async(e, data) => {
-                
+
             let {currentWait} = data.payload;
     
             if(currentWait > 3) {
@@ -129,6 +130,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 console.log("failed waiting");
 
                 if(ccScraperWindow && ccScraperWindow.windowObject) {
+
+                    hasReloaded = true;
 
                     ccScraperWindow.load(data.payload.url);
 
@@ -165,6 +168,20 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
             if(ccScraperWindow && ccScraperWindow.windowObject && failedLoadCount < maxFailedLoadCount)    {
                 // reload the page;
+
+                hasReloaded = true;
+
+                let {queryObject, urlWithoutQueryString} = queryStringToObject(window.location.href),
+                    newQueryString = null;
+
+                failedLoadCount = Number(queryObject.cc_failed_waits) || 0;
+
+                failedLoadCount += 1;
+
+                queryObject.cc_failed_waits = failedLoadCount;
+                newQueryString = objectToQueryString(queryObject);
+
+                selectedUri = urlWithoutQueryString + "?" + newQueryString;
 
                 ccScraperWindow.load(selectedUri);
 
@@ -203,18 +220,24 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
         };
     
         const didFinishLoadCallback = async (e) => {
+
+            if(!hasReloaded)    {
+
+                removeEventListeners();
     
-            setBrowserSessionSignature();
-              
-            // ccScraperWindow.addEvent("will-navigate", preventDefaultFunction);
+                setBrowserSessionSignature();
+
+                ccScraperWindow.addEvent('did-start-loading', preventDefaultFunction);
+
+                ccScraperWindow.windowObject.webContents.ipc.on('document-ready', documentReadyCallback);
+    
+                ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-wait-for-selectors-failed", waitForSelectorsFailedCallback);
+
+                ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-result", scrapingResultCallback);
+
+            }
         
-            ccScraperWindow.addEvent('did-start-loading', preventDefaultFunction);
-
-            ccScraperWindow.windowObject.webContents.ipc.on('document-ready', documentReadyCallback);
-    
-            ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-wait-for-selectors-failed", waitForSelectorsFailedCallback);
-
-            ccScraperWindow.windowObject.webContents.ipc.on("cc-scraping-result", scrapingResultCallback);
+            
     
         }
 

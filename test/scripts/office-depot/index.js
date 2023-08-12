@@ -13,9 +13,9 @@ module.exports = async function(app, ipcMain)   {
 
         // await categorizedSetScraper(app, ipcMain);
 
-        await productSetScraper(app, ipcMain, 31);
+        await productSetScraper(app, ipcMain, 35);
 
-        // await singleProductScraper(app, ipcMain, 1);
+        // await singleProductScraper(app, ipcMain, 2488);
 
         // await iwdScanImage(app, ipcMain, 1);
 
