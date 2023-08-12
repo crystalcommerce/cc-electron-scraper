@@ -162,6 +162,15 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
         const failedLoadCallback = async (callback) => {
 
+            if(scrapingResultRecieved)  {
+                console.log({
+                    message : "scrapingResult has been recieved... so no need to reload... we'll just wait.",
+                    callback : failedLoadCallback.name,
+                });
+
+                return;
+            }
+
             if(waitForSelectorFailedEventHandled)   {
                 console.log({
                     message : "event was handled by 'cc-scraping-wait-for-selectors-failed'",
@@ -230,19 +239,18 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
             ccScraperWindow.removeEvent('unresponsive', failedLoadCallback);
 
-            ccScraperWindow.removeEvent('did-stop-loading', failedLoadCallback);
-
             ccScraperWindow.removeEvent('did-fail-load', failedLoadCallback);
 
             ccScraperWindow.removeEvent('crashed', failedLoadCallback);
+            
         };
     
         const didFinishLoadCallback = async (e) => {
 
+            removeEventListeners();
+
             if(!hasReloaded)    {
 
-                removeEventListeners();
-    
                 setBrowserSessionSignature();
 
                 ccScraperWindow.addEvent('did-start-loading', preventDefaultFunction);
@@ -288,15 +296,6 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 type : "error",
                 callbackName : failedLoadCallback.name,
                 message : "triggered by 'unresponsive' event."
-            })
-        }));
-
-        ccScraperWindow.addEvent('did-stop-loading', failedLoadCallback.bind(null,() => {
-            console.log({
-                eventName : "did-stop-loading",
-                type : "error",
-                callbackName : failedLoadCallback.name,
-                message : "triggered by 'did-stop-loading' event."
             })
         }));
 
