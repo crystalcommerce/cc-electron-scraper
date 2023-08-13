@@ -131,13 +131,13 @@ async function scrapeByPage(app, categorizedSetPage)  {
 
 }
 
-module.exports = async function(app, ipcMain)   {
+module.exports = async function(app, ipcMain, pageIndex)   {
 
     ipcMain.on("scraper-window-log", (e, data) => {
         console.log(data);
     });
 
-    await scrapeByPage(app, 35);
+    await scrapeByPage(app, pageIndex);
 
     console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, message : "Finished Product-set-scraping"});
     
