@@ -162,6 +162,14 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
         const failedLoadCallback = async (callback) => {
 
+            await new Promise((resolve) => {
+                let timeout = setTimeout(() => {
+                    clearTimeout(timeout);
+                    resolve();
+                }, maxWaitTime);
+            });
+
+
             if(scrapingResultRecieved)  {
                 console.log({
                     message : "scrapingResult has been recieved... so no need to reload... we'll just wait.",
@@ -179,13 +187,6 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
                 return;
             }
-
-            await new Promise((resolve) => {
-                let timeout = setTimeout(() => {
-                    clearTimeout(timeout);
-                    resolve();
-                }, maxWaitTime);
-            });
 
             callback = callback ? callback : async () => {};
 
