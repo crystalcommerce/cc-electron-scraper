@@ -268,7 +268,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                     eventName : "got unresponsive after not getting error from 'cc-scraping-wait-for-selectors-failed' event.",
                     type : "error",
                     callbackName : failedLoadCallback.name,
-                    message : "triggered by 'did-finish-load' event."
+                    message : "triggered by 'did-finish-load' event.",
+                    failedLoadCount
                 })
             });
     
@@ -295,7 +296,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 eventName : "unresponsive",
                 type : "error",
                 callbackName : failedLoadCallback.name,
-                message : "triggered by 'unresponsive' event."
+                message : "triggered by 'unresponsive' event.",
+                failedLoadCount
             })
         }));
 
@@ -304,7 +306,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 eventName : "did-fail-load",
                 type : "error",
                 callbackName : failedLoadCallback.name,
-                message : "triggered by 'did-fail-load' event."
+                message : "triggered by 'did-fail-load' event.",
+                failedLoadCount
             })
         }));
 
@@ -313,7 +316,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 eventName : "crashed",
                 type : "error",
                 callbackName : failedLoadCallback.name,
-                message : "triggered by 'crashed' event."
+                message : "triggered by 'crashed' event.",
+                failedLoadCount,
             })
         }));
 
