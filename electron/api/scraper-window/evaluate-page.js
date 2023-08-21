@@ -13,7 +13,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
             maxWaitTime = 210000, 
             hasReloaded = false,
             waitForSelectorFailedEventHandled = false,
-            scrapingResultRecieved = false;
+            scrapingResultRecieved = false,
+            failedLoadCallbackTimeout = null;
 
             
 
@@ -29,7 +30,6 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
         noredirect = typeof noredirect !== "undefined" ? noredirect : false;
         selectedBrowserSignature = typeof selectedBrowserSignature !== "undefined" ? selectedBrowserSignature : "chrome";
 
-        console.log({message : "loading uri", selectedUri});
         ccScraperWindow.load(selectedUri);
 
         /* *********************
@@ -163,8 +163,9 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
         const failedLoadCallback = async (callback) => {
 
             await new Promise((resolve) => {
-                let timeout = setTimeout(() => {
-                    clearTimeout(timeout);
+
+                failedLoadCallbackTimeout = setTimeout(() => {
+                    clearTimeout(failedLoadCallbackTimeout);
                     resolve();
                 }, maxWaitTime);
             });
@@ -173,6 +174,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
             if(scrapingResultRecieved)  {
                 console.log({
                     message : "scrapingResult has been recieved... so no need to reload... we'll just wait.",
+                    windowId : ccScraperWindow.windowId,
                     callback : failedLoadCallback.name,
                 });
 
@@ -182,6 +184,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
             if(waitForSelectorFailedEventHandled)   {
                 console.log({
                     message : "event was handled by 'cc-scraping-wait-for-selectors-failed'",
+                    windowId : ccScraperWindow.windowId,
                     callback : failedLoadCallback.name,
                 });
 
@@ -207,6 +210,8 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
                 selectedUri = urlWithoutQueryString + "?" + newQueryString;
 
+                await callback();
+
                 ccScraperWindow.load(selectedUri);
 
             } else  {
@@ -216,17 +221,20 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
                 clearUserData();
 
+                await callback();
+
                 if(closeOnEnd && ccScraperWindow)  {
                     await ccScraperWindow.close();
                 }
             }
 
-            await callback();
+            
 
         }
 
         // event listeners removal
         const removeEventListeners = () => {
+
             if(!ccScraperWindow) {
                 return;
             }
@@ -269,11 +277,11 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                     eventName : "got unresponsive after not getting error from 'cc-scraping-wait-for-selectors-failed' event.",
                     type : "error",
                     callbackName : failedLoadCallback.name,
+                    windowId : ccScraperWindow.windowId,
                     message : "triggered by 'did-finish-load' event.",
                     failedLoadCount
                 })
             });
-    
         }
 
         /* *********************
@@ -326,7 +334,9 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
         
         await waitForCondition({
             conditionCallback : () => scrapingDone,
+            
             onTrueCallback : async () => {
+                removeEventListeners();
                 console.log({message : "scraping is done... and we're closing the browser", scrapingDone, dataObject});
             },
         });
@@ -345,6 +355,8 @@ module.exports = async function({ ccScraperWindow, resourceUri, dataObject, uriP
 
     let result = await evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature });
 
+
+    console.log({message : "final point in evaluation process..."})
 
     return result ? result : dataObject;
     

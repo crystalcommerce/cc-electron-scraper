@@ -1,4 +1,4 @@
-module.exports = function(Router, graingerPackagingAndShippingSuppliesDb, getDynamicController, httpResponseHandler)   {
+module.exports = function(Router, officeDepotsDb, getDynamicController, httpResponseHandler)   {
 
 	const router = Router();
 
@@ -13,42 +13,47 @@ module.exports = function(Router, graingerPackagingAndShippingSuppliesDb, getDyn
 		update,
 		deleteById,
 		deleteAllFiltered,
-	} = getDynamicController(graingerPackagingAndShippingSuppliesDb);
+	} = getDynamicController(officeDepotsDb);
+
+	const baseApiRouteName = "/grainger-packaging-and-shipping-supplies";
 
 	// getAll Handler
-	router.get("/grainger-packaging-and-shipping-supplies/", getAll, httpResponseHandler());
+	router.get(`${baseApiRouteName}/`, getAll, httpResponseHandler());
 
 
 	// getOneByFilter hanlder
-	router.get("/grainger-packaging-and-shipping-supplies/single?", getOneByFilter, httpResponseHandler());
+	router.get(`${baseApiRouteName}/single?`, getOneByFilter, httpResponseHandler());
 
 
 	// getAllFiltered hanlder
-	router.get("/grainger-packaging-and-shipping-supplies/all?", getAllFiltered, httpResponseHandler());
+	router.get(`${baseApiRouteName}/all?`, getAllFiltered, httpResponseHandler());
 
 
 	// getPaginatedResults hanlder
-	router.get("/grainger-packaging-and-shipping-supplies/paginated?", getPaginatedResults, httpResponseHandler());
+	router.get(`${baseApiRouteName}/paginated?`, getPaginatedResults, httpResponseHandler());
 
 
 	// getOneById handler
-	router.get("/grainger-packaging-and-shipping-supplies/:id", getOneById, httpResponseHandler());
+	router.get(`${baseApiRouteName}/:id`, getOneById, httpResponseHandler());
 
 
 	// create
-	router.post("/grainger-packaging-and-shipping-supplies/", create, httpResponseHandler());
+	router.post(`${baseApiRouteName}/`, create, httpResponseHandler());
+
+	// create
+	router.post(`${baseApiRouteName}/create-multiple`, createMultiple, httpResponseHandler());
 
 
 	// updateHandler
-	router.put("/grainger-packaging-and-shipping-supplies/:id", update, httpResponseHandler());
+	router.put(`${baseApiRouteName}/:id`, update, httpResponseHandler());
 
 
 	// deleteAllFilteredHandler
-	router.delete("/grainger-packaging-and-shipping-supplies/all?", deleteAllFiltered, httpResponseHandler());
+	router.delete(`${baseApiRouteName}/all?`, deleteAllFiltered, httpResponseHandler());
 
 
 	// deleteHandler
-	router.delete("/grainger-packaging-and-shipping-supplies/:id", deleteById, httpResponseHandler());
+	router.delete(`${baseApiRouteName}/:id`, deleteById, httpResponseHandler());
 
 
 	return router;

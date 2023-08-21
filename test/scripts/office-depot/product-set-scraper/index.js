@@ -57,14 +57,14 @@ async function checkTheUnscrapedData(serverUrl, payload)  {
 
         
         productObjectsByCategory.push(obj);
-        console.log(obj);
+        // console.log(obj);
         // await slowDown();
 
         index++;
 
     }, 1);
 
-    console.log(productObjectsByCategory);
+    // console.log(productObjectsByCategory);
 }
 
 async function scrapeByPage(app, categorizedSetPage)  {
@@ -97,7 +97,7 @@ async function scrapeByPage(app, categorizedSetPage)  {
                         updateOnPrevPointUrl : true,
                     });
             
-                    console.log(productSetScraper);
+                    // console.log(productSetScraper);
             
                     await productSetScraper.initialize();
                     

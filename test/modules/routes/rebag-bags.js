@@ -1,4 +1,4 @@
-module.exports = function(Router, rebagBagsDb, getDynamicController, httpResponseHandler)   {
+module.exports = function(Router, officeDepotsDb, getDynamicController, httpResponseHandler)   {
 
 	const router = Router();
 
@@ -13,42 +13,47 @@ module.exports = function(Router, rebagBagsDb, getDynamicController, httpRespons
 		update,
 		deleteById,
 		deleteAllFiltered,
-	} = getDynamicController(rebagBagsDb);
+	} = getDynamicController(officeDepotsDb);
+
+	const baseApiRouteName = "/rebag-bags";
 
 	// getAll Handler
-	router.get("/rebag-bags/", getAll, httpResponseHandler());
+	router.get(`${baseApiRouteName}/`, getAll, httpResponseHandler());
 
 
 	// getOneByFilter hanlder
-	router.get("/rebag-bags/single?", getOneByFilter, httpResponseHandler());
+	router.get(`${baseApiRouteName}/single?`, getOneByFilter, httpResponseHandler());
 
 
 	// getAllFiltered hanlder
-	router.get("/rebag-bags/all?", getAllFiltered, httpResponseHandler());
+	router.get(`${baseApiRouteName}/all?`, getAllFiltered, httpResponseHandler());
 
 
 	// getPaginatedResults hanlder
-	router.get("/rebag-bags/paginated?", getPaginatedResults, httpResponseHandler());
+	router.get(`${baseApiRouteName}/paginated?`, getPaginatedResults, httpResponseHandler());
 
 
 	// getOneById handler
-	router.get("/rebag-bags/:id", getOneById, httpResponseHandler());
+	router.get(`${baseApiRouteName}/:id`, getOneById, httpResponseHandler());
 
 
 	// create
-	router.post("/rebag-bags/", create, httpResponseHandler());
+	router.post(`${baseApiRouteName}/`, create, httpResponseHandler());
+
+	// create
+	router.post(`${baseApiRouteName}/create-multiple`, createMultiple, httpResponseHandler());
 
 
 	// updateHandler
-	router.put("/rebag-bags/:id", update, httpResponseHandler());
+	router.put(`${baseApiRouteName}/:id`, update, httpResponseHandler());
 
 
 	// deleteAllFilteredHandler
-	router.delete("/rebag-bags/all?", deleteAllFiltered, httpResponseHandler());
+	router.delete(`${baseApiRouteName}/all?`, deleteAllFiltered, httpResponseHandler());
 
 
 	// deleteHandler
-	router.delete("/rebag-bags/:id", deleteById, httpResponseHandler());
+	router.delete(`${baseApiRouteName}/:id`, deleteById, httpResponseHandler());
 
 
 	return router;

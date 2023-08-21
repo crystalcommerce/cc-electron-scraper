@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 const path = require("path");
-const { deleteFile, toUrl, toNormalString, enumerate } = require("../../../utilities");
+const { deleteFile, toUrl, toNormalString, enumerate, moderator } = require("../../../utilities");
 
 module.exports = function(model) {
     
@@ -277,14 +277,11 @@ module.exports = function(model) {
 
         // create
         async create(data)  {
-            let uniqueCheckResult = await this.checkUniqueProps(data);
+            // let uniqueCheckResult = await this.checkUniqueProps(data);
 
-            if(!uniqueCheckResult.statusOk) {
-                return {
-                    statusOk : false,
-                    message : `The ${this.recordName}'s ${enumerate(this.uniqueProps)} may have been already used by another ${this.recordName}.`,
-                }
-            }
+            // if(!uniqueCheckResult.statusOk) {
+                
+            // }
 
             // remove invalid data properties;
             this.removeInvalidProps(data);
@@ -304,17 +301,59 @@ module.exports = function(model) {
                 }
             }
             catch(err)  {
-                return {
-                    statusOk : false,
-                    message : err.message,
+
+                if(err.code === 11000)  {
+                    return {
+                        statusOk : false,
+                        message : `The ${this.recordName}'s ${enumerate(this.uniqueProps)} may have been already used by another ${this.recordName}.`,
+                    }
+                } else  {
+                    return {
+                        statusOk : false,
+                        message : err.message,
+                    }
                 }
+
+
+                
             }
         }
 
         async createMultiple(multipleData)  {
-            let createResults = await Promise.all(multipleData.map(item => this.create(item)));
 
-            return createResults;
+            try {
+                
+                let createResults = [];
+        
+                await moderator(multipleData, async (slicedArr) => {
+
+                    let promises = slicedArr.map(item => {
+                        return async () => {
+                            let result = await this.create(item);
+
+                            createResults.push(result);
+                        }
+                    });
+
+                    await Promise.all(promises.map(item => item()));
+                    
+                }, 5);
+
+                return {
+                    statusOk : true, 
+                    message : `We have successfully created multiple rows of data for ${this.recordName}.`,
+                    data : createResults
+                };
+
+            } catch(err)    {
+                return {
+                    statusOk : false, 
+                    message : `We have encountered some problems while saving rows of data to db.`,
+                    data : multipleData
+                };
+            }
+
+            
         }
     
         // update

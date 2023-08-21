@@ -61,14 +61,12 @@ class ProductSetScraper {
         this.noredirect = false;
         this.selectedBrowserSignature = "chrome";
 
-        this.maxRequestLimit = 5;
+        this.maxRequestLimit = 25;
 
         this.nextUrl = null;
         this.totalProductObjects = 0;
 
         this.setApiUrl(payload);
-
-        this.allProductObjects = [];
 
         this.scraperInfo = {
             windowId : this.windowId,
@@ -82,7 +80,7 @@ class ProductSetScraper {
             { apiEndpoint, fileName } = ccScriptData,
             selectedApiEndpoint = apiEndpoint ? apiEndpoint : fileName;
 
-        this.apiUrl = `${this.serverUrl}/api/${selectedApiEndpoint}`;
+        this.apiUrl = `${this.serverUrl}/api/${selectedApiEndpoint}/create-multiple`;
     }
 
     clearUserData() {
@@ -101,24 +99,18 @@ class ProductSetScraper {
 
             await moderator(dataObjects, async (slicedArr) => {
 
-                let promises = slicedArr.map(item => {
-                    return async () => {
+                let createMulitpleResult = await apiRequest(this.apiUrl, {
+                    method : "POST",
+                    body : JSON.stringify(slicedArr, null, 4),
+                }, true);
 
-                        let createResult = await apiRequest(this.apiUrl, {
-                            method : "POST",
-                            body : JSON.stringify(item, null, 4),
-                        }, true);
+                console.log(createMulitpleResult);
 
-                        createResults.push(createResult);
-
-                    }
-                });
-
-                await Promise.all(promises.map(item => item()));
+                // createResults.push(...createMulitpleResult);
 
             }, this.maxRequestLimit);
             
-            return createResults;
+            // return createResults;
 
         } catch(err)    {
             console.log({
@@ -150,17 +142,12 @@ class ProductSetScraper {
             selectedBrowserSignature : this.selectedBrowserSignature,
         });
 
+        console.log({
+            message : `we have recieved the data from windowId : ${this.windowId}; we now have to save it...`,
+            scrapedProductObjects : productObjects.length
+        })
+
         return {productObjects, newUrl};
-    }
-
-    addToAllProductObjects(productObjects)    {
-
-        for(let productObject of productObjects)    {
-            if(!isObjectInArray(productObject, this.allProductObjects, ["productUri"]))  {
-                this.allProductObjects.push(productObject);
-            }
-        }
-
     }
 
     async updatePrevPointUrl(newUrl)    {
@@ -193,16 +180,28 @@ class ProductSetScraper {
 
             // console.log({productObjects, newUrl, totalProductObjects : this.totalProductObjects});
 
-            this.addToAllProductObjects(productObjects);
-
             console.log({
-                totalScrapedProductObjects : this.totalProductObjects,
-                totalUniqueProductObjects : this.allProductObjects.length,
+                message : "saving data to database...",
+                windowId : this.windowId,
+                totalProductObjects : this.totalProductObjects,
+                scrapedProductsFromWindow : productObjects.length,
             });
 
             let createResults = await this.saveData(productObjects);
 
+            console.log({
+                message : "saving products to db process has been done.",
+                windowId : this.windowId,
+                createResults : JSON.stringify(createResults, null, 4),
+                totalProductObjects : this.totalProductObjects,
+                scrapedProductsFromWindow : productObjects.length,
+            });
+
             sendDataToMainProcess('product-set-scraping-process', createResults);
+
+            console.log({
+                message : `moving on to the next set of products or closing the window...`
+            })
 
             if(newUrl)  {
 
@@ -236,8 +235,6 @@ class ProductSetScraper {
         this.ccScraperWindow.showWindow();
 
         let startingPointUrl = this.prevPointUrl ? this.prevPointUrl : this.startingPointUrl;
-
-        console.log({startingPointUrl});
 
         await this.scrapeDataByUrl(startingPointUrl);
 
