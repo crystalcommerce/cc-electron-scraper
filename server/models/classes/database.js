@@ -323,26 +323,39 @@ module.exports = function(model) {
 
             try {
                 
-                let createResults = [];
+                let resultsArr = [];
         
                 await moderator(multipleData, async (slicedArr) => {
 
-                    let promises = slicedArr.map(item => {
-                        return async () => {
-                            let result = await this.create(item);
+                    let batch = [],
+                        promises = slicedArr.map(data => {
+                            return async () => {
+                                this.removeInvalidProps(data);
 
-                            createResults.push(result);
-                        }
-                    });
+
+                                // if unique test passed;
+                                this.hashListedProps(data);
+                                this.setDefaultValuedProps(data);
+                                await this.createFriendlyUrlFromListedProps(data);
+
+                                batch.push(data);
+                            }
+                        });
 
                     await Promise.all(promises.map(item => item()));
+
+                    let results = await this.model.insertMany(batch);
+
+                    console.log(results);
+
+                    resultsArr.push(results);
                     
                 }, 5);
 
                 return {
                     statusOk : true, 
                     message : `We have successfully created multiple rows of data for ${this.recordName}.`,
-                    data : createResults
+                    data : resultsArr,
                 };
 
             } catch(err)    {
