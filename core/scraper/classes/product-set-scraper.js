@@ -61,7 +61,7 @@ class ProductSetScraper {
         this.noredirect = false;
         this.selectedBrowserSignature = "chrome";
 
-        this.maxRequestLimit = 25;
+        this.maxRequestLimit = 5;
 
         this.nextUrl = null;
         this.totalProductObjects = 0;
@@ -104,13 +104,11 @@ class ProductSetScraper {
                     body : JSON.stringify(slicedArr, null, 4),
                 }, true);
 
-                console.log(createMulitpleResult);
-
-                // createResults.push(...createMulitpleResult);
+                createResults.push(...createMulitpleResult);
 
             }, this.maxRequestLimit);
             
-            // return createResults;
+            return createResults;
 
         } catch(err)    {
             console.log({
