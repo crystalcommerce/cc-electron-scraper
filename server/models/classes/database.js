@@ -346,8 +346,6 @@ module.exports = function(model) {
 
                     let results = await this.model.insertMany(batch);
 
-                    console.log(results);
-
                     resultsArr.push(results);
                     
                 }, 5);

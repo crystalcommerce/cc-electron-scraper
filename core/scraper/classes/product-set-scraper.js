@@ -25,7 +25,7 @@
 const clearUserData = require("../../../electron/api/scraper-window/clear-user-data");
 const createScraperWindow = require("../../../electron/api/scraper-window/create-scraper-window");
 const evaluatePage = require("../../../electron/api/scraper-window/evaluate-page");
-const { apiRequest, moderator, sendDataToMainProcess, isObjectInArray } = require("../../../utilities");
+const { apiRequest, moderator, sendDataToMainProcess, isObjectInArray, slowDown } = require("../../../utilities");
 
 class ProductSetScraper {
 
@@ -104,7 +104,14 @@ class ProductSetScraper {
                     body : JSON.stringify(slicedArr, null, 4),
                 }, true);
 
-                createResults.push(...createMulitpleResult);
+                createResults.push(...createMulitpleResult.map(item => {
+                    return {
+                        message : item.message,
+                        statusOk : item.statusOk
+                    }
+                }));
+
+                await slowDown(2525);
 
             }, this.maxRequestLimit);
             
