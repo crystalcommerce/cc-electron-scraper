@@ -93,9 +93,11 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
             
                 
-            if(data.payload.windowId === ccScraperWindow.windowId)   {
+            if(data.payload.windowId === ccScraperWindow.windowId && data.payload.ccScrapingResult)   {
 
                 scrapingResultRecieved = true;
+
+                failedLoadCount = 0;
     
                 if(!Array.isArray(data.payload.ccScrapingResult))   {
                     Object.assign(dataObject, data.payload.ccScrapingResult);
