@@ -235,22 +235,31 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
         // event listeners removal
         const removeEventListeners = () => {
 
-            if(!ccScraperWindow) {
-                return;
+            try {
+                if(!ccScraperWindow) {
+                    throw Error("ccScraperWindow Object has been destroyed")
+                }
+
+                let eventsArr = ["will-redirect", "will-navigate", "did-start-loading"];
+        
+                for(let event of eventsArr) {
+        
+                    ccScraperWindow.removeEvent(event, preventDefaultFunction);
+        
+                }
+    
+                ccScraperWindow.removeEvent('unresponsive', failedLoadCallback);
+    
+                ccScraperWindow.removeEvent('did-fail-load', failedLoadCallback);
+    
+                ccScraperWindow.removeEvent('crashed', failedLoadCallback);
+            } catch(err)    {
+                return {
+                    message : `An Error occured while removing the event listeners... ${err.message}`
+                }
             }
-            let eventsArr = ["will-redirect", "will-navigate", "did-start-loading"];
-    
-            for(let event of eventsArr) {
-    
-                ccScraperWindow.removeEvent(event, preventDefaultFunction);
-    
-            }
 
-            ccScraperWindow.removeEvent('unresponsive', failedLoadCallback);
-
-            ccScraperWindow.removeEvent('did-fail-load', failedLoadCallback);
-
-            ccScraperWindow.removeEvent('crashed', failedLoadCallback);
+            
             
         };
     

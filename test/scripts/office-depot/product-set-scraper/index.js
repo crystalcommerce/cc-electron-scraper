@@ -82,7 +82,9 @@ async function scrapeByPage(app, categorizedSetPage)  {
         } = await getPreReq(app);
 
     async function scrapeData(i = 1) {
-        let { data : categorizedSets } = await callback(i);
+        let { data : categorizedSets, pageTotal : updatedPageTotal } = await callback(i);
+
+        pageTotal = updatedPageTotal;
 
         await moderator(categorizedSets, async (slicedArr) => {
 
@@ -107,6 +109,8 @@ async function scrapeByPage(app, categorizedSetPage)  {
             await Promise.all(promises.map(item => item()));
 
         }, CcScraperWindow.maxOpenedWindows);
+
+
 
         console.log({i, pageTotal})
 

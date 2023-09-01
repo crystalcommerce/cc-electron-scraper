@@ -319,13 +319,24 @@ class CcScraperWindow {
 
     removeEvent(eventName, callback)  {
 
-        let foundEvent = this.addedEvents.find(item => item.eventName === eventName && item.callback === callback.name);
+        try{
+            let foundEvent = this.addedEvents.find(item => item.eventName === eventName && item.callback === callback.name);
 
-        if(foundEvent)    {
-            this.addedEvents = this.addedEvents.filter(item => item.callback !== callback.name && item.eventName !== eventName);
+            if(foundEvent)    {
+                this.addedEvents = this.addedEvents.filter(item => item.callback !== callback.name && item.eventName !== eventName);
+            }
+
+            this.windowObject.webContents.removeListener(eventName, callback);
+        } catch(err)    {
+
+            return {
+                message : `An error occured while removing the event listeners : ${err.message}`,
+                statusOk : false,
+            }
+
         }
 
-        this.windowObject.webContents.removeListener(eventName, callback);
+        
 
     }
 
