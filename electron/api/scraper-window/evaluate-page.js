@@ -91,24 +91,28 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
     
         const scrapingResultCallback = async(e, data) => {
 
-            scrapingResultRecieved = true;
+            
                 
             if(data.payload.windowId === ccScraperWindow.windowId)   {
+
+                scrapingResultRecieved = true;
     
                 if(!Array.isArray(data.payload.ccScrapingResult))   {
                     Object.assign(dataObject, data.payload.ccScrapingResult);
                 } else  {
                     dataObject = data.payload.ccScrapingResult;
                 }
+
+                scrapingDone = true;
+                removeEventListeners();
+                removeFinishLoadCallback();
+                if(closeOnEnd && ccScraperWindow)  {
+                    await ccScraperWindow.close();
+                }
                 
             }
     
-            scrapingDone = true;
-            removeEventListeners();
-            removeFinishLoadCallback();
-            if(closeOnEnd && ccScraperWindow)  {
-                await ccScraperWindow.close();
-            }
+            
     
         };
     
