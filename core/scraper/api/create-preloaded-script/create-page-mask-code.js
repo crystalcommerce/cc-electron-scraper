@@ -1,3 +1,4 @@
+const svgLogo = require("./svg-logo");
 module.exports = function(serverUrl) {
     
     let codeOutput = "";
@@ -9,7 +10,8 @@ module.exports = function(serverUrl) {
     codeOutput += `\timage = document.createElement("img"),\n`;
     codeOutput += `\theaderTextContainer = document.createElement("h1"),\n`,
     codeOutput += `\tserverUrl = "${serverUrl}",\n`,
-    codeOutput += `\timageUrl = serverUrl + "/media/images/logo-512x512-transparent.png";\n`,
+    codeOutput += `\timageUrl = serverUrl + "/media/images/logo-512x512-transparent.png",\n`,
+    codeOutput += `\timageContainer = document.createElement("div");\n`,
     codeOutput += `\n`;
     
     codeOutput += `// containerMask styles\n`;
@@ -54,14 +56,19 @@ module.exports = function(serverUrl) {
     codeOutput += `modalContainerHeader.style.justifyContent = 'center';\n`;
     codeOutput += `modalContainerHeader.style.padding = '.5rem 1.5rem';\n`;
     
-    codeOutput += `modalContainerHeader.append(image);\n`;
+    // codeOutput += `modalContainerHeader.append(image);\n`;
+    codeOutput += `modalContainerHeader.append(imageContainer);\n`;
     codeOutput += `modalContainerHeader.append(headerTextContainer);\n`;
     codeOutput += `\n`;
 
     codeOutput += `// image styles\n`;
-    codeOutput += `image.style.height = '75px';\n`;
-    codeOutput += `image.style.width = '75px';\n`;
-    codeOutput += `image.src = imageUrl;\n`;
+    // codeOutput += `image.style.height = '75px';\n`;
+    // codeOutput += `image.style.width = '75px';\n`;
+    // codeOutput += `image.src = imageUrl;\n`;
+    codeOutput += `imageContainer.innerHTML = \`${svgLogo}\`;\n`;
+    codeOutput += `imageContainer.style.height = "75px";\n`;
+    codeOutput += `imageContainer.style.width = "75px";\n`;
+
     codeOutput += `\n`;
 
     codeOutput += `// headerTextContainer styles\n`;
@@ -73,7 +80,7 @@ module.exports = function(serverUrl) {
     codeOutput += `\n`;
 
     codeOutput += `// modalContainerBody styles\n`;
-    codeOutput += `modalContainerBody.innerHTML = '<p style="text-align: left; line-height: 1.4;">Page navigation through links or urls are disabled to prevent any error occuring while the script is scraping this page.</p>';\n`;
+    codeOutput += `modalContainerBody.innerHTML = '<p style="max-width : 400px; text-align: justify; line-height: 1.4;">Page navigation through links or urls are disabled to prevent any error occuring while the script is scraping this page.</p>';\n`;
     codeOutput += `modalContainerBody.style.display = 'flex';\n`;
     codeOutput += `modalContainerBody.style.flexDirection = 'column';\n`;
     codeOutput += `modalContainerBody.style.alignItems = 'center';\n`;
