@@ -61,7 +61,7 @@ class ProductSetScraper {
         this.noredirect = false;
         this.selectedBrowserSignature = "chrome";
 
-        this.maxRequestLimit = 5;
+        this.maxRequestLimit = 50;
 
         this.nextUrl = null;
         this.totalProductObjects = 0;
@@ -97,6 +97,8 @@ class ProductSetScraper {
 
             let createResults = [];
 
+            console.log("currently saving the data");
+
             await moderator(dataObjects, async (slicedArr) => {
 
                 let createMulitpleResult = await apiRequest(this.apiUrl, {
@@ -104,12 +106,12 @@ class ProductSetScraper {
                     body : JSON.stringify(slicedArr, null, 4),
                 }, true);
 
-                createResults.push(...createMulitpleResult.map(item => {
-                    return {
+                createMulitpleResult.forEach(item => {
+                    createResults.push({
                         message : item.message,
                         statusOk : item.statusOk
-                    }
-                }));
+                    });
+                });
 
                 await slowDown(2525);
 

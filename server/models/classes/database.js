@@ -39,6 +39,10 @@ module.exports = function(model) {
                     value : [],
                     enumerable : true,
                 },
+                maxMultipleCreateLimit : {
+                    value : 50,
+                    enumerable : true,
+                }
             });
             
         }
@@ -207,6 +211,12 @@ module.exports = function(model) {
         }
 
         async createFriendlyUrlFromListedProps(data)   {
+
+            if(!this.friendlyUrlProps.length)   {
+                return;
+            }
+
+
             let output = "";
             for(let prop of this.friendlyUrlProps)  {
                 output += data[prop].trim() + " ";
@@ -280,7 +290,7 @@ module.exports = function(model) {
             // let uniqueCheckResult = await this.checkUniqueProps(data);
 
             // if(!uniqueCheckResult.statusOk) {
-                
+            //     throw Error
             // }
 
             // remove invalid data properties;
@@ -291,6 +301,7 @@ module.exports = function(model) {
             this.hashListedProps(data);
             this.setDefaultValuedProps(data);
             await this.createFriendlyUrlFromListedProps(data);
+            
             try{
                 let resultData = await this.model.create(data);
 
@@ -314,55 +325,84 @@ module.exports = function(model) {
                     }
                 }
 
-
-                
             }
         }
 
         async createMultiple(multipleData)  {
-
             try {
-                
-                let resultsArr = [];
-        
+
+                let createResults = [];
+
                 await moderator(multipleData, async (slicedArr) => {
 
-                    let batch = [],
-                        promises = slicedArr.map(data => {
-                            return async () => {
-                                this.removeInvalidProps(data);
+                    let promises = slicedArr.map(item => { 
+                        return async () => {
+                            let createResult = await this.create(item);
 
-
-                                // if unique test passed;
-                                this.hashListedProps(data);
-                                this.setDefaultValuedProps(data);
-                                await this.createFriendlyUrlFromListedProps(data);
-
-                                batch.push(data);
-                            }
-                        });
+                            createResults.push(createResult);
+                        }
+                    });
 
                     await Promise.all(promises.map(item => item()));
 
-                    let results = await this.model.insertMany(batch);
+                }, this.maxMultipleCreateLimit);
 
-                    resultsArr.push(results);
-                    
-                }, 5);
-
-                return {
-                    statusOk : true, 
-                    message : `We have successfully created multiple rows of data for ${this.recordName}.`,
-                    data : resultsArr,
-                };
+                return createResults;
 
             } catch(err)    {
                 return {
                     statusOk : false, 
                     message : `We have encountered some problems while saving rows of data to db.`,
+                    error : err.message,
                     data : multipleData
                 };
             }
+
+            // try {
+                
+            //     let resultsArr = [];
+        
+            //     await moderator(multipleData, async (slicedArr) => {
+
+            //         let batch = [],
+            //             promises = slicedArr.map(data => {
+            //                 return async () => {
+            //                     this.removeInvalidProps(data);
+
+
+            //                     // if unique test passed;
+            //                     this.hashListedProps(data);
+            //                     this.setDefaultValuedProps(data);
+            //                     await this.createFriendlyUrlFromListedProps(data);
+
+            //                     batch.push(data);
+            //                 }
+            //             });
+
+            //         await Promise.all(promises.map(item => item()));
+
+            //         let results = await this.model.insertMany(batch);
+
+            //         resultsArr.push(results);
+                    
+            //     }, 5);
+
+            //     return {
+            //         statusOk : true, 
+            //         message : `We have successfully created multiple rows of data for ${this.recordName}.`,
+            //         data : resultsArr,
+            //     };
+
+            // } catch(err)    {
+
+            //     if(err.code)
+
+            //     return {
+            //         statusOk : false, 
+            //         message : `We have encountered some problems while saving rows of data to db.`,
+            //         data : multipleData
+            //     };
+            // }
 
             
         }
