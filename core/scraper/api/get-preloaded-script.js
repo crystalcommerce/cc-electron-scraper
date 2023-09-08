@@ -11,8 +11,6 @@ module.exports = async function(userDataPath, fileName, scraperType, serverUrl, 
             evaluatorObject = require(path.join(scriptsPath, `${fileName}.js`)),
             { evaluator, evaluatorIndex } = getEvaluator(evaluatorObject, scraperType, evaluatorItemIndex);
 
-        // TODO: utilitiesPath must be changed... this may need to be changed when the app gets compiled...
-        // TODO: create a different way of writing modules, so it can be easily manageable... instead of writing strings... write them as modules in js. not to be required... but to be read and executed.
         let resultObject = await createPreloadedScript({
             utilitiesPath,
             evaluator,

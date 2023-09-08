@@ -105,7 +105,7 @@ class SingleProductScraper {
             selectedBrowserSignature : this.selectedBrowserSignature,
         });
 
-        console.log({ dataObject, productObject : this.productObject });
+        // console.log({ dataObject, productObject : this.productObject });
 
         Object.assign(this.productObject, dataObject);
 

@@ -148,10 +148,10 @@ class ProductSetScraper {
             selectedBrowserSignature : this.selectedBrowserSignature,
         });
 
-        console.log({
-            message : `we have recieved the data from windowId : ${this.windowId}; we now have to save it...`,
-            scrapedProductObjects : productObjects.length
-        })
+        // console.log({
+        //     message : `we have recieved the data from windowId : ${this.windowId}; we now have to save it...`,
+        //     scrapedProductObjects : productObjects.length
+        // })
 
         return {productObjects, newUrl};
     }
@@ -186,34 +186,28 @@ class ProductSetScraper {
 
             // console.log({productObjects, newUrl, totalProductObjects : this.totalProductObjects});
 
-            console.log({
-                message : "saving data to database...",
-                windowId : this.windowId,
-                totalProductObjects : this.totalProductObjects,
-                scrapedProductsFromWindow : productObjects.length,
-            });
+            // console.log({
+            //     message : "saving data to database...",
+            //     windowId : this.windowId,
+            //     totalProductObjects : this.totalProductObjects,
+            //     scrapedProductsFromWindow : productObjects.length,
+            // });
 
             let createResults = await this.saveData(productObjects);
 
-            console.log({
-                message : "saving products to db process has been done.",
-                windowId : this.windowId,
-                createResults : JSON.stringify(createResults, null, 4),
-                totalProductObjects : this.totalProductObjects,
-                scrapedProductsFromWindow : productObjects.length,
-            });
+            // console.log({
+            //     message : "saving products to db process has been done.",
+            //     windowId : this.windowId,
+            //     createResults : JSON.stringify(createResults, null, 4),
+            //     totalProductObjects : this.totalProductObjects,
+            //     scrapedProductsFromWindow : productObjects.length,
+            // });
 
             sendDataToMainProcess('product-set-scraping-process', createResults);
-
-            console.log({
-                message : `moving on to the next set of products or closing the window...`
-            })
 
             if(newUrl)  {
 
                 let updateResult = await this.updatePrevPointUrl(newUrl);
-
-                console.log(updateResult);
 
                 await this.scrapeDataByUrl(newUrl);
 

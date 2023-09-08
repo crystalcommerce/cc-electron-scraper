@@ -13,13 +13,13 @@ module.exports = async function(app, ipcMain)   {
 
         // await categorizedSetScraper(app, ipcMain);
 
-        await productSetScraper(app, ipcMain, 49);
+        // await productSetScraper(app, ipcMain, 71);
 
-        // await singleProductScraper(app, ipcMain, 9999);
+        // await singleProductScraper(app, ipcMain, 13320);
 
         // await iwdScanImage(app, ipcMain, 1);
 
-        // await printDataToCsv(app, ipcMain);
+        await printDataToCsv(app, ipcMain);
 
 
         app.quit();

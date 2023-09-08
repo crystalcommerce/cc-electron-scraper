@@ -152,7 +152,7 @@ module.exports = async function(app)    {
         }
     ];
     
-    // TODO : this is just a slice of the total;
+
     categorizedSets = categorizedSets.filter(item => item.setData.subcategory === "Bowler" || item.setData.subcategory === "Wallets"); 
 
     app.whenReady().then(async () => {

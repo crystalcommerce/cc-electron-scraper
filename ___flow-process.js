@@ -91,7 +91,7 @@
 
 
 
-    TODO:   Make sure to put all scraping methods in the single product-scrapers... and just use minimal scraped data from the product set scraper
+    Make sure to put all scraping methods in the single product-scrapers... and just use minimal scraped data from the product set scraper
 
 
     scenario 1:

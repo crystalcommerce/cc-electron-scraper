@@ -4,10 +4,11 @@ const modelsDb = require("./models/models-db");
 const routesDb = require("./models/routes-db");
 const scriptsDb = require("./models/scripts-db");
 const mongoose = require('mongoose');
-const port = process.env.PORT || 7000;
+
 const dotenv = require("dotenv");
-const usersDb = require("./models/users-db");
+// const usersDb = require("./models/users-db");
 const cloneUtilites = require("./controllers/api/clone-utilites");
+const deleteTempFiles = require("./controllers/api/delete-temp-files");
 dotenv.config();
 
 async function createFiles(payload) {
@@ -17,6 +18,7 @@ async function createFiles(payload) {
         scriptsDirPath = await createDirPath(path.join(targetDirPath, "modules", "scripts")),
         routesDirPath = await createDirPath(path.join(targetDirPath, "modules", "routes")),
         modelsDirPath = await createDirPath(path.join(targetDirPath, "modules", "models")),
+        tempFilesDirPath = await createDirPath(path.join(targetDirPath, "modules", "temp")),
         allModels = await modelsDb.getAll(),
         allRoutes = await routesDb.getAll(),
         allScripts = await scriptsDb.getAll();
@@ -47,7 +49,9 @@ async function createFiles(payload) {
 
     // create the utilities here...
     await cloneUtilites(targetDirPath);
-    
+
+    // delete all temporary files here...
+    await deleteTempFiles(tempFilesDirPath);
 
     return {
         modelsResults,

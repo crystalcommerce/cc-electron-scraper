@@ -5,18 +5,21 @@ const session = require("electron").session;
 async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropName, closeOnEnd, noredirect, selectedBrowserSignature })   {
     try {
 
-        let scrapingDone = false,
-            selectedUri = null,
+        // let scrapingDone = false,
+        let selectedUri = null,
             responseStatusCodeError = false,
-            failedLoadCount = 0,
+            // failedLoadCount = 0,
             maxFailedLoadCount = 3,
             maxWaitTime = 210000, 
-            hasReloaded = false,
+            // hasReloaded = false,
             waitForSelectorFailedEventHandled = false,
-            scrapingResultRecieved = false,
+            // scrapingResultRecieved = false,
             failedLoadCallbackTimeout = null;
 
-            
+        ccScraperWindow.failedLoadCount = 0;
+        ccScraperWindow.scrapingResultRecieved = false;
+        ccScraperWindow.hasReloaded = false;
+        ccScraperWindow.scrapingDone = false;
 
         if(resourceUri) {
             selectedUri = resourceUri;
@@ -95,9 +98,9 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 
             if(data.payload.windowId === ccScraperWindow.windowId && data.payload.ccScrapingResult)   {
 
-                scrapingResultRecieved = true;
+                ccScraperWindow.scrapingResultRecieved = true;
 
-                failedLoadCount = 0;
+                ccScraperWindow.failedLoadCount = 0;
     
                 if(!Array.isArray(data.payload.ccScrapingResult))   {
                     Object.assign(dataObject, data.payload.ccScrapingResult);
@@ -105,7 +108,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                     dataObject = data.payload.ccScrapingResult;
                 }
 
-                scrapingDone = true;
+                ccScraperWindow.scrapingDone = true;
                 removeEventListeners();
                 removeFinishLoadCallback();
                 if(closeOnEnd && ccScraperWindow)  {
@@ -126,7 +129,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
     
             if(currentWait > 3) {
     
-                scrapingDone = true;
+                ccScraperWindow.scrapingDone = true;
                 removeEventListeners();
                 removeFinishLoadCallback();
     
@@ -144,13 +147,13 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
                 if(ccScraperWindow && ccScraperWindow.windowObject) {
 
-                    hasReloaded = true;
+                    ccScraperWindow.hasReloaded = true;
 
                     ccScraperWindow.load(data.payload.url);
 
                 } else  {
 
-                    scrapingDone = true;
+                    ccScraperWindow.scrapingDone = true;
                     removeEventListeners();
                     removeFinishLoadCallback();
         
@@ -177,7 +180,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
             });
 
 
-            if(scrapingResultRecieved)  {
+            if(ccScraperWindow.scrapingResultRecieved)  {
                 console.log({
                     message : "scrapingResult has been recieved... so no need to reload... we'll just wait.",
                     windowId : ccScraperWindow.windowId,
@@ -199,19 +202,19 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
             callback = callback ? callback : async () => {};
 
-            if(ccScraperWindow && ccScraperWindow.windowObject && failedLoadCount < maxFailedLoadCount)    {
+            if(ccScraperWindow && ccScraperWindow.windowObject && ccScraperWindow.failedLoadCount < maxFailedLoadCount)    {
                 // reload the page;
 
-                hasReloaded = true;
+                ccScraperWindow.hasReloaded = true;
 
                 let {queryObject, urlWithoutQueryString} = queryStringToObject(selectedUri),
                     newQueryString = null;
 
-                failedLoadCount = Number(queryObject.cc_failed_waits) || 0;
+                ccScraperWindow.failedLoadCount = Number(queryObject.cc_failed_waits) || 0;
 
-                failedLoadCount += 1;
+                ccScraperWindow.failedLoadCount += 1;
 
-                queryObject.cc_failed_waits = failedLoadCount;
+                queryObject.cc_failed_waits = ccScraperWindow.failedLoadCount;
                 newQueryString = objectToQueryString(queryObject);
 
                 selectedUri = urlWithoutQueryString + "?" + newQueryString;
@@ -221,7 +224,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 ccScraperWindow.load(selectedUri);
 
             } else  {
-                scrapingDone = true;
+                ccScraperWindow.scrapingDone = true;
                 removeEventListeners();
                 removeFinishLoadCallback();
 
@@ -273,7 +276,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
 
             removeEventListeners();
 
-            if(!hasReloaded)    {
+            if(!ccScraperWindow.hasReloaded)    {
 
                 setBrowserSessionSignature();
 
@@ -294,7 +297,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                     callbackName : failedLoadCallback.name,
                     windowId : ccScraperWindow.windowId,
                     message : "triggered by 'did-finish-load' event.",
-                    failedLoadCount
+                    failedLoadCount : ccScraperWindow.failedLoadCount
                 })
             });
         }
@@ -321,7 +324,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 type : "error",
                 callbackName : failedLoadCallback.name,
                 message : "triggered by 'unresponsive' event.",
-                failedLoadCount
+                failedLoadCount : ccScraperWindow.failedLoadCount
             })
         }));
 
@@ -331,7 +334,7 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 type : "error",
                 callbackName : failedLoadCallback.name,
                 message : "triggered by 'did-fail-load' event.",
-                failedLoadCount
+                failedLoadCount : ccScraperWindow.failedLoadCount
             })
         }));
 
@@ -341,18 +344,18 @@ async function evaluatePage({ ccScraperWindow, resourceUri, dataObject, uriPropN
                 type : "error",
                 callbackName : failedLoadCallback.name,
                 message : "triggered by 'crashed' event.",
-                failedLoadCount,
+                failedLoadCount : ccScraperWindow.failedLoadCount
             })
         }));
 
         ccScraperWindow.addEvent("did-finish-load", didFinishLoadCallback);
         
         await waitForCondition({
-            conditionCallback : () => scrapingDone,
+            conditionCallback : () => ccScraperWindow.scrapingDone,
             
             onTrueCallback : async () => {
                 removeEventListeners();
-                console.log({message : "scraping is done... and we're closing the browser", scrapingDone, dataObject});
+                console.log({message : "scraping is done... and we're closing the browser", scrapingDone : ccScraperWindow.scrapingDone, dataObject});
             },
         });
 

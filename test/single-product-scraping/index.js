@@ -5,7 +5,7 @@ const batchScrapingMethodSingleProduct = require('./batch-scraping-method-single
 
 
 module.exports = async function(app)   {
-    let categorizedSetId = generateUuid(), //TODO :  create custom categorized set for products that only had url;
+    let categorizedSetId = generateUuid(), 
         /* 
 
             categorizedSet will be search through the categorizedSets;
