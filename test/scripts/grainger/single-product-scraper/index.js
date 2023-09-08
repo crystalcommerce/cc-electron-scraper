@@ -63,7 +63,7 @@ module.exports = async function(app, ipcMain, pageIndex = 1)   {
                 scraperType : "single",
             },
         },
-        appAbsPath = app.getAppPath(),
+
         userDataPath = await createDirPath(app.getPath("appData"), "cc-electron-scraper"),
         serverUrl = "http://localhost:7000",
         apiUrl = `${serverUrl}/api/grainger-packaging-and-shipping-supplies`,
@@ -75,7 +75,7 @@ module.exports = async function(app, ipcMain, pageIndex = 1)   {
             pageTotal,
             data,
             payload, 
-            appAbsPath, 
+
             userDataPath,
             serverUrl,
         }
@@ -91,7 +91,7 @@ module.exports = async function(app, ipcMain, pageIndex = 1)   {
                 pageTotal,
                 data,
                 payload, 
-                appAbsPath, 
+
                 userDataPath,
                 serverUrl,
             } = await getPreReq();
@@ -108,7 +108,7 @@ module.exports = async function(app, ipcMain, pageIndex = 1)   {
                             let singleProductScraper = new SingleProductScraper({
                                 productObject : productObject, 
                                 userDataPath, 
-                                appAbsPath, 
+
                                 serverUrl, 
                                 payload,
                             });

@@ -11,7 +11,7 @@ const { apiRequest, sendDataToMainProcess } = require("../../../utilities");
 
 class SingleProductScraper {
 
-    constructor({productObject, userDataPath, appAbsPath, serverUrl, payload, appObject, saveDataOnFinish, closeOnEnd, evaluatorIndex, ccScraperWindow})   {
+    constructor({productObject, userDataPath, serverUrl, payload, appObject, saveDataOnFinish, closeOnEnd, evaluatorIndex, ccScraperWindow})   {
 
         if(!productObject)  {
             return null;
@@ -29,7 +29,6 @@ class SingleProductScraper {
         this.showWindow = true;
 
         this.userDataPath = userDataPath;
-        this.appAbsPath = appAbsPath;
         this.serverUrl = serverUrl; 
         this.apiUrl = null;
         this.payload = payload;
@@ -87,7 +86,7 @@ class SingleProductScraper {
     }
 
     async setScraperWindow()    {
-        let { ccScraperWindow, evaluator } = await createScraperWindow(this.payload, this.userDataPath, this.appAbsPath, this.serverUrl, this.appObject, this.evaluatorIndex);
+        let { ccScraperWindow, evaluator } = await createScraperWindow(this.payload, this.userDataPath, this.serverUrl, this.appObject, this.evaluatorIndex);
 
         // setting other properties of this instance;
         this.ccScraperWindow = ccScraperWindow;

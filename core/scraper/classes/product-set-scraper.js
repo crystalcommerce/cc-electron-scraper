@@ -29,7 +29,7 @@ const { apiRequest, moderator, sendDataToMainProcess, isObjectInArray, slowDown 
 
 class ProductSetScraper {
 
-    constructor({categorizedSet, userDataPath, appAbsPath, serverUrl, payload, appObject, saveDataOnFinish, closeOnEnd, updateOnPrevPointUrl})    {
+    constructor({categorizedSet, userDataPath, serverUrl, payload, appObject, saveDataOnFinish, closeOnEnd, updateOnPrevPointUrl})    {
 
         if(!categorizedSet) {
             return null;
@@ -53,7 +53,6 @@ class ProductSetScraper {
         this.showWindow = false;
 
         this.userDataPath = userDataPath;
-        this.appAbsPath = appAbsPath;
         this.serverUrl = serverUrl; 
         this.apiUrl = null;
         this.payload = payload;
@@ -129,7 +128,7 @@ class ProductSetScraper {
 
     // async setScraperWindow()
     async setScraperWindow()    {
-        let { ccScraperWindow, evaluator } = await createScraperWindow(this.payload, this.userDataPath, this.appAbsPath, this.serverUrl, this.appObject);
+        let { ccScraperWindow, evaluator } = await createScraperWindow(this.payload, this.userDataPath, this.serverUrl, this.appObject);
 
         this.ccScraperWindow = ccScraperWindow;
         this.evaluator = evaluator;

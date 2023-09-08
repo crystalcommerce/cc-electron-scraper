@@ -68,7 +68,7 @@ module.exports = async function(app, ipcMain)    {
                 scraperType : "set",
             },
         },
-        appAbsPath = app.getAppPath(),
+
         userDataPath = await createDirPath(app.getPath("appData"), "cc-electron-scraper"),
         serverUrl = "http://localhost:7000",
         categorizedSetApiUrl = `${serverUrl}/api/categorized-sets`,
@@ -80,7 +80,7 @@ module.exports = async function(app, ipcMain)    {
             pageTotal,
             data,
             payload, 
-            appAbsPath, 
+
             userDataPath,
             serverUrl,
         }
@@ -94,7 +94,7 @@ module.exports = async function(app, ipcMain)    {
                 pageTotal,
                 data,
                 payload, 
-                appAbsPath, 
+
                 userDataPath,
                 serverUrl,
             } = await getPreReq();
@@ -109,7 +109,7 @@ module.exports = async function(app, ipcMain)    {
                         let productSetScraper = new ProductSetScraper({
                             categorizedSet : categorizedSet, 
                             userDataPath, 
-                            appAbsPath, 
+
                             serverUrl, 
                             payload, 
                         });

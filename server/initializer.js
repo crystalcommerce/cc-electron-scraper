@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const port = process.env.PORT || 7000;
 const dotenv = require("dotenv");
 const usersDb = require("./models/users-db");
+const cloneUtilites = require("./controllers/api/clone-utilites");
 dotenv.config();
 
 async function createFiles(payload) {
@@ -44,6 +45,8 @@ async function createFiles(payload) {
         routesResults = await Promise.all(routesPromises.map(item => item())),
         scriptsResults = await Promise.all(scriptsPromises.map(item => item()));
 
+    // create the utilities here...
+    await cloneUtilites(targetDirPath);
     
 
     return {

@@ -16,7 +16,7 @@ async function getPreReq(app)  {
             scraperType : "set",
         },
     },
-    appAbsPath = app.getAppPath(),
+
     userDataPath = await createDirPath(app.getPath("appData"), "cc-electron-scraper"),
     serverUrl = "http://localhost:7000",
     categorizedSetApiUrl = `${serverUrl}/api/categorized-sets`,
@@ -28,7 +28,7 @@ async function getPreReq(app)  {
         pageTotal,
         data,
         payload, 
-        appAbsPath, 
+
         userDataPath,
         serverUrl,
     }
@@ -75,7 +75,7 @@ async function scrapeByPage(app, categorizedSetPage)  {
             pageTotal,
             data,
             payload, 
-            appAbsPath, 
+
             userDataPath,
             serverUrl,
             apiEndpoint, // optional
@@ -93,7 +93,7 @@ async function scrapeByPage(app, categorizedSetPage)  {
                     let productSetScraper = new ProductSetScraper({
                         categorizedSet : categorizedSet, 
                         userDataPath, 
-                        appAbsPath, 
+
                         serverUrl, 
                         payload, 
                         updateOnPrevPointUrl : true,
