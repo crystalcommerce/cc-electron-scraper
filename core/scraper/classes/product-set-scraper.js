@@ -69,7 +69,7 @@ class ProductSetScraper {
 
         this.scraperInfo = {
             windowId : this.windowId,
-            scraperType : "product-set-scraper",
+            scraperType : "products-set-scraper",
         }
 
     }

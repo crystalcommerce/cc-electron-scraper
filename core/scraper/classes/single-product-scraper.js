@@ -41,7 +41,7 @@ class SingleProductScraper {
 
         this.scraperInfo = {
             windowId : this.windowId,
-            scraperType : "single-product-scraping",
+            scraperType : this.payload.ccScraperData.scraperType,
             evaluatorIndex : this.evaluatorIndex
         }
 

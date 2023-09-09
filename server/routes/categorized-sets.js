@@ -18,43 +18,48 @@ module.exports = function()   {
 		deleteAllFiltered,
 	} = getDynamicController(categorizedSetsDb);
 
+	const baseApiRouteName = "/categorized-sets";
+
     // getAll Handler
-	router.get("/categorized-sets", getAll, httpResponseHandler());
+	router.get(`${baseApiRouteName}/`, getAll, httpResponseHandler());
 
 
 	// getOneByFilter hanlder
-	router.get("/categorized-sets/single?", getOneByFilter, httpResponseHandler());
+	router.get(`${baseApiRouteName}/single?`, getOneByFilter, httpResponseHandler());
 
 
 	// getAllFiltered hanlder
-	router.get("/categorized-sets/all?", getAllFiltered, httpResponseHandler());
+	router.get(`${baseApiRouteName}/all?`, getAllFiltered, httpResponseHandler());
 
 
 	// getPaginatedResults hanlder
-	router.get("/categorized-sets/paginated?", getPaginatedResults, httpResponseHandler());
+	router.get(`${baseApiRouteName}/paginated?`, getPaginatedResults, httpResponseHandler());
 
 
 	// getOneById handler
-	router.get("/categorized-sets/:id", getOneById, httpResponseHandler());
+	router.get(`${baseApiRouteName}/:id`, getOneById, httpResponseHandler());
 
 
 	// create
-	router.post("/categorized-sets/", create, httpResponseHandler());
+	router.post(`${baseApiRouteName}/`, create, httpResponseHandler());
+
+	// create
+	router.post(`${baseApiRouteName}/create-multiple`, createMultiple, httpResponseHandler());
 
 
 	// updateHandler
-	router.put("/categorized-sets/:id", update, httpResponseHandler());
+	router.put(`${baseApiRouteName}/:id`, update, httpResponseHandler());
 
 
 	// deleteAllFilteredHandler
-	router.delete("/categorized-sets/all?", deleteAllFiltered, httpResponseHandler());
+	router.delete(`${baseApiRouteName}/all?`, deleteAllFiltered, httpResponseHandler());
 
 
 	// deleteHandler
-	router.delete("/categorized-sets/:id", deleteById, httpResponseHandler());
+	router.delete(`${baseApiRouteName}/:id`, deleteById, httpResponseHandler());
 
 
-
-    return router;
+	return router;
+	
 }
 

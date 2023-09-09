@@ -18,43 +18,48 @@ module.exports = function()   {
 		deleteAllFiltered,
 	} = getDynamicController(routesDb);
 
-    // getAll Handler
-	router.get("/modules/routes", getAll, httpResponseHandler());
+    const baseApiRouteName = "/modules/routes";
+
+	// getAll Handler
+	router.get(`${baseApiRouteName}/`, getAll, httpResponseHandler());
 
 
 	// getOneByFilter hanlder
-	router.get("/modules/routes/single?", getOneByFilter, httpResponseHandler());
+	router.get(`${baseApiRouteName}/single?`, getOneByFilter, httpResponseHandler());
 
 
 	// getAllFiltered hanlder
-	router.get("/modules/routes/all?", getAllFiltered, httpResponseHandler());
+	router.get(`${baseApiRouteName}/all?`, getAllFiltered, httpResponseHandler());
 
 
 	// getPaginatedResults hanlder
-	router.get("/modules/routes/paginated?", getPaginatedResults, httpResponseHandler());
+	router.get(`${baseApiRouteName}/paginated?`, getPaginatedResults, httpResponseHandler());
 
 
 	// getOneById handler
-	router.get("/modules/routes/:id", getOneById, httpResponseHandler());
+	router.get(`${baseApiRouteName}/:id`, getOneById, httpResponseHandler());
 
 
 	// create
-	router.post("/modules/routes/", create, httpResponseHandler());
+	router.post(`${baseApiRouteName}/`, create, httpResponseHandler());
+
+	// create
+	router.post(`${baseApiRouteName}/create-multiple`, createMultiple, httpResponseHandler());
 
 
 	// updateHandler
-	router.put("/modules/routes/:id", update, httpResponseHandler());
+	router.put(`${baseApiRouteName}/:id`, update, httpResponseHandler());
 
 
 	// deleteAllFilteredHandler
-	router.delete("/modules/routes/all?", deleteAllFiltered, httpResponseHandler());
+	router.delete(`${baseApiRouteName}/all?`, deleteAllFiltered, httpResponseHandler());
 
 
 	// deleteHandler
-	router.delete("/modules/routes/:id", deleteById, httpResponseHandler());
+	router.delete(`${baseApiRouteName}/:id`, deleteById, httpResponseHandler());
 
 
-
-    return router;
+	return router;
+	
 }
 

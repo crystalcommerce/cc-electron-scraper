@@ -18,43 +18,47 @@ module.exports = function()   {
 		deleteAllFiltered,
 	} = getDynamicController(scannedImagesDb);
 
+	const baseApiRouteName = "/scanned-images";
+
     // getAll Handler
-	router.get("/scanned-images", getAll, httpResponseHandler());
+	router.get(`${baseApiRouteName}/`, getAll, httpResponseHandler());
 
 
 	// getOneByFilter hanlder
-	router.get("/scanned-images/single?", getOneByFilter, httpResponseHandler());
+	router.get(`${baseApiRouteName}/single?`, getOneByFilter, httpResponseHandler());
 
 
 	// getAllFiltered hanlder
-	router.get("/scanned-images/all?", getAllFiltered, httpResponseHandler());
+	router.get(`${baseApiRouteName}/all?`, getAllFiltered, httpResponseHandler());
 
 
 	// getPaginatedResults hanlder
-	router.get("/scanned-images/paginated?", getPaginatedResults, httpResponseHandler());
+	router.get(`${baseApiRouteName}/paginated?`, getPaginatedResults, httpResponseHandler());
 
 
 	// getOneById handler
-	router.get("/scanned-images/:id", getOneById, httpResponseHandler());
+	router.get(`${baseApiRouteName}/:id`, getOneById, httpResponseHandler());
 
 
 	// create
-	router.post("/scanned-images/", create, httpResponseHandler());
+	router.post(`${baseApiRouteName}/`, create, httpResponseHandler());
+
+	// create
+	router.post(`${baseApiRouteName}/create-multiple`, createMultiple, httpResponseHandler());
 
 
 	// updateHandler
-	router.put("/scanned-images/:id", update, httpResponseHandler());
+	router.put(`${baseApiRouteName}/:id`, update, httpResponseHandler());
 
 
 	// deleteAllFilteredHandler
-	router.delete("/scanned-images/all?", deleteAllFiltered, httpResponseHandler());
+	router.delete(`${baseApiRouteName}/all?`, deleteAllFiltered, httpResponseHandler());
 
 
 	// deleteHandler
-	router.delete("/scanned-images/:id", deleteById, httpResponseHandler());
+	router.delete(`${baseApiRouteName}/:id`, deleteById, httpResponseHandler());
 
 
-
-    return router;
+	return router;
 }
 
