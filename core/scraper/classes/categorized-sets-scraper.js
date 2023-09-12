@@ -12,7 +12,7 @@ const createScraperWindow = require("../../../electron/api/scraper-window/create
 const evaluatePage = require("../../../electron/api/scraper-window/evaluate-page");
 const { apiRequest, moderator, sendDataToMainProcess, isObjectInArray, slowDown } = require("../../../utilities");
 
-class CategorizedSet {
+class CategorizedSetScraper {
 
     constructor({userDataPath, serverUrl, payload, appObject, saveDataOnFinish, closeOnEnd})    {
 
@@ -20,7 +20,9 @@ class CategorizedSet {
             return null;
         }
 
-        this.windowId = null;
+        this.AppWindowId = null;
+        this.componentId = null;
+        this.windowId = ccScraperWindow ? ccScraperWindow.windowId : null;
         this.saveDataOnFinish = typeof saveDataOnFinish === "boolean" ? saveDataOnFinish : false;
         this.closeOnEnd = typeof closeOnEnd === "boolean" ? closeOnEnd : true;
 
@@ -31,39 +33,36 @@ class CategorizedSet {
 
         this.userDataPath = userDataPath;
         this.serverUrl = serverUrl; 
-
         this.apiUrl = null;
         this.payload = payload;
+        this.scriptData = this.payload.ccScriptData;
+        this.scraperData = this.payload.ccScraperData;
+
+        this.siteUrl = payload.ccScriptData.siteUrl;
+        this.siteName = payload.ccScriptData.siteName;
+        this.startingPointUrl = this.scriptData.startingPointUrl ? this.scriptData.startingPointUrl : this.siteName;
+
         this.appObject = appObject && appObject.ready ? appObject : {ready : true};
         this.noredirect = false;
         this.selectedBrowserSignature = "chrome";
 
         this.maxRequestLimit = 50;
 
-        this.siteUrl = payload.ccScriptData.siteUrl,
-        this.siteName = payload.ccScriptData.siteName,
+        this.categorizedSets = [];
 
         this.setApiUrl();
 
-        this.scraperInfo = {
+    }
+
+    getScraperInfo()    {
+        return {
+            AppWindowId : this.AppWindowId,
+            componentId : this.componentId,
             windowId : this.windowId,
             scraperType : this.payload.ccScraperData.scraperType,
+            siteName : this.siteName,
+            siteUrl : this.siteUrl,
         }
-
-        
-
-        // const { siteName, productBrand } = scraperOptions;
-
-        // const {AppWindowId, browserWindowId, componentId} = browserWindowOptions;
-
-        // this.siteName = siteName;
-        
-        // this.productBrand = productBrand;
-
-        // this.siteUrl = siteUrl;
-
-        // this.scraperOptions = scraperOptions;
-
     }
 
     setApiUrl() {
@@ -76,9 +75,93 @@ class CategorizedSet {
         clearUserData();
     }
 
-    // create the scraper window
-    // load the correct script;
-    // get the data;
-    // then send data back to the main renderer;
+    async saveData()    {
+
+        try {
+
+            let createResults = [];
+
+            await moderator(this.categorizedSets, async (slicedArr) => {
+
+                let createMulitpleResult = await apiRequest(this.apiUrl, {
+                    method : "POST",
+                    body : JSON.stringify(slicedArr, null, 4),
+                }, true);
+
+                createMulitpleResult.forEach(item => {
+                    createResults.push({
+                        message : item.message,
+                        statusOk : item.statusOk
+                    });
+                });
+
+                await slowDown(2525);
+
+            }, this.maxRequestLimit);
+            
+            return createResults;
+
+        } catch(err)    {
+            console.log({
+                message : `Error in saving categorized-sets to db : ${err.message}`,
+                type : "DB Create Document Error",
+                statusOk : false,
+            });
+        }
+    }
+    
+    async setScraperWindow()    {
+        let { ccScraperWindow, evaluator } = await createScraperWindow(this.payload, this.userDataPath, this.serverUrl, this.appObject);
+
+        this.ccScraperWindow = ccScraperWindow;
+        this.evaluator = evaluator;
+        this.windowId = ccScraperWindow.windowId;
+    }
+
+    async scrapeData(recursive = false)  {
+
+        if(recursive)   {
+
+            await this.scrapeDataRecursively();
+
+            await this.saveData();
+
+        } else  {
+
+            this.categorizedSets = await evaluatePage({
+                ccScraperWindow : this.ccScraperWindow,
+                dataObject : this.categorizedSet,
+                resourceUri : url,
+                uniquePropName : this.uniquePropName,
+                closeOnEnd : false,
+                saveDataOnFinish : false,
+                noredirect : this.noredirect,
+                selectedBrowserSignature : this.selectedBrowserSignature,
+            });
+
+            await this.saveData();
+        }
+        
+    }
+
+    async scrapeDataRecursively()   {
+        /* 
+        
+            get the initial categorized sets;
+
+            filter the ones that have startingPointUrls
+
+            filter the ones with isStartingPoint property
+
+            loop through them;
+        
+        */
+    }
+
+    async initialize()  {
+
+    }
 
 }
+
+module.exports = CategorizedSetScraper;

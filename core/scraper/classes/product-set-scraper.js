@@ -35,17 +35,11 @@ class ProductSetScraper {
             return null;
         }
 
-        this.windowId = null;
+        this.AppWindowId = null;
+        this.componentId = null;
+        this.windowId = ccScraperWindow ? ccScraperWindow.windowId : null;
         this.saveDataOnFinish = typeof saveDataOnFinish === "boolean" ? saveDataOnFinish : false;
         this.closeOnEnd = typeof closeOnEnd === "boolean" ? closeOnEnd : true;
-
-        this.categorizedSet = categorizedSet;
-        this.categorizedSetId = this.categorizedSet['_id'];
-        this.categoryObject = this.categorizedSet.categoryObject;
-        this.startingPointUrl = this.categorizedSet.startingPointUrl;
-        
-        this.updateOnPrevPointUrl = updateOnPrevPointUrl ? updateOnPrevPointUrl : false;
-        this.prevPointUrl = this.updateOnPrevPointUrl && this.categorizedSet.prevPointUrl ? this.categorizedSet.prevPointUrl : null;
 
         this.ccScraperWindow = null;
         this.evaluator = null;
@@ -56,6 +50,19 @@ class ProductSetScraper {
         this.serverUrl = serverUrl; 
         this.apiUrl = null;
         this.payload = payload;
+        this.scriptData = this.payload.ccScriptData;
+        this.scraperData = this.payload.ccScraperData;
+        this.scriptData = this.ccScriptData.siteName;
+        this.scraperData = this.ccScriptData.siteUrl;
+
+        this.categorizedSet = categorizedSet;
+        this.categorizedSetId = this.categorizedSet['_id'];
+        this.categoryObject = this.categorizedSet.categoryObject;
+        this.startingPointUrl = this.categorizedSet.startingPointUrl;
+        
+        this.updateOnPrevPointUrl = updateOnPrevPointUrl ? updateOnPrevPointUrl : false;
+        this.prevPointUrl = this.updateOnPrevPointUrl && this.categorizedSet.prevPointUrl ? this.categorizedSet.prevPointUrl : null;
+
         this.appObject = appObject && appObject.ready ? appObject : {ready : true};
         this.noredirect = false;
         this.selectedBrowserSignature = "chrome";
@@ -67,11 +74,15 @@ class ProductSetScraper {
 
         this.setApiUrl(payload);
 
-        this.scraperInfo = {
-            windowId : this.windowId,
-            scraperType : "products-set-scraper",
-        }
+    }
 
+    getScraperInfo()    {
+        return {
+            AppWindowId : this.AppWindowId,
+            componentId : this.componentId,
+            windowId : this.windowId,
+            scraperType : this.payload.ccScraperData.scraperType,
+        }
     }
 
     setApiUrl(payload) {
@@ -96,8 +107,6 @@ class ProductSetScraper {
 
             let createResults = [];
 
-            console.log("currently saving the data");
-
             await moderator(dataObjects, async (slicedArr) => {
 
                 let createMulitpleResult = await apiRequest(this.apiUrl, {
@@ -120,8 +129,9 @@ class ProductSetScraper {
 
         } catch(err)    {
             console.log({
-                message : err.message,
-                type : "Error in saving data to db",
+                message : `Error in saving products to db : ${err.message}`,
+                type : "DB Create Document Error",
+                statusOk : false,
             });
         }
     }

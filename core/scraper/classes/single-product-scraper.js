@@ -17,6 +17,8 @@ class SingleProductScraper {
             return null;
         }
 
+        this.AppWindowId = null;
+        this.componentId = null;
         this.windowId = ccScraperWindow ? ccScraperWindow.windowId : null;
         this.saveDataOnFinish = typeof saveDataOnFinish === "boolean" ? saveDataOnFinish : true;
         this.closeOnEnd = typeof closeOnEnd === "boolean" ? closeOnEnd : true;
@@ -39,12 +41,16 @@ class SingleProductScraper {
         
         this.setApiUrl(payload);
 
-        this.scraperInfo = {
+    }
+
+    getScraperInfo()    {
+        return {
+            AppWindowId : this.AppWindowId,
+            componentId : this.componentId,
             windowId : this.windowId,
             scraperType : this.payload.ccScraperData.scraperType,
             evaluatorIndex : this.evaluatorIndex
         }
-
     }
 
     setApiUrl(payload) {
@@ -80,7 +86,11 @@ class SingleProductScraper {
             }
 
         } catch(err)    {
-            console.log(err);
+            console.log({
+                message : `Error in updating product to db : ${err.message}; \nproductObject : ${this.productObject}`,
+                type : "DB Update Document Error",
+                statusOk : false,
+            });
         }
 
     }
