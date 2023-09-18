@@ -2,37 +2,113 @@ module.exports = {
     categorizedSets : {
         callback : async (utilityProps, dataProps) => {
 
-            let {scrollToBottom, slowDown, scrollToTop} = utilityProps;
+            let { scrollToBottom, slowDown, queryStringToObject, objectToQueryString } = utilityProps;
 
-            await scrollToBottom(340);
+            await scrollToBottom(700);
 
-            await scrollToTop();
+            // await scrollToTop();
 
             await slowDown(2525);
 
-            let categorizedSets = Array.from(document.querySelectorAll(".bc-sf-filter-option-block-bag-type .bc-sf-filter-option-multiple-list li > a")).map(item => {
-                let url = item.href.trim(),
-                    productsTotal = item.querySelector(".bc-sf-filter-option-amount") ? Number(item.querySelector(".bc-sf-filter-option-amount").innerText.trim().replace(/[^\w\s]/gi, "")) : null,
-                    setData = {
-                        category : "Bags",
-                        subcategory : item.querySelector(".bc-sf-filter-option-value") ? item.querySelector(".bc-sf-filter-option-value").innerText.trim() : null,
+            let { categoryObject } = dataProps
+
+            function getStartingPointUrl(categoryObject)  {
+
+                let categoryLinks = Array.from(document.querySelectorAll(".-jeeqs > li > a")),
+					branchViewList = Array.from(document.querySelectorAll("ul[data-testid^='branch-view-list']  li  a[data-test-id^='branch-item']")),
+					newCategorizedSets = [];
+
+                if(!categoryLinks.length && !branchViewList.length)    {
+
+                    return {
+                        newCategorizedSets : []
                     };
+                    
+                } else  {
+                    // replace the categoryObject item from the categorizedSetsArr;
 
-                return {
-                    url,
-                    productsTotal,
-                    setData,
+					if(categoryLinks.length)	{
+						newCategorizedSets = categoryLinks.map(item => {
+
+							// categoryObject.additionalCategoryTags.push(item.title);
+	
+							let obj =  {
+								...categoryObject,
+								startingPointUrl : item.href,
+								// additionalCategoryTag,
+							};
+	
+							if(obj.setData && !Array.isArray(obj.setData.additionalCategoryTags))  {
+								obj.setData.additionalCategoryTags = [];
+							}
+	
+							if(categoryObject.setData && Array.isArray(categoryObject.setData.additionalCategoryTags))  {
+								// obj.additionalCategoryTags.push(...categoryObject.additionalCategoryTags);
+								for(let categoryTag of categoryObject.setData.additionalCategoryTags)  {
+									if(!obj.setData.additionalCategoryTags.includes(categoryTag))  {
+										obj.setData.additionalCategoryTags.push(categoryTag);
+									}
+								}
+							}
+	
+							obj.setData.additionalCategoryTags.push(item.title);
+	
+							return obj;
+	
+						});
+					} else if(branchViewList.length)	{
+
+
+						newCategorizedSets = branchViewList.map(item => {
+
+							// categoryObject.additionalCategoryTags.push(item.title);
+	
+							let obj =  {
+								...categoryObject,
+								startingPointUrl : item.href,
+								// additionalCategoryTag,
+							};
+	
+							if(!Array.isArray(obj.additionalCategoryTags))  {
+								obj.additionalCategoryTags = [];
+							}
+	
+							if(Array.isArray(categoryObject.additionalCategoryTags))  {
+								// obj.additionalCategoryTags.push(...categoryObject.additionalCategoryTags);
+								for(let categoryTag of categoryObject.additionalCategoryTags)  {
+									if(!obj.additionalCategoryTags.includes(categoryTag))  {
+										obj.additionalCategoryTags.push(categoryTag);
+									}
+								}
+							}
+							
+							if(item && item.innerText !== "")	{
+								obj.additionalCategoryTags.push(item.innerText.trim());
+							}
+							
+							return obj;
+	
+						});
+
+					}
+
+
+                    // replaceCategoryObject(categoryObject, categorizedSetsArr, newCategorizedSets);
+
+                    return newCategorizedSets;
                 }
-            });
 
-            return categorizedSets;
+            }
 
+            return getStartingPointUrl(categoryObject);
+            
         },
         waitForSelectors : [
             ".bc-sf-filter-option-block-bag-type .bc-sf-filter-option-multiple-list", 
             ".product-view-details"
         ],
-        startingPointUrl : "https://shop.rebag.com/collections/all-bags?_=pf&pf_st_availability_hidden=true",
+        startingPointUrl : "https://www.grainger.com",
+        recursive : true,
     },
     set : {
         callback : async (utilityProps, dataProps) => {

@@ -146,19 +146,19 @@ window.addEventListener("load", (e) => {
 
                 let categoryLinks = Array.from(document.querySelectorAll(".-jeeqs > li > a")),
 					branchViewList = Array.from(document.querySelectorAll("ul[data-testid^='branch-view-list']  li  a[data-test-id^='branch-item']")),
-					newCategorizedSet = [];
+					newCategorizedSets = [];
 
                 if(!categoryLinks.length && !branchViewList.length)    {
 
                     return {
-                        newCategorizedSet : []
+                        newCategorizedSets : []
                     };
                     
                 } else  {
                     // replace the categoryObject item from the categorizedSetsArr;
 
 					if(categoryLinks.length)	{
-						newCategorizedSet = categoryLinks.map(item => {
+						newCategorizedSets = categoryLinks.map(item => {
 
 							// categoryObject.additionalCategoryTags.push(item.title);
 	
@@ -189,7 +189,7 @@ window.addEventListener("load", (e) => {
 					} else if(branchViewList.length)	{
 
 
-						newCategorizedSet = branchViewList.map(item => {
+						newCategorizedSets = branchViewList.map(item => {
 
 							// categoryObject.additionalCategoryTags.push(item.title);
 	
@@ -223,16 +223,16 @@ window.addEventListener("load", (e) => {
 					}
 
 
-                    // replaceCategoryObject(categoryObject, categorizedSetsArr, newCategorizedSet);
+                    // replaceCategoryObject(categoryObject, categorizedSetsArr, newCategorizedSets);
 
                     return {
-                        newCategorizedSet,
+                        newCategorizedSets,
                     };
                 }
 
             }
 
-            return getStartingPointUrl(categoryObject)
+            return getStartingPointUrl(categoryObject);
             
         };
 

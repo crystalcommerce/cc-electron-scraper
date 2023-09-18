@@ -15,7 +15,6 @@
 
 */
 
-const path = require("path");
 // const 
 const categorizedSetScraper = require("./categorized-set-scraper");
 const { createDirPath, createJsonFileObject, apiRequest, moderator } = require("../../../utilities");
@@ -25,93 +24,10 @@ const imageCheckerAndUriUpdater = require("./image-checker-and-uri-updater");
 const imageWatermarkChecker = require("./image-watermark-checker");
 const printDataToCsv = require("./print-data-to-csv");
 
-async function categorizedSetScraping(app, ipcMain)  {
-
-    app.whenReady().then(async () => {
-
-        let jsonDirPath = await createDirPath(__dirname, "json");
-
-        // await categorizedSetScraper(app, jsonDirPath);
-        await categorizedSetScraper(app, jsonDirPath);
-
-
-    });
-
-
-    app.on('window-all-closed', (e) => {
-
-        // console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, categorizedSet : categorizedSet})
-        // e.preventDefault();
-        // if (process.platform !== 'darwin') {
-        //     app.quit()
-        // }
-    });
-
-}
-
-async function saveCategorizedSetsToDb()    {
-
-    let jsonDirPath = await createDirPath(__dirname, "json")
-        categorizedSetJson = createJsonFileObject(jsonDirPath, "categorized-set.json"),
-        categorizedSet = await categorizedSetJson.getSavedData(),
-        apiUrl = "http://localhost:7000/api/categorized-sets";
-
-    await moderator(categorizedSet, async (slicedArr) => {
-
-        let promises = slicedArr.map(item => {
-            return async () => {
-
-                let createResult = apiRequest(apiUrl, {
-                    method : "POST",
-                    body : JSON.stringify(item, null, 4),
-                    headers : {
-                        "Content-Type" : "application/json",
-                    }
-                }, true);
-
-                return createResult;
-
-            }
-        });
-
-        let createResults = await Promise.all(promises.map(item => item()));
-
-        console.log(createResults);
-
-    }, 20);
-
-}
-
-async function productSetScraping(app, ipcMain)  {
-
-    // let jsonDirPath = await createDirPath(__dirname, "json", "products");
-
-    app.whenReady().then(async () => {
-
-        let jsonDirPath = await createDirPath(__dirname, "json");
-
-        // await categorizedSetScraper(app, jsonDirPath);
-        await productSetsScraper(app, ipcMain);
-
-
-    });
-
-
-    app.on('window-all-closed', (e) => {
-
-        // console.log({totalOpenedWindows : CcScraperWindow.windowObjects.length, categorizedSet : categorizedSet})
-        // e.preventDefault();
-        // if (process.platform !== 'darwin') {
-        //     app.quit()
-        // }
-    });
-}   
 
 module.exports = async function(app, ipcMain)    {
     
-    // await categorizedSetScraping(app);
-
-    // await saveCategorizedSetsToDb();
+    await categorizedSetScraper(app, ipcMain);
 
     // await productSetScraping(app, ipcMain);
 
@@ -121,7 +37,7 @@ module.exports = async function(app, ipcMain)    {
 
     // await imageWatermarkChecker(1);
 
-    printDataToCsv(app, ipcMain);
+    // printDataToCsv(app, ipcMain);
 
 
 }

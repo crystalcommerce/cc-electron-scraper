@@ -6,9 +6,9 @@ const sampleRequest = require("./test/scripts/sample-requests");
 
 (async function(){
 
-    await officeDepot(app, ipcMain);
+    // await officeDepot(app, ipcMain);
 
-    // await grainger(app, ipcMain);
+    await grainger(app, ipcMain);
 
     // await sampleRequest(app, ipcMain);
 

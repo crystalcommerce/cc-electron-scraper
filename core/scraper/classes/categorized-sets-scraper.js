@@ -12,7 +12,7 @@ const createScraperWindow = require("../../../electron/api/scraper-window/create
 const evaluatePage = require("../../../electron/api/scraper-window/evaluate-page");
 const { apiRequest, moderator, sendDataToMainProcess, isObjectInArray, slowDown } = require("../../../utilities");
 
-class CategorizedSetScraper {
+class CategorizedSetsScraper {
 
     constructor({userDataPath, serverUrl, payload, appObject, saveDataOnFinish, closeOnEnd})    {
 
@@ -22,7 +22,7 @@ class CategorizedSetScraper {
 
         this.AppWindowId = null;
         this.componentId = null;
-        this.windowId = ccScraperWindow ? ccScraperWindow.windowId : null;
+        this.windowId = null;
         this.saveDataOnFinish = typeof saveDataOnFinish === "boolean" ? saveDataOnFinish : false;
         this.closeOnEnd = typeof closeOnEnd === "boolean" ? closeOnEnd : true;
 
@@ -40,7 +40,7 @@ class CategorizedSetScraper {
 
         this.siteUrl = payload.ccScriptData.siteUrl;
         this.siteName = payload.ccScriptData.siteName;
-        this.startingPointUrl = this.scriptData.startingPointUrl ? this.scriptData.startingPointUrl : this.siteName;
+        this.startingPointUrl = this.siteUrl;
 
         this.appObject = appObject && appObject.ready ? appObject : {ready : true};
         this.noredirect = false;
@@ -116,23 +116,27 @@ class CategorizedSetScraper {
         this.ccScraperWindow = ccScraperWindow;
         this.evaluator = evaluator;
         this.windowId = ccScraperWindow.windowId;
+
+        this.startingPointUrl = this.evaluator.startingPointUrl ? this.evaluator.startingPointUrl : this.startingPointUrl;
     }
 
-    async scrapeData(recursive = false)  {
+    async scrapeData()  {
 
-        if(recursive)   {
+        if(this.evaluator.recursive)   {
 
             await this.scrapeDataRecursively();
 
-            await this.saveData();
+            console.log(this.categorizedSets);
+
+            // TODO: enable saving
+            // await this.saveData();
 
         } else  {
 
             this.categorizedSets = await evaluatePage({
                 ccScraperWindow : this.ccScraperWindow,
-                dataObject : this.categorizedSet,
-                resourceUri : url,
-                uniquePropName : this.uniquePropName,
+                dataObject : { siteUrl : this.siteUrl, siteName : this.siteName },
+                resourceUri : this.startingPointUrl,
                 closeOnEnd : false,
                 saveDataOnFinish : false,
                 noredirect : this.noredirect,
@@ -143,6 +147,71 @@ class CategorizedSetScraper {
         }
         
     }
+
+    replaceWithNewCategorizedSets(result) {
+        
+        let { prevCategorizedSet, newCategorizedSets } = result,
+            foundIndex = null,
+            foundCategorizedSet = this.categorizedSets.find((item, index) => {
+                let result = item.startingPointUrl === prevCategorizedSet.startingPointUrl;
+
+                if(result)  {
+                    foundIndex = index;
+                }
+
+                return result;
+            });
+
+        if(newCategorizedSets.length) {
+            if(foundIndex)  {
+                this.categorizedSets.splice(foundIndex, 1, ...newCategorizedSets);
+            }
+        } else  {
+
+            foundCategorizedSet.isStartingPoint = true;
+
+        }
+
+    }
+
+
+    async recursiveScraping(filteredCategorizedSets)    {
+
+        if(!filteredCategorizedSets.length)  {
+
+            await this.ccScraperWindow.close();
+
+            return;
+        }
+
+        await moderator(filteredCategorizedSets, async (slicedArr) => {
+
+            let { ccScraperWindow } = await createScraperWindow(this.payload, this.userDataPath, this.serverUrl, this.appObject),       
+                [categorizedSet] = slicedArr,
+                scrapingResult = await evaluatePage({
+                    ccScraperWindow, // should be changed...
+                    dataObject : categorizedSet,
+                    resourceUri : categorizedSet.startingPointUrl,
+                    closeOnEnd : true,
+                    saveDataOnFinish : false,
+                    noredirect : this.noredirect,
+                    selectedBrowserSignature : this.selectedBrowserSignature,
+                }),
+                newCategorizedSets = scrapingResult.categorizedSet ? scrapingResult.categorizedSet : [];
+
+            this.replaceWithNewCategorizedSets({
+                prevCategorizedSet : categorizedSet,
+                newCategorizedSets,
+            });
+
+        }, 5);
+
+        filteredCategorizedSets = this.categorizedSets.filter(item => !item.isStartingPoint);
+
+        await this.recursiveScraping(filteredCategorizedSets);
+        
+    }
+
 
     async scrapeDataRecursively()   {
         /* 
@@ -156,12 +225,41 @@ class CategorizedSetScraper {
             loop through them;
         
         */
+
+        if(this.categorizedSets.length) {
+
+            let filteredCategorizedSets = this.categorizedSets.filter(item => !item.isStartingPoint);
+
+            await this.recursiveScraping(filteredCategorizedSets);
+
+        } else  {
+            // initial categorizedSets scraping...
+            this.categorizedSets = await evaluatePage({
+                ccScraperWindow : this.ccScraperWindow,
+                dataObject : { siteUrl : this.siteUrl, siteName : this.siteName },
+                resourceUri : this.startingPointUrl,
+                closeOnEnd : true,
+                saveDataOnFinish : false,
+                noredirect : this.noredirect,
+                selectedBrowserSignature : this.selectedBrowserSignature,
+            });
+
+            await this.scrapeDataRecursively();
+
+        }
     }
 
     async initialize()  {
+
+        await this.setScraperWindow();
+
+        // TODO: hide window...
+        this.ccScraperWindow.showWindow(); // this is just temporary
+
+        await this.scrapeData();
 
     }
 
 }
 
-module.exports = CategorizedSetScraper;
+module.exports = CategorizedSetsScraper;
