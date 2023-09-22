@@ -10,9 +10,13 @@ module.exports = {
 
             await slowDown(2525);
 
-            let { categoryObject } = dataProps
+            
+
+            console.log(dataProps);
 
             function getStartingPointUrl(categoryObject)  {
+
+                let categoryObject = dataProps.categoryObject;
 
                 let categoryLinks = Array.from(document.querySelectorAll(".-jeeqs > li > a")),
 					branchViewList = Array.from(document.querySelectorAll("ul[data-testid^='branch-view-list']  li  a[data-test-id^='branch-item']")),
@@ -20,9 +24,7 @@ module.exports = {
 
                 if(!categoryLinks.length && !branchViewList.length)    {
 
-                    return {
-                        newCategorizedSets : []
-                    };
+                    return newCategorizedSets;
                     
                 } else  {
                     // replace the categoryObject item from the categorizedSetsArr;
@@ -104,10 +106,9 @@ module.exports = {
             
         },
         waitForSelectors : [
-            ".bc-sf-filter-option-block-bag-type .bc-sf-filter-option-multiple-list", 
-            ".product-view-details"
+            "#content-ui"
         ],
-        startingPointUrl : "https://www.grainger.com",
+        startingPointUrl : "https://www.grainger.com/category?analytics=nav",
         recursive : true,
     },
     set : {

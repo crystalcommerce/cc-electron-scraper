@@ -129,7 +129,7 @@ class CategorizedSetsScraper {
             console.log(this.categorizedSets);
 
             // TODO: enable saving
-            // await this.saveData();
+            await this.saveData();
 
         } else  {
 
@@ -192,7 +192,7 @@ class CategorizedSetsScraper {
                     ccScraperWindow, // should be changed...
                     dataObject : categorizedSet,
                     resourceUri : categorizedSet.startingPointUrl,
-                    closeOnEnd : true,
+                    closeOnEnd : false,
                     saveDataOnFinish : false,
                     noredirect : this.noredirect,
                     selectedBrowserSignature : this.selectedBrowserSignature,
@@ -238,7 +238,7 @@ class CategorizedSetsScraper {
                 ccScraperWindow : this.ccScraperWindow,
                 dataObject : { siteUrl : this.siteUrl, siteName : this.siteName },
                 resourceUri : this.startingPointUrl,
-                closeOnEnd : true,
+                closeOnEnd : false,
                 saveDataOnFinish : false,
                 noredirect : this.noredirect,
                 selectedBrowserSignature : this.selectedBrowserSignature,
