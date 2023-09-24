@@ -4,7 +4,7 @@ module.exports = {
 
             let { scrollToBottom, slowDown, queryStringToObject, objectToQueryString } = utilityProps;
 
-            await scrollToBottom(700);
+            await scrollToBottom(340);
 
             // await scrollToTop();
 
@@ -12,15 +12,14 @@ module.exports = {
 
             
 
-            console.log(dataProps);
+            function getStartingPointUrl()  {
 
-            function getStartingPointUrl(categoryObject)  {
-
-                let categoryObject = dataProps.categoryObject;
-
-                let categoryLinks = Array.from(document.querySelectorAll(".-jeeqs > li > a")),
+                let categoryObject = dataProps,
+                    categoryLinks = Array.from(document.querySelectorAll(".-jeeqs > li > a")),
 					branchViewList = Array.from(document.querySelectorAll("ul[data-testid^='branch-view-list']  li  a[data-test-id^='branch-item']")),
 					newCategorizedSets = [];
+
+                console.log(categoryObject);
 
                 if(!categoryLinks.length && !branchViewList.length)    {
 
@@ -30,65 +29,77 @@ module.exports = {
                     // replace the categoryObject item from the categorizedSetsArr;
 
 					if(categoryLinks.length)	{
+
 						newCategorizedSets = categoryLinks.map(item => {
 
-							// categoryObject.additionalCategoryTags.push(item.title);
-	
-							let obj =  {
-								...categoryObject,
-								startingPointUrl : item.href,
-								// additionalCategoryTag,
-							};
-	
-							if(obj.setData && !Array.isArray(obj.setData.additionalCategoryTags))  {
-								obj.setData.additionalCategoryTags = [];
-							}
-	
-							if(categoryObject.setData && Array.isArray(categoryObject.setData.additionalCategoryTags))  {
-								// obj.additionalCategoryTags.push(...categoryObject.additionalCategoryTags);
-								for(let categoryTag of categoryObject.setData.additionalCategoryTags)  {
-									if(!obj.setData.additionalCategoryTags.includes(categoryTag))  {
-										obj.setData.additionalCategoryTags.push(categoryTag);
-									}
-								}
-							}
-	
-							obj.setData.additionalCategoryTags.push(item.title);
-	
-							return obj;
+                            let obj = {
+                                startingPointUrl : item.href,
+                                ...categoryObject,
+                            }
+
+                            if(obj.setData)  {
+                                // means this is a second or more attempt
+                                if(!obj.setData.additionalCategoryTags && !Array.isArray(obj.setData.additionalCategoryTags))   {
+                                    obj.setData.additionalCategoryTags = [];
+                                }
+                                
+                                if(!obj.setData.additionalCategoryTags.includes(obj.setData.subcategory))   {
+                                    obj.setData.additionalCategoryTags.push(obj.setData.subcategory);
+                                }
+
+                                obj.setData.subcategory = item.title;
+                                obj.startingPointUrl = item.href;
+
+                            } else  {
+                                // means first attempt
+
+                                obj.setData = {
+                                    category : "Packaging & Shipping",
+                                    subcategory : item.title,
+                                }
+
+                            }
+
+                            return obj;
 	
 						});
+
 					} else if(branchViewList.length)	{
 
 
 						newCategorizedSets = branchViewList.map(item => {
-
-							// categoryObject.additionalCategoryTags.push(item.title);
 	
 							let obj =  {
 								...categoryObject,
 								startingPointUrl : item.href,
 								// additionalCategoryTag,
 							};
-	
-							if(!Array.isArray(obj.additionalCategoryTags))  {
-								obj.additionalCategoryTags = [];
-							}
-	
-							if(Array.isArray(categoryObject.additionalCategoryTags))  {
-								// obj.additionalCategoryTags.push(...categoryObject.additionalCategoryTags);
-								for(let categoryTag of categoryObject.additionalCategoryTags)  {
-									if(!obj.additionalCategoryTags.includes(categoryTag))  {
-										obj.additionalCategoryTags.push(categoryTag);
-									}
-								}
-							}
-							
-							if(item && item.innerText !== "")	{
-								obj.additionalCategoryTags.push(item.innerText.trim());
-							}
-							
-							return obj;
+                            
+
+                            if(obj.setData)  {
+                                // means this is a second or more attempt
+                                if(!obj.setData.additionalCategoryTags && !Array.isArray(obj.setData.additionalCategoryTags))   {
+                                    obj.setData.additionalCategoryTags = [];
+                                }
+                                
+                                if(!obj.setData.additionalCategoryTags.includes(subcategory))    {
+                                    obj.setData.additionalCategoryTags.push(obj.setData.subcategory);
+                                }
+                                
+                                obj.setData.subcategory = item.innerText.trim();
+                                obj.startingPointUrl = item.href;
+
+                            } else  {
+                                // means first attempt
+
+                                obj.setData = {
+                                    category : "Packaging & Shipping",
+                                    subcategory : item.innerText.trim(),
+                                }
+
+                            }
+
+                            return obj;
 	
 						});
 
@@ -97,18 +108,20 @@ module.exports = {
 
                     // replaceCategoryObject(categoryObject, categorizedSetsArr, newCategorizedSets);
 
+                    console.log(newCategorizedSets);
+
                     return newCategorizedSets;
                 }
 
             }
 
-            return getStartingPointUrl(categoryObject);
+            return getStartingPointUrl();
             
         },
         waitForSelectors : [
-            "#content-ui"
+            "#content-ui img"
         ],
-        startingPointUrl : "https://www.grainger.com/category?analytics=nav",
+        startingPointUrl : "https://www.grainger.com/category/packaging-shipping",
         recursive : true,
     },
     set : {

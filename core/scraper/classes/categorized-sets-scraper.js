@@ -10,7 +10,7 @@
 const clearUserData = require("../../../electron/api/scraper-window/clear-user-data");
 const createScraperWindow = require("../../../electron/api/scraper-window/create-scraper-window");
 const evaluatePage = require("../../../electron/api/scraper-window/evaluate-page");
-const { apiRequest, moderator, sendDataToMainProcess, isObjectInArray, slowDown } = require("../../../utilities");
+const { apiRequest, moderator, sendDataToMainProcess, isObjectInArray, slowDown, isObjectUnique, getTimeElapsed } = require("../../../utilities");
 
 class CategorizedSetsScraper {
 
@@ -51,6 +51,8 @@ class CategorizedSetsScraper {
         this.categorizedSets = [];
 
         this.setApiUrl();
+
+        this.timeStart = Date.now();
 
     }
 
@@ -126,7 +128,7 @@ class CategorizedSetsScraper {
 
             await this.scrapeDataRecursively();
 
-            console.log(this.categorizedSets);
+            console.log({categorizedSets : this.categorizedSets, finalCount : this.categorizedSets.length});
 
             // TODO: enable saving
             await this.saveData();
@@ -148,24 +150,28 @@ class CategorizedSetsScraper {
         
     }
 
+    addToCategorizedSets(newCategorizedSets)    {
+        for(let categorizedSet of newCategorizedSets)   {
+
+            if(isObjectUnique(categorizedSet, this.categorizedSets, ["startingPointUrl"]))  {
+                this.categorizedSets.push(categorizedSet);
+            }
+
+        }
+    }
+
     replaceWithNewCategorizedSets(result) {
         
         let { prevCategorizedSet, newCategorizedSets } = result,
-            foundIndex = null,
-            foundCategorizedSet = this.categorizedSets.find((item, index) => {
-                let result = item.startingPointUrl === prevCategorizedSet.startingPointUrl;
+            foundCategorizedSet = this.categorizedSets.find(item => item.startingPointUrl === prevCategorizedSet.startingPointUrl);
 
-                if(result)  {
-                    foundIndex = index;
-                }
+        if(Array.isArray(newCategorizedSets) && newCategorizedSets.length) {
 
-                return result;
-            });
+            this.categorizedSets = this.categorizedSets.filter(item => item.startingPointUrl !== prevCategorizedSet.startingPointUrl);
 
-        if(newCategorizedSets.length) {
-            if(foundIndex)  {
-                this.categorizedSets.splice(foundIndex, 1, ...newCategorizedSets);
-            }
+
+            this.addToCategorizedSets(newCategorizedSets);
+
         } else  {
 
             foundCategorizedSet.isStartingPoint = true;
@@ -186,25 +192,37 @@ class CategorizedSetsScraper {
 
         await moderator(filteredCategorizedSets, async (slicedArr) => {
 
-            let { ccScraperWindow } = await createScraperWindow(this.payload, this.userDataPath, this.serverUrl, this.appObject),       
-                [categorizedSet] = slicedArr,
-                scrapingResult = await evaluatePage({
-                    ccScraperWindow, // should be changed...
-                    dataObject : categorizedSet,
-                    resourceUri : categorizedSet.startingPointUrl,
-                    closeOnEnd : false,
-                    saveDataOnFinish : false,
-                    noredirect : this.noredirect,
-                    selectedBrowserSignature : this.selectedBrowserSignature,
-                }),
-                newCategorizedSets = scrapingResult.categorizedSet ? scrapingResult.categorizedSet : [];
+            let { ccScraperWindow } = await createScraperWindow(this.payload, this.userDataPath, this.serverUrl, this.appObject);
+            
+            ccScraperWindow.showWindow(); 
+            
+            let promises = slicedArr.map(categorizedSet => {
+                    return async () => {
+                        let newCategorizedSets = await evaluatePage({
+                                ccScraperWindow, // should be changed...
+                                dataObject : categorizedSet,
+                                resourceUri : categorizedSet.startingPointUrl,
+                                closeOnEnd : true,
+                                saveDataOnFinish : false,
+                                noredirect : this.noredirect,
+                                selectedBrowserSignature : this.selectedBrowserSignature,
+                            });
+        
+                        this.replaceWithNewCategorizedSets({
+                            prevCategorizedSet : categorizedSet,
+                            newCategorizedSets,
+                        });
 
-            this.replaceWithNewCategorizedSets({
-                prevCategorizedSet : categorizedSet,
-                newCategorizedSets,
-            });
+                        console.log({categorizedSets : this.categorizedSets, total : this.categorizedSets.length, elapsedTime : getTimeElapsed(this.timeStart, Date.now())});
 
-        }, 5);
+                    }
+                });
+
+            await Promise.all(promises.map(item => item()));
+
+        }, 1);
+
+        
 
         filteredCategorizedSets = this.categorizedSets.filter(item => !item.isStartingPoint);
 
@@ -238,11 +256,13 @@ class CategorizedSetsScraper {
                 ccScraperWindow : this.ccScraperWindow,
                 dataObject : { siteUrl : this.siteUrl, siteName : this.siteName },
                 resourceUri : this.startingPointUrl,
-                closeOnEnd : false,
+                closeOnEnd : true,
                 saveDataOnFinish : false,
                 noredirect : this.noredirect,
                 selectedBrowserSignature : this.selectedBrowserSignature,
             });
+
+            // console.log({categorizedSets : this.categorizedSets});
 
             await this.scrapeDataRecursively();
 
