@@ -23,11 +23,41 @@ const singleProductScraper = require("./single-product-scraper");
 const imageCheckerAndUriUpdater = require("./image-checker-and-uri-updater");
 const imageWatermarkChecker = require("./image-watermark-checker");
 const printDataToCsv = require("./print-data-to-csv");
+const CcScraperWindow = require("../../../electron/classes/cc-scraper-window");
 
 
 module.exports = async function(app, ipcMain)    {
     
-    await categorizedSetScraper(app, ipcMain);
+
+    let promises = [
+        categorizedSetScraper.bind(null, app, ipcMain),
+        async () => {
+            let shownBrowserWindows = 0;
+
+            await new Promise((resolve, reject) => {
+
+                let interval = setInterval(() => {
+                        shownBrowserWindows = CcScraperWindow.getShownBrowserWindows(null, null);
+                        if(shownBrowserWindows.length) {
+                            console.log(`\n\n\n\n<========================>`);
+                            console.log({shownBrowserWindows});
+                            console.log(`<========================>\n\n\n\n`);
+                            clearInterval(interval);
+                            resolve()
+
+                        }
+
+                    }, 10);
+
+            });
+
+            
+        }
+    ];
+
+    await Promise.all(promises.map(item => item()));
+
+    // await categorizedSetScraper(app, ipcMain);
 
     // await productSetScraping(app, ipcMain);
 

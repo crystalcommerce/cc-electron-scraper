@@ -7,7 +7,7 @@ const removeReload = require("../config/remove-reload");
 const appWindowEvents = require("./events/app-window-events");
 const frameWindowEvents = require("./events/frame-window-events");
 const browserWindowEvents = require("./events/browser-window-events");
-const scraperWindowEvents = require("./events/scraper-window-events")
+const scraperWindowEvents = require("./events/scraper-window-events");
 
 const viewsPath = path.join(process.cwd(), "views", "index.html");
 

@@ -11,7 +11,7 @@ module.exports = async function(app, ipcMain)   {
 
     app.whenReady().then(async () => {
 
-        // await categorizedSetScraper(app, ipcMain);
+        await categorizedSetScraper(app, ipcMain);
 
         // await productSetScraper(app, ipcMain, 71);
 
@@ -19,7 +19,7 @@ module.exports = async function(app, ipcMain)   {
 
         // await iwdScanImage(app, ipcMain, 1);
 
-        await printDataToCsv(app, ipcMain);
+        // await printDataToCsv(app, ipcMain);
 
 
         app.quit();

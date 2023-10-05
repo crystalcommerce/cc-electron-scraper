@@ -1,0 +1,26 @@
+{
+    ":authority": "toresays.com",
+    ":method": "POST",
+    ":path" : "/wp-json/csco/v1/more-posts",
+    ":scheme" : "https",
+    "Accept": "*/*",
+    "Accept-Encoding": "gzip, deflate, br",
+
+    "Accept-Language": "en-US,en;q=0.9",
+    "Content-Length": "2339",
+    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+
+    "Cookie": "_gid=GA1.2.993294779.1695861940; pvc_visits[0]=1695949481b16198; __gads=ID=d1b36ab13a13aa53-22548b2769e40061:T=1695861938:RT=1695869979:S=ALNI_MZD-EeCVdRZp6jYbauvMG-ExlMFHQ; __gpi=UID=00000c54b9e1d6b4:T=1695861938:RT=1695869979:S=ALNI_MYB9xsYA8iuBbRJw8vwl8bvHNl5tw; _ga=GA1.2.1425880757.1695861940; _ga_8Q5JEZNJKF=GS1.1.1695868020.2.1.1695870256.24.0.0",
+    "Origin": "https://toresays.com",
+    "Referer": "https://toresays.com/",
+    "Sec-Ch-Ua" : "'Google Chrome';v='117', 'Not;A=Brand';v='8', 'Chromium';v='117'",
+
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": "Windows",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-origin",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
+    "X-Requested-With": "XMLHttpRequest"
+
+}

@@ -174,6 +174,8 @@ class CategorizedSetsScraper {
 
         } else  {
 
+            // we save it immediately here instead of marking the data...
+
             foundCategorizedSet.isStartingPoint = true;
 
         }
@@ -232,17 +234,6 @@ class CategorizedSetsScraper {
 
 
     async scrapeDataRecursively()   {
-        /* 
-        
-            get the initial categorized sets;
-
-            filter the ones that have startingPointUrls
-
-            filter the ones with isStartingPoint property
-
-            loop through them;
-        
-        */
 
         if(this.categorizedSets.length) {
 
