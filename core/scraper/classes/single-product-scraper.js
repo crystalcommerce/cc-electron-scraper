@@ -125,7 +125,8 @@ class SingleProductScraper {
 
         await this.setScraperWindow();
 
-        this.ccScraperWindow.showWindow(); // this is just temporary
+        // TODO: hide window...
+        this.ccScraperWindow.showWindow();
 
         await this.scrapeData();
 

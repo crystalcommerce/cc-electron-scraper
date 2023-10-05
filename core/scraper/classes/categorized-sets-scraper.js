@@ -130,7 +130,6 @@ class CategorizedSetsScraper {
 
             console.log({categorizedSets : this.categorizedSets, finalCount : this.categorizedSets.length});
 
-            // TODO: enable saving
             await this.saveData();
 
         } else  {
@@ -196,6 +195,7 @@ class CategorizedSetsScraper {
 
             let { ccScraperWindow } = await createScraperWindow(this.payload, this.userDataPath, this.serverUrl, this.appObject);
             
+            // TODO: hide window...
             ccScraperWindow.showWindow(); 
             
             let promises = slicedArr.map(categorizedSet => {

@@ -242,6 +242,7 @@ class ProductSetScraper {
 
         await this.setScraperWindow();
 
+        // TODO: hide window...
         this.ccScraperWindow.showWindow();
 
         let startingPointUrl = this.prevPointUrl ? this.prevPointUrl : this.startingPointUrl;
