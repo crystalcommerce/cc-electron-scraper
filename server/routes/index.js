@@ -5,6 +5,7 @@ const router = Router();
 const modelModules = require("./model-modules");
 const routeModules = require("./route-modules");
 const scriptModules = require("./script-modules");
+const utilityModules = require("./utility-modules");
 
 // dynamic
 const dynamicRoutes = require("./dynamic-routes");
@@ -26,6 +27,7 @@ module.exports = function(routeModelObjects)   {
     router.use("/api", modelModules());
     router.use("/api", routeModules());
     router.use("/api", scriptModules());
+    router.use("/api", utilityModules());
 
     // categorized-sets
     router.use("/api", categorizedSetsRouteHandler())
