@@ -9,8 +9,12 @@ const utilityModules = require("./utility-modules");
 
 // dynamic
 const dynamicRoutes = require("./dynamic-routes");
+
 // categorized-sets
 const categorizedSetsRouteHandler = require("./categorized-sets");
+
+// configurations
+const configurationsRouteHandler = require("./config");
 
 // detect watermarks
 const detectWatermark = require("./detect-watermark");
@@ -30,7 +34,10 @@ module.exports = function(routeModelObjects)   {
     router.use("/api", utilityModules());
 
     // categorized-sets
-    router.use("/api", categorizedSetsRouteHandler())
+    router.use("/api", categorizedSetsRouteHandler());
+
+    // configurations
+    router.use("/api", configurationsRouteHandler());
 
     // dynamically written routeHandlers;
     router.use("/api", dynamicRoutes(routeModelObjects));

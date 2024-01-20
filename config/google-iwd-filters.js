@@ -1,3 +1,6 @@
+// TODO: place these configuration settings on a db... and write them in the user's data path.
+
+
 module.exports = [
     "copyright", 
     "©", 
